@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "TrinketManager",
 	meta = {
 		label = "Trinket Manager",
-		description = "TODO",
+		description = "Adds a frame to the bottom of the screen to manage your trinkets and idols.",
 	},
 	plug = nil,
 	superWoWRequired = false,

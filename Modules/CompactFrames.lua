@@ -1,7 +1,7 @@
 local module = VE.registerModule({
 	identifier = "CompactFrames",
 	meta = {
-		label = "Compact Raid and Party Frames (new)",
+		label = "Compact Raid and Party Frames",
 		description = "Compact Raid and Party frames, similar to the default raid frames seen in 2010 cataclysm and 2019 Classic and later.",
 	},
 	plug = nil,

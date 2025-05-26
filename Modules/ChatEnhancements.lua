@@ -1,5 +1,5 @@
 local module = VE.registerModule({
-	identifier = "Chat",
+	identifier = "ChatEnhancements",
 	meta = {
 		label = "Chat Enhancements",
 		description = "Enables the use of scroll and arrow keys for navigating and editing text in the chat input box.",

@@ -71,7 +71,7 @@ VE.panels.Controls = function(parent)
 	end
 
 	do
-		local module = VE.getModule("AuctionSeller")
+		local module = VE.getModule("BankBags")
 		if module then
 			VE.elements.Checkbox(frame, 270, -150, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
@@ -80,18 +80,9 @@ VE.panels.Controls = function(parent)
 	end
 
 	do
-		local module = VE.getModule("BankBags")
-		if module then
-			VE.elements.Checkbox(frame, 270, -180, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
-	do
 		local module = VE.getModule("TravelJournal")
 		if module then
-			VE.elements.Checkbox(frame, 270, -220, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -190, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -100,7 +91,7 @@ VE.panels.Controls = function(parent)
 	do
 		local module = VE.getModule("ExtendedCommands")
 		if module then
-			VE.elements.Checkbox(frame, 270, -250, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -220, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end

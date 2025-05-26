@@ -30,7 +30,7 @@ Modules\BlockAuctionHouse.lua
 Modules\BlockGrouping.lua
 Modules\BlockMailbox.lua
 Modules\CastingBarPosition.lua
-Modules\Chat.lua
+Modules\ChatEnhancements.lua
 Modules\CompareTooltip.lua
 Modules\CooldownTimers.lua
 Modules\DruidManaBar.lua
@@ -40,7 +40,7 @@ Modules\FreeBagSlots.lua
 Modules\HideLuaErrors.lua
 Modules\LastMessageOnly.lua
 Modules\LowHealth.lua
-Modules\Mailbox.lua
+Modules\MailboxEnhancements.lua
 Modules\ManaBarColor.lua
 Modules\MaxCameraZoom.lua
 Modules\MinimapClock.lua
@@ -52,12 +52,14 @@ Modules\RestedXPTooltip.lua
 Modules\TargetCastingBar.lua
 Modules\TravelJournal.lua
 Modules\MiniPlayerFrame.xml
-Modules\AuctionSeller.xml
+Modules\AuctionEnhancements.xml
 Modules\TrinketManager.lua
+Modules\CompactFrames.xml
 
 # Work in progress
-Modules\RaidFrames.lua
-Modules\CompactFrames.xml
+
+# Retired
+# Modules\RaidFrames.lua
 
 # Control panels
 Panels\Controls.lua

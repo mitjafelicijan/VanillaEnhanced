@@ -1,5 +1,5 @@
 local module = VE.registerModule({
-	identifier = "Mailbox",
+	identifier = "MailboxEnhancements",
 	meta = {
 		label = "Mailbox Enhancements",
 		description = "Makes mailboxes a bit more usable by adding Shift+Click to automatically recieve attachements in mail into your bags.",

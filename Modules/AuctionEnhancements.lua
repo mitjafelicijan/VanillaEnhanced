@@ -1,8 +1,8 @@
 local module = VE.registerModule({
-	identifier = "AuctionSeller",
+	identifier = "AuctionEnhancements",
 	meta = {
-		label = "Auction Seller",
-		description = "TODO",
+		label = "Auction Enhancements",
+		description = "Adds new post form to the auction house, and a new tab for viewing items in your bags. (WIP)",
 	},
 	plug = nil,
 	superWoWRequired = false,
@@ -99,32 +99,32 @@ local function AddAuctionHousePostButton()
 end
 
 local function AddAuctionHouseBagItemsFrame()
-	AuctionSellerBagItemsFrame:ClearAllPoints()
-	AuctionSellerBagItemsFrame:SetParent(AuctionFrame)
-	AuctionSellerBagItemsFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 20, -50)
-	-- VE.dframe(AuctionSellerBagItemsFrame, 0, 1, 0, 0.1)
+	AuctionEnhancementsBagItemsFrame:ClearAllPoints()
+	AuctionEnhancementsBagItemsFrame:SetParent(AuctionFrame)
+	AuctionEnhancementsBagItemsFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 20, -50)
+	-- VE.dframe(AuctionEnhancementsBagItemsFrame, 0, 1, 0, 0.1)
 end
 
 local function AddAuctionHouseListingsFrame()
-	AuctionSellerListingsFrame:ClearAllPoints()
-	AuctionSellerListingsFrame:SetParent(AuctionFrame)
-	AuctionSellerListingsFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 210, -160)
-	-- VE.dframe(AuctionSellerListingsFrame, 0, 1, 0, 0.1)
+	AuctionEnhancementsListingsFrame:ClearAllPoints()
+	AuctionEnhancementsListingsFrame:SetParent(AuctionFrame)
+	AuctionEnhancementsListingsFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 210, -160)
+	-- VE.dframe(AuctionEnhancementsListingsFrame, 0, 1, 0, 0.1)
 end
 
-function AuctionSeller_OnLoad()
+function AuctionEnhancements_OnLoad()
 	this:RegisterEvent("ADDON_LOADED")
 	this:RegisterEvent("AUCTION_HOUSE_SHOW")
 	this:RegisterEvent("AUCTION_HOUSE_CLOSED")	
 end
 
-function AuctionSeller_OnEvent()
+function AuctionEnhancements_OnEvent()
 	if not VE.isModuleEnabled(module.identifier) then
 		this:UnregisterAllEvents()
 		return
 	end
 	
-	VE.iprint(string.format("AuctionSeller_OnEvent(%s)", event))
+	VE.iprint(string.format("AuctionEnhancements_OnEvent(%s)", event))
 
 	if event == "ADDON_LOADED" then
 		if (string.lower(arg1) == "blizzard_auctionui") then
@@ -149,23 +149,30 @@ function AuctionSeller_OnEvent()
 					AuctionFrameBrowse:Hide();
 					AuctionFrameBid:Hide();
 
-					AuctionFrameTopLeft:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\AuctionSeller-TopLeft")
-					AuctionFrameTop:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\AuctionSeller-Top")
-					AuctionFrameTopRight:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\AuctionSeller-TopRight")
-					AuctionFrameBotLeft:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\AuctionSeller-BotLeft")
+					AuctionFrameTopLeft:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\AuctionEnhancements-TopLeft")
+					AuctionFrameTop:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\AuctionEnhancements-Top")
+					AuctionFrameTopRight:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\AuctionEnhancements-TopRight")
+					AuctionFrameBotLeft:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\AuctionEnhancements-BotLeft")
 					AuctionFrameBot:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Browse-Bot")
-					AuctionFrameBotRight:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\AuctionSeller-BotRight")
+					AuctionFrameBotRight:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\AuctionEnhancements-BotRight")
 
-					AuctionSellerBagItemsFrame:Show()
-					AuctionSellerListingsFrame:Show()
+					AuctionEnhancementsBagItemsFrame:Show()
+					AuctionEnhancementsListingsFrame:Show()
 					OpenAllBags(true)
+
+					-- VE.dframe(AuctionEnhancementsBagItemsFrameButton1, 1, 1, 0, 1)
 					
-					VE.dframe(AuctionSellerBagItemsFrameButton1, 1, 0, 0, 1)
+					VE.dframe(AuctionEnhancementsListingsFrameStatusBar, 0, 0, 0, 1)
+					AuctionEnhancementsListingsFrameStatusBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+					AuctionEnhancementsListingsFrameStatusBar:SetStatusBarColor(0.6, 0.6, 0.6)
+					AuctionEnhancementsListingsFrameStatusBar:SetMinMaxValues(1, 8)
+					AuctionEnhancementsListingsFrameStatusBar:SetValue(5)
+					AuctionEnhancementsListingsFrameScan:Disable()
 
 					GetItemsInBags()
 				else
-					AuctionSellerBagItemsFrame:Hide()
-					AuctionSellerListingsFrame:Hide()
+					AuctionEnhancementsBagItemsFrame:Hide()
+					AuctionEnhancementsListingsFrame:Hide()
 				end
 			end
 		end
@@ -179,6 +186,7 @@ function AuctionSeller_OnEvent()
 		SLASH_SELL1 = "/qwe"
 		SlashCmdList["SELL"] = function()
 			GetItemsInBags()
+
 			-- ParseItemTooltip(0, 3) -- meat
 			-- local isSoulbound, isQuestItem, isUnique = CheckIfItemIsSellable(4, 12) -- barow caller trinket
 			-- local isSoulbound, isQuestItem, isUnique = CheckIfItemIsSellable(0, 3) -- barow caller trinket

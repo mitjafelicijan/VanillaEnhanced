@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+	<Script file="AuctionEnhancements.lua" />
+
+	<Frame name="AuctionEnhancements">
+		<Scripts>
+			<OnLoad>
+				AuctionEnhancements_OnLoad()
+			</OnLoad>
+			<OnEvent>
+				AuctionEnhancements_OnEvent()
+			</OnEvent>
+		</Scripts>
+	</Frame>
+
+	<Frame name="AuctionEnhancementsBagItemButtonTemplate" virtual="true" hidden="false">
+		<Size>
+			<AbsDimension x="300" y="37"/>
+		</Size>
+	</Frame>
+
+	<Frame name="AuctionEnhancementsBagItemsFrame" frameStrata="HIGH" hidden="true">
+		<Size x="185" y="355"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentLabel" inherits="GameFontHighlightSmall" text="Bag Items">
+					<Anchors>
+						<Anchor point="TOP" relativePoint="TOPLEFT" relativeTo="$parent">
+							<Offset>
+								<AbsDimension x="100" y="-4"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="$parentButton1" inherits="AuctionEnhancementsBagItemButtonTemplate" id="1">
+				<Anchors>
+					<Anchor point="TOP" relativePoint="TOPLEFT" relativeTo="$parent">
+						<Offset>
+							<AbsDimension x="100" y="-30"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentButton2" inherits="AuctionEnhancementsBagItemButtonTemplate" id="2">
+				<Anchors>
+					<Anchor point="TOP" relativePoint="TOPLEFT" relativeTo="$parent">
+						<Offset>
+							<AbsDimension x="100" y="-60"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+		</Frames>
+	</Frame>
+
+	<Frame name="AuctionEnhancementsListingsFrame" frameStrata="HIGH" hidden="true">
+		<Size x="610" y="250"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parentTitle" inherits="GameFontNormal" text="Post new auction">
+					<Anchors>
+						<Anchor point="TOP" relativeTo="$parent">
+							<Offset>
+								<AbsDimension x="-136" y="142" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="ARTWORK">
+				<FontString name="$parentLabel" inherits="GameFontHighlightSmall" text="Listings">
+					<Anchors>
+						<Anchor point="TOP" relativePoint="TOPLEFT" relativeTo="$parent">
+							<Offset>
+								<AbsDimension x="40" y="-20"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<StatusBar name="$parentStatusBar" inherits="TextStatusBar" frameLevel="1" alpha="1.0">
+				<Size x="72" y="12"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" relativeTo="$parent">
+						<Offset x="-170" y="-18" />
+					</Anchor>
+				</Anchors>
+			</StatusBar>
+			<Button name="$parentScan" inherits="UIPanelButtonTemplate" frameLevel="2" text="Scan">
+				<Size x="84" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" relativeTo="$parent">
+						<Offset x="-75" y="-23"/>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentPost" inherits="UIPanelButtonTemplate" frameLevel="2" text="Post">
+				<Size x="80" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" relativeTo="$parent">
+						<Offset x="4" y="-23"/>
+					</Anchor>
+				</Anchors>
+			</Button>
+		</Frames>
+	</Frame>
+</Ui>
