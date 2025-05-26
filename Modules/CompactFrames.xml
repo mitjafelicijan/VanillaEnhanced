@@ -1,0 +1,342 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="CompactFrames.lua" />
+
+	<Button name="BuffAuraTemplate" virtual="true" hidden="true">
+		<Size>
+			<AbsDimension x="14" y="14"/>
+		</Size>
+		<Anchors>
+			<Anchor point="BOTTOMLEFT"></Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture name="$parentTexture" file="Interface\Icons\INV_Spear_04" setAllPoints="true"/>
+			</Layer>
+		</Layers>
+	</Button>
+
+	<Button name="DispellAuraTemplate" virtual="true" hidden="true">
+		<Size>
+			<AbsDimension x="14" y="14"/>
+		</Size>
+		<Anchors>
+			<Anchor point="BOTTOMRIGHT"></Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture name="$parentTexture" file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-DebuffCurse" setAllPoints="true"/>
+			</Layer>
+		</Layers>
+	</Button>
+
+	<Button name="GroupMemberFrameTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="90" y="42"/>
+		</Size>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentNameText" inherits="GameFontHighlightSmall">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent">
+							<Offset x="15" y="-3" />
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentDeadText" inherits="GameFontHighlightSmall" hidden="true">
+					<Anchors>
+						<Anchor point="CENTER" relativeTo="$parent">
+							<Offset x="0" y="-4" />
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<Texture name="$parentHighlight" file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-Highlight" setAllPoints="true" hidden="true" />
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture name="$parentLeaderIcon" file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-Leader" hidden="true">
+					<Size>
+						<AbsDimension x="12" y="12"/>
+					</Size>
+
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent">
+							<Offset x="3" y="-3"/>
+						</Anchor>
+					</Anchors>
+				</Texture>
+
+				<Texture name="$parentAssistantIcon" file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-Assistant" hidden="true">
+					<Size>
+						<AbsDimension x="12" y="12"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent">
+							<Offset x="3" y="-3"/>
+						</Anchor>
+					</Anchors>
+				</Texture>
+
+				<Texture name="$parentDisconnectIcon" file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-Disconnect" hidden="true">
+					<Size>
+						<AbsDimension x="32" y="32"/>
+					</Size>
+
+					<Anchors>
+						<Anchor point="CENTER" relativeTo="$parent">
+							<Offset x="0" y="-4"/>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame frameStrata="BACKGROUND">
+				<Size>
+					<AbsDimension x="90" y="42"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture setAllPoints="true" file="Interface\AddOns\VanillaEnhanced\Assets\Black8x8" />
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<StatusBar name="$parentHealthBarPrediction" frameLevel="1" hidden="false">
+				<Size>
+					<AbsDimension x="90" y="36"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent">
+						<Offset x="0" y="0"/>
+					</Anchor>
+				</Anchors>
+				<BarTexture file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-HealthFill" />
+			</StatusBar>
+
+			<StatusBar name="$parentHealthBar" frameLevel="2" hidden="false">
+				<Size>
+					<AbsDimension x="90" y="36"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent">
+						<Offset x="0" y="0"/>
+					</Anchor>
+				</Anchors>
+				<BarTexture file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-HealthFill" />
+			</StatusBar>
+
+			<StatusBar name="$parentPowerBar" frameLevel="2">
+				<Size>
+					<AbsDimension x="90" y="7"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent">
+						<Offset x="0" y="-36"/>
+					</Anchor>
+				</Anchors>
+				<BarTexture file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-PowerFill" />
+			</StatusBar>
+
+			<Frame name="$parentAura">
+				<Size>
+					<AbsDimension x="70" y="14"/>
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parent">
+						<Offset x="2" y="8"/>
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<Button name="$parent1" inherits="BuffAuraTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT"></Anchor>
+						</Anchors>
+					</Button>
+					<Button name="$parent2" inherits="BuffAuraTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeTo="$parent1" relativePoint="BOTTOMRIGHT" />
+						</Anchors>
+					</Button>
+					<Button name="$parent3" inherits="BuffAuraTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeTo="$parent2" relativePoint="BOTTOMRIGHT" />
+						</Anchors>
+					</Button>
+					<Button name="$parent4" inherits="BuffAuraTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeTo="$parent3" relativePoint="BOTTOMRIGHT" />
+						</Anchors>
+					</Button>
+					<Button name="$parent5" inherits="BuffAuraTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeTo="$parent4" relativePoint="BOTTOMRIGHT" />
+						</Anchors>
+					</Button>
+				</Frames>
+			</Frame>
+
+			<Frame name="$parentDispell">
+				<Size>
+					<AbsDimension x="70" y="14"/>
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parent">
+						<Offset x="-2" y="8"/>
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<Button name="$parent1" inherits="DispellAuraTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT"></Anchor>
+						</Anchors>
+					</Button>
+					<Button name="$parent2" inherits="DispellAuraTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeTo="$parent1" relativePoint="BOTTOMLEFT" />
+						</Anchors>
+					</Button>
+					<Button name="$parent3" inherits="DispellAuraTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeTo="$parent2" relativePoint="BOTTOMLEFT" />
+						</Anchors>
+					</Button>
+					<Button name="$parent4" inherits="DispellAuraTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeTo="$parent3" relativePoint="BOTTOMLEFT" />
+						</Anchors>
+					</Button>
+				</Frames>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<onload>
+				GroupMemberFrame_OnLoad()
+			</onload>
+			<onevent>
+				GroupMemberFrame_OnEvent()
+			</onevent>
+			<onclick>
+				GroupMemberFrame_OnClick()
+			</onclick>
+			<onenter>
+				GroupMemberFrame_OnEnter()
+			</onenter>
+			<onleave>
+				GroupMemberFrame_OnLeave()
+			</onleave>
+		</Scripts>
+	</Button>
+
+	<Frame name="GroupFrameTemplate" frameLevel="4" virtual="true">
+		<Size>
+			<AbsDimension x="98" y="218"/>
+		</Size>
+		<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+			<EdgeSize val="16" />
+		</Backdrop>
+		<Frames>
+			<Button name="$parentMemberFrame1" inherits="GroupMemberFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="4" y="-4"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parentMemberFrame2" inherits="GroupMemberFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentMemberFrame1" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentMemberFrame3" inherits="GroupMemberFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentMemberFrame2" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentMemberFrame4" inherits="GroupMemberFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentMemberFrame3" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+			<Button name="$parentMemberFrame5" inherits="GroupMemberFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentMemberFrame4" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnEnter>
+				GroupFrame_OnLoad()
+			</OnEnter>
+		</Scripts>
+	</Frame>
+
+	<Frame name="CompactFrames" parent="UIParent" frameStrata="LOW" movable="true" resizable="false" clampedToScreen="true" hidden="true">
+		<Size>
+			<AbsDimension x="100" y="220"/>
+		</Size>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="$parent">
+				<Offset>
+					<AbsDimension x="20" y="-160"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Frames>
+			<!-- First Row -->
+			<Frame name="GroupFrame1" inherits="GroupFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT"/>
+				</Anchors>
+			</Frame>
+			<Frame name="GroupFrame2" inherits="GroupFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="GroupFrame1" relativePoint="TOPRIGHT" />
+				</Anchors>
+			</Frame>
+			<Frame name="GroupFrame3" inherits="GroupFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="GroupFrame2" relativePoint="TOPRIGHT" />
+				</Anchors>
+			</Frame>
+			<Frame name="GroupFrame4" inherits="GroupFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="GroupFrame3" relativePoint="TOPRIGHT" />
+				</Anchors>
+			</Frame>
+
+			<!-- Second Row -->
+			<Frame name="GroupFrame5" inherits="GroupFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="GroupFrame1" relativePoint="BOTTOMLEFT"/>
+				</Anchors>
+			</Frame>
+			<Frame name="GroupFrame6" inherits="GroupFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="GroupFrame5" relativePoint="TOPRIGHT"/>
+				</Anchors>
+			</Frame>
+			<Frame name="GroupFrame7" inherits="GroupFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="GroupFrame6" relativePoint="TOPRIGHT"/>
+				</Anchors>
+			</Frame>
+			<Frame name="GroupFrame8" inherits="GroupFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="GroupFrame7" relativePoint="TOPRIGHT"/>
+				</Anchors>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				CompactFrames_OnLoad()
+			</OnLoad>
+			<OnEvent>
+				CompactFrames_OnEvent()
+			</OnEvent>
+		</Scripts>
+	</Frame>
+</Ui>

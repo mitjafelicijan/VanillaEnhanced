@@ -1,0 +1,13 @@
+<Bindings>
+	<Binding name="Toggles bank bags" header="VE_ADDON_BINDINGS">
+		BankBagsToggle()
+	</Binding>
+
+	<Binding name="VE_USE_TRINKET1" header="VE_ADDON_BINDINGS">
+		UseTrinket1()
+	</Binding>
+	
+	<Binding name="VE_USE_TRINKET2" header="VE_ADDON_BINDINGS">
+		UseTrinket2()
+	</Binding>
+</Bindings>

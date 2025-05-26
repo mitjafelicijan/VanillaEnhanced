@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+	<Script file="MiniPlayerFrame.lua" />
+
+	<Frame name="MiniDebuff" virtual="true">
+		<Size>
+			<AbsDimension x="18" y="18"/>
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentTexture" file="Interface\Icons\Spell_Nature_ResistNature">
+					<Size>
+						<AbsDimension x="18" y="18"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Frame>
+
+	<Frame name="MiniComboPointTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="12" y="12"/>
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\ComboFrame\ComboPoint">
+					<Size>
+						<AbsDimension x="11" y="15"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="0.375" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture name="$parentHighlight" file="Interface\ComboFrame\ComboPoint">
+					<Size>
+						<AbsDimension x="6" y="14"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0.375" right="0.5625" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Frame>
+
+	<Frame name="MiniPlayerFrame" parent="UIParent" frameStrata="BACKGROUND" toplevel="true" hidden="true">
+		<Size x="120" y="40"/>
+		<Anchors>
+			<Anchor point="Center" relativePoint="Center" relativeTo="UIParent">
+				<Offset x="0" y="-70" />
+			</Anchor>
+		</Anchors>
+
+		<Frames>
+			<!-- Combo points -->
+			<Frame frameLevel="2" name="$parentComboPoints">
+				<Size x="120" y="20"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+						<Offset x="0" y="26" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<!-- Create 5 combo points using the template -->
+					<Frame name="$parent1" inherits="MiniComboPointTemplate">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="-26" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent2" inherits="MiniComboPointTemplate">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="-13" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent3" inherits="MiniComboPointTemplate">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="0" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent4" inherits="MiniComboPointTemplate">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="13" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent5" inherits="MiniComboPointTemplate">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="26" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+				</Frames>
+			</Frame>
+
+			<!-- Target: Health Bar with Border -->
+			<Frame frameLevel="2" name="$parentTargetHealth">
+				<Size x="120" y="13"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+						<Offset x="0" y="16" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<StatusBar name="$parentStatusBar" inherits="TextStatusBar" frameLevel="1" alpha="1.0">
+						<Size x="114" y="10"/>
+						<Anchors>
+							<Anchor point="CENTER" />
+						</Anchors>
+						<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+						<BarColor r="1.0" g="0.0" b="0.0" a="1.0"/>
+					</StatusBar>
+				</Frames>
+				<Layers>
+					<Layer level="BORDER">
+						<Texture file="Interface\Tooltips\UI-StatusBar-Border" setAllPoints="true"/>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<!-- Player: Health Bar with Border -->
+			<Frame frameLevel="2" name="$parentHealth">
+				<Size x="120" y="13"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+						<Offset x="0" y="0" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<StatusBar name="$parentStatusBar" inherits="TextStatusBar" frameLevel="1" alpha="0.9">
+						<Size x="114" y="10"/>
+						<Anchors>
+							<Anchor point="CENTER" />
+						</Anchors>
+						<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+						<BarColor r="0.0" g="1.0" b="0.0" a="1.0"/>
+					</StatusBar>
+				</Frames>
+				<Layers>
+					<Layer level="BORDER">
+						<Texture file="Interface\Tooltips\UI-StatusBar-Border" setAllPoints="true"/>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<!-- Player: Power Bar with Border -->
+			<Frame frameLevel="2" name="$parentPower">
+				<Size x="120" y="13"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+						<Offset x="0" y="-11" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<StatusBar name="$parentStatusBar" inherits="TextStatusBar" frameLevel="1" alpha="0.9">
+						<Size x="114" y="10"/>
+						<Anchors>
+							<Anchor point="CENTER" />
+						</Anchors>
+						<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+						<BarColor r="0.0" g="0.7" b="1.0" a="1.0"/>
+					</StatusBar>
+				</Frames>
+				<Layers>
+					<Layer level="BORDER">
+						<Texture file="Interface\Tooltips\UI-StatusBar-Border" setAllPoints="true"/>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<!-- Player: Druid Power Bar -->
+			<Frame frameLevel="2" name="$parentDruid">
+				<Size x="120" y="13"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+						<Offset x="0" y="-22" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<StatusBar name="$parentStatusBar" inherits="TextStatusBar" frameLevel="1" alpha="0.9">
+						<Size x="114" y="10"/>
+						<Anchors>
+							<Anchor point="CENTER" />
+						</Anchors>
+						<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+						<BarColor r="0.0" g="0.7" b="1.0" a="1.0"/>
+					</StatusBar>
+				</Frames>
+				<Layers>
+					<Layer level="BORDER">
+						<Texture file="Interface\Tooltips\UI-StatusBar-Border" setAllPoints="true"/>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<!-- Target debuffs -->
+			<Frame frameLevel="2" name="$parentTargetDebuffs">
+				<Size x="120" y="120"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+						<Offset x="0" y="-40" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<Frame name="$parent1" inherits="MiniDebuff">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="-50" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent2" inherits="MiniDebuff">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="-30" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent3" inherits="MiniDebuff">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="-10" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent4" inherits="MiniDebuff">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="10" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent5" inherits="MiniDebuff">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="30" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent6" inherits="MiniDebuff">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="50" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent7" inherits="MiniDebuff">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="-50" y="-20" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent8" inherits="MiniDebuff">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="-30" y="-20" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent9" inherits="MiniDebuff">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="-10" y="-20" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent10" inherits="MiniDebuff">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="10" y="-20" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent11" inherits="MiniDebuff">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="30" y="-20" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent12" inherits="MiniDebuff">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="50" y="-20" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+				</Frames>
+			</Frame>
+		</Frames>
+
+		<Scripts>
+			<OnLoad>
+				MiniPlayerFrame_OnLoad()
+			</OnLoad>
+			<OnEvent>
+				MiniPlayerFrame_OnEvent()
+			</OnEvent>
+		</Scripts>
+	</Frame>
+</Ui>
