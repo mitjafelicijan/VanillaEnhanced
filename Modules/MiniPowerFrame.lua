@@ -90,8 +90,6 @@ function MiniPowerFrame_OnLoad()
 	
 	SwitchPowerBarColor()
 	UpdatePlayerDebuffs()
-	
-	this:Show()
 end
 
 function MiniPowerFrame_OnEvent()
