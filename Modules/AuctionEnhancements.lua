@@ -62,7 +62,7 @@ local function GetItemsInBags()
 				local isSoulbound, isQuestItem, isUnique = CheckIfItemIsSellable(bag, slot) -- barow caller trinket
 
 				if not isSoulbound and not isQuestItem and not isUnique then
-					print(string.format("[%s] (%s,%s) %s (%s)", tostring(itemCount), bag, slot, name, itemID))
+					-- print(string.format("[%s] (%s,%s) %s (%s)", tostring(itemCount), bag, slot, name, itemID))
 
 					table.insert(items, {
 						ID = itemID,
@@ -197,6 +197,7 @@ function AuctionEnhancements_OnEvent()
 	if event == "AUCTION_HOUSE_SHOW" then
 		-- Open this tab when Auction House is opened.
 		AuctionFrameTab_OnClick(module.data.tabIndex)
+		OpenAllBags()
 	end
 
 	if event == "AUCTION_HOUSE_CLOSED" then

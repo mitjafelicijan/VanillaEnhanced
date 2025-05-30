@@ -8,6 +8,11 @@ local module = VE.registerModule({
 	superWoWRequired = false,
 	config = {
 		backgroundAlpha = 0.8,
+		show = {
+			[0] = false,  -- mana
+			[1] = true,   -- rage
+			[3] = true,   -- energy
+		},
 	},
 	data = {
 		-- frames
@@ -29,6 +34,37 @@ local module = VE.registerModule({
 if not VE.superWoWCheck(module) then
 	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
 	return
+end
+
+local function UpdateComboPoints()
+	module.data.comboPointCount = GetComboPoints()
+
+	-- Reset all points
+	for i = 1, 5 do
+		getglobal(string.format("%sComboPoints%sHighlight", this:GetName(), i)):Hide()
+	end
+
+	if module.data.comboPointCount == 0 then
+		module.data.comboPoints:Hide()
+		return
+	end
+
+	for i = 1, module.data.comboPointCount do
+		getglobal(string.format("%sComboPoints%sHighlight", this:GetName(), i)):Show()
+	end
+
+	if not module.data.comboPoints:IsShown() then
+		module.data.comboPoints:Show()
+	end
+end
+
+local function ToggleComboPoints()
+	if (module.data.playerClass == "Druid" or module.data.playerClass == "Rogue") then
+		UpdateComboPoints()
+		return
+	end
+
+	module.data.comboPoints:Hide()
 end
 
 local function SwitchPowerBarColor()
@@ -73,16 +109,28 @@ local function UpdatePlayerBars()
 	module.data.powerBar:SetValue(UnitMana("player"))
 end
 
+local function ToggleMiniPowerFrame()
+	if module.config.show[UnitPowerType("player")] then
+		this:Show()
+	else
+		this:Hide()
+	end
+end
+
 function MiniPowerFrame_OnLoad()
+	this:RegisterEvent("PLAYER_ENTERING_WORLD")
 	this:RegisterEvent("UNIT_MANA")
 	this:RegisterEvent("UNIT_RAGE")
 	this:RegisterEvent("UNIT_ENERGY")
 	this:RegisterEvent("UNIT_DISPLAYPOWER")
 	this:RegisterEvent("UNIT_AURA")
+	this:RegisterEvent("PLAYER_COMBO_POINTS")
+	this:RegisterEvent("PLAYER_TARGET_CHANGED")
 
 	module.data.playerClass = UnitClass("player")
 	module.data.powerBar = getglobal(this:GetName() .. "PowerStatusBar")
 	module.data.targetDebuffs = getglobal(this:GetName() .. "PlayerDebuffs")
+	module.data.comboPoints = getglobal(this:GetName() .. "ComboPoints")
 	module.data.miniPowerFrame = getglobal(this:GetName())
 
 	-- Set background.
@@ -90,12 +138,18 @@ function MiniPowerFrame_OnLoad()
 	
 	SwitchPowerBarColor()
 	UpdatePlayerDebuffs()
+	ToggleComboPoints()
+	ToggleMiniPowerFrame()
 end
 
 function MiniPowerFrame_OnEvent()
 	if not VE.isModuleEnabled(module.identifier) then
 		this:UnregisterAllEvents()
 		return
+	end
+
+	if event == "PLAYER_ENTERING_WORLD" then
+		ToggleMiniPowerFrame()
 	end
 
 	if event == "UNIT_MANA" or event == "UNIT_RAGE" or event == "UNIT_ENERGY" then
@@ -105,6 +159,11 @@ function MiniPowerFrame_OnEvent()
 
 	if event == "UNIT_DISPLAYPOWER" then
 		SwitchPowerBarColor()
+		ToggleMiniPowerFrame()
+	end
+
+	if event == "PLAYER_COMBO_POINTS" or event == "PLAYER_TARGET_CHANGED" then
+		ToggleComboPoints()
 	end
 
 	if event == "UNIT_AURA" then

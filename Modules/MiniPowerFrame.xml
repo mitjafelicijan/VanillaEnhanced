@@ -24,6 +24,44 @@
 		</Layers>
 	</Frame>
 
+	<Frame name="MiniComboPointTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="12" y="12"/>
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\ComboFrame\ComboPoint">
+					<Size>
+						<AbsDimension x="11" y="15"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="0.375" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture name="$parentHighlight" file="Interface\ComboFrame\ComboPoint">
+					<Size>
+						<AbsDimension x="6" y="14"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0.375" right="0.5625" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Frame>
+
 	<Frame name="MiniPowerFrame" parent="UIParent" frameStrata="BACKGROUND" toplevel="true" hidden="true">
 		<Size x="120" y="40"/>
 		<Anchors>
@@ -33,6 +71,54 @@
 		</Anchors>
 
 		<Frames>
+			<!-- Combo points -->
+			<Frame frameLevel="2" name="$parentComboPoints">
+				<Size x="120" y="20"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+						<Offset x="0" y="10" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<!-- Create 5 combo points using the template -->
+					<Frame name="$parent1" inherits="MiniComboPointTemplate">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="-26" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent2" inherits="MiniComboPointTemplate">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="-13" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent3" inherits="MiniComboPointTemplate">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="0" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent4" inherits="MiniComboPointTemplate">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="13" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parent5" inherits="MiniComboPointTemplate">
+						<Anchors>
+							<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER">
+								<Offset x="26" y="0" />
+							</Anchor>
+						</Anchors>
+					</Frame>
+				</Frames>
+			</Frame>
+
 			<!-- Player: Power Bar with Border -->
 			<Frame frameLevel="2" name="$parentPower">
 				<Size x="120" y="15"/>

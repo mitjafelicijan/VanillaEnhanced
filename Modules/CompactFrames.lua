@@ -297,7 +297,7 @@ local function UpdateHealPrediction(casterGUID, targetGUID, eventType, spellID, 
 			if module.config.spellEffectiveness[spellName] then
 				local spellEffectiveness = module.config.spellEffectiveness[spellName][tonumber(rankNumber)]
 				local targetFrameName = GetMemberFrameName(targetName)
-				if targetFrameName then
+				if targetFrameName and spellEffectiveness then
 					local unitInfo = GetUnitInfo(targetGUID)
 					local healthBarPrediction = getglobal(string.format("%sHealthBarPrediction", targetFrameName))
 					healthBarPrediction:SetStatusBarColor(0.0, 1.0, 0.0)

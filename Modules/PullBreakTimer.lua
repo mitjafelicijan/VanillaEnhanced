@@ -50,7 +50,7 @@ local function StartCountdown(seconds)
 		module.plug.bar.timer:SetText(tostring(string.format("%.1f", remaining)) .. "s")
 
 		-- Timer finished.
-		if remaining <= 0 then
+		if remaining < 0 then
 			module.plug.bar:Hide()
 			PlaySoundFile("Interface\\AddOns\\VanillaEnhanced\\Audio\\pull.ogg")
 			module.plug.bar.progress:SetValue(0)
