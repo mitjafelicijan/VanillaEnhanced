@@ -19,11 +19,11 @@ local module = VE.registerModule({
 		miniPlayerFrame = nil,
 		powerBar = nil,
 		playerDebuffs = nil,
-		
+
 		-- general vars
 		playerClass = nil,
 		playerPower = nil,
-		
+
 		-- temporary vars
 		aura = nil,
 		texture = nil,
@@ -85,15 +85,17 @@ end
 
 local function UpdatePlayerDebuffs()
 	if not UnitExists("player") then
-		module.data.targetDebuffs:Hide()
+		module.data.playerDebuffs:Hide()
 		return
 	end
 
 	local texture = nil
+	local activeBuffs = 0
 	for i = 1, 4 do
 		module.data.aura = getglobal(string.format("%sPlayerDebuffs%sTexture", this:GetName(), i))
 		texture, _, _ = UnitDebuff("player", i)
 		if texture then
+			activeBuffs = activeBuffs + 1
 			module.data.aura:SetTexture(texture)
 			module.data.aura:Show()
 		else
@@ -101,12 +103,14 @@ local function UpdatePlayerDebuffs()
 		end
 	end
 
-	module.data.targetDebuffs:Show()
-end
+	local xOffset = 0
+	if activeBuffs > 0 then
+		xOffset = (4 - activeBuffs) * (24 / 2) + (activeBuffs * 0.3)
+	end
 
-local function UpdatePlayerBars()
-	module.data.powerBar:SetMinMaxValues(0, UnitManaMax("player"))
-	module.data.powerBar:SetValue(UnitMana("player"))
+	module.data.playerDebuffs:ClearAllPoints()
+	module.data.playerDebuffs:SetPoint("Center", module.data.miniPowerFrame, "Center", xOffset, -22)
+	module.data.playerDebuffs:Show()
 end
 
 local function ToggleMiniPowerFrame()
@@ -129,13 +133,13 @@ function MiniPowerFrame_OnLoad()
 
 	module.data.playerClass = UnitClass("player")
 	module.data.powerBar = getglobal(this:GetName() .. "PowerStatusBar")
-	module.data.targetDebuffs = getglobal(this:GetName() .. "PlayerDebuffs")
+	module.data.playerDebuffs = getglobal(this:GetName() .. "PlayerDebuffs")
 	module.data.comboPoints = getglobal(this:GetName() .. "ComboPoints")
 	module.data.miniPowerFrame = getglobal(this:GetName())
 
 	-- Set background.
 	VE.dframe(module.data.powerBar, 0, 0, 0, module.config.backgroundAlpha)
-	
+
 	SwitchPowerBarColor()
 	UpdatePlayerDebuffs()
 	ToggleComboPoints()
