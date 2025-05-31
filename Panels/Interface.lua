@@ -126,7 +126,7 @@ VE.panels.Interface = function(parent)
 			end, module.superWoWRequired)
 		end
 	end
-	
+
 	do
 		local module = VE.getModule("MiniPowerFrame")
 		if module then
@@ -135,11 +135,21 @@ VE.panels.Interface = function(parent)
 			end, module.superWoWRequired)
 		end
 	end
-	
+
 	do
 		local module = VE.getModule("TrinketManager")
 		if module then
 			VE.elements.Checkbox(frame, 270, -260, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+
+	do
+		local module = VE.getModule("CombatCursor")
+		if module then
+			VE.elements.Checkbox(frame, 270, -290, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -150,13 +160,13 @@ VE.panels.Interface = function(parent)
 	do
 		local module = VE.getModule("AuraTracker")
 		if module then
-			VE.elements.Checkbox(frame, 20, -260, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 20, -350, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
 	end
 
-	VE.elements.InputArea(frame, 16, -285, 500, 40, "title", "tooltip description", nil, (VanillaEnhancedData["AuraTrackerUserAuars"] or ""), 200, function(text)
+	VE.elements.InputArea(frame, 16, -375, 500, 40, "title", "tooltip description", nil, (VanillaEnhancedData["AuraTrackerUserAuars"] or ""), 200, function(text)
 		VanillaEnhancedData["AuraTrackerUserAuars"] = text
 	end)
 
