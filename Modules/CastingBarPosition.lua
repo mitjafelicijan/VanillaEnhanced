@@ -26,12 +26,12 @@ module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterAllEvents()
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
-	
+
 	if event == "ADDON_LOADED" then
 		local half = GetScreenHeight() / 2
 		module.data.offset = half - ((half / 100) * module.config.offsetPercentage)
 	end
-	
+
 	if event == "SPELLCAST_START" or event == "SPELLCAST_CHANNEL_START" then
 		local duration = tonumber(arg2)
 		if duration then
@@ -71,12 +71,12 @@ end)
 
 module.plug:SetScript("OnUpdate", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
-	
+
 	-- Update the casting bar position
 	if CastingBarFrame:IsShown() then
 		CastingBarFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, module.data.offset)
 	end
-	
+
 	-- This fixes casting bar sometimes staying visible if SPELLCAST_STOP, etc
 	-- doesn't get triggered in the game.
 	if module.data.finishTime > 0 and module.data.finishTime < GetTime() and module.data.casting then
