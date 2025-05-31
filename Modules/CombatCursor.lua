@@ -7,7 +7,7 @@ local module = VE.registerModule({
 	plug = nil,
 	superWoWRequired = false,
 	config = {
-		cursorSize = 64 + 16,
+		cursorSize = 64,
 		cursorColor = {
 			r = 1,0,
 			g = 0.0,
@@ -40,7 +40,7 @@ module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 
-	if event == "PLAYER_ENTERING_WORLD" then
+	if event == "PLAYER_ENTERING_WORLD" and not module.plug.cursor then
 		local uiScale = UIParent:GetEffectiveScale()
 		module.plug.cursor = CreateFrame("Frame", nil, UIParent)
 		module.plug.cursor:SetPoint("Center", UIParent, "BottomLeft", 0, 0)

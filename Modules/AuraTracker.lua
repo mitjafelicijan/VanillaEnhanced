@@ -143,6 +143,17 @@ local function UpdateAuraFrames()
 	module.plug.frame:Show()
 end
 
+SLASH_AURATRACKER1 = "/auratracker"
+SLASH_AURATRACKER2 = "/at"
+SlashCmdList["AURATRACKER"] = function()
+	if VE.isModuleEnabled(module.identifier) then
+		VE.disableModule(module.identifier)
+	else
+		VE.enableModule(module.identifier)
+	end
+	ConsoleExec("reloadui")
+end
+
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("PLAYER_AURAS_CHANGED")
@@ -155,6 +166,7 @@ module.plug:SetScript("OnEvent", function()
 		module.data.auras = VanillaEnhancedData[module.identifier .. "UserAuars"]
 		GenerateEmptyFrames()
 		ParseUserAuras()
+		UpdateAuraFrames()
 	end
 
 	if event == "PLAYER_AURAS_CHANGED" then

@@ -51,7 +51,7 @@ local function IsParty()
 	return false
 end
 
-local function GetMemeberGroup(playerName)
+local function GetMemberGroup(playerName)
 	local group = 0
 	for i = 1, GetNumRaidMembers() do
 		local name, _, subgroup = GetRaidRosterInfo(i)
@@ -216,7 +216,7 @@ local function GetUnitInfo(unit)
 		payload.power.name = "Energy"
 	end
 
-	payload.group = GetMemeberGroup(payload.name)
+	payload.group = GetMemberGroup(payload.name)
 	payload.class = UnitClass(unit)
 	payload.inRange = (CheckInteractDistance(unit, 4))
 
@@ -257,8 +257,8 @@ local function GetMemberFrameName(memberName)
 		for m = 1, 5 do
 			local frame = getglobal(string.format("GroupFrame%sMemberFrame%s", g, m))
 			if frame:IsVisible() then
-				local name = getglobal(string.format("%sNameText", frame:GetName())):GetText()
-				if name == memberName then
+				local name = getglobal(frame:GetName()).info.name
+				if name and name == memberName then
 					return frame:GetName()
 				end
 			end
@@ -286,7 +286,7 @@ local function UpdateHealPrediction(casterGUID, targetGUID, eventType, spellID, 
 	-- eventType: ("START", "CAST", "FAIL", "CHANNEL", "MAINHAND", "OFFHAND")
 	local casterName = UnitName(casterGUID) or nil
 	local targetName = UnitName(targetGUID) or nil
-	
+
 	if not IsUnitInPartyOrRaid(casterName) then return end
 
 	if eventType == "START" then
@@ -336,6 +336,8 @@ local function UpdateMemberFrame(unitInfo, frameName)
 	local deadText = getglobal(string.format("%sDeadText", frameName))
 	local disconnectIcon = getglobal(string.format("%sDisconnectIcon", frameName))
 
+	getglobal(frameName).info = unitInfo
+
 	if string.len(unitInfo.name) > 10 then
 		nameText:SetText(string.format("%s...", string.sub(unitInfo.name, 1, 9)))
 	else
@@ -355,6 +357,11 @@ local function UpdateMemberFrame(unitInfo, frameName)
 		local assistantIcon = getglobal(string.format("%sAssistantIcon", frameName))
 		if unitInfo.rank == 2 then leaderIcon:Show() else leaderIcon:Hide() end
 		if unitInfo.rank == 1 then assistantIcon:Show() else assistantIcon:Hide() end
+	end
+
+	if IsParty() then
+		local leaderIcon = getglobal(string.format("%sLeaderIcon", frameName))
+		if unitInfo.lead then leaderIcon:Show() else leaderIcon:Hide() end
 	end
 
 	if not unitInfo.isOnline then
@@ -398,7 +405,7 @@ local function UpdateMemberFrame(unitInfo, frameName)
 	end
 
 	-- Update dispellable debuffs.
-	
+
 	for i = 1, 4 do
 		getglobal(string.format("%sDispell%s", frameName, i)):Hide()
 	end
@@ -406,7 +413,7 @@ local function UpdateMemberFrame(unitInfo, frameName)
 	local nextDispellAura = 1
 	for idx, dispellType in pairs({ "Magic", "Curse", "Poison", "Disease" }) do
 		local dispellValue = unitInfo.dispell[dispellType]
-		
+
 		if dispellValue > 0 then
 			local dispellFrame = getglobal(string.format("%sDispell%s", frameName, nextDispellAura))
 			local dispellTexture = getglobal(string.format("%sDispell%sTexture", frameName, nextDispellAura))
@@ -444,6 +451,7 @@ local function UpdatePartyGroup()
 		if module.data.activeMembers.party.members[i] then
 			frame:Show()
 		else
+			frame.info = nil
 			frame:Hide()
 		end
 	end
@@ -481,6 +489,7 @@ local function UpdateRaidGroups()
 			getglobal(string.format("GroupFrame%s", i)):Show()
 		else
 			getglobal(string.format("GroupFrame%s", i)):Hide()
+			getglobal(string.format("GroupFrame%s", i)).info = nil
 		end
 	end
 end
@@ -507,7 +516,7 @@ local function HighlightUnitFrameByMemberName(name)
 	end
 end
 
-function GroupFrame_OnLoad()	
+function GroupFrame_OnLoad()
 end
 
 function GroupMemberFrame_OnLoad()
@@ -618,7 +627,7 @@ function CompactFrames_OnEvent()
 
 	if event == "PLAYER_TARGET_CHANGED" then
 		if not IsParty() and not IsRaid() then return end
-		
+
 		ResetHighlightedFrames()
 
 		if UnitExists("target") then
