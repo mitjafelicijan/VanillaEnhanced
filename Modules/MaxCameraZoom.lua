@@ -16,19 +16,40 @@ if not VE.superWoWCheck(module) then
 	return
 end
 
+local function DefaultSettings()
+	SlashCmdList["CONSOLE"]("cameraDistanceMax 15")
+	SlashCmdList["CONSOLE"]("cameraDistanceMaxFactor 1.9")
+	SlashCmdList["CONSOLE"]("cameraDistanceMoveSpeed 8.33")
+	SlashCmdList["CONSOLE"]("cameraDistanceSmoothSpeed 8.33")
+end
+
+local function MaxSettings()
+	SlashCmdList["CONSOLE"]("cameraDistanceMax 50")
+	SlashCmdList["CONSOLE"]("cameraDistanceMaxFactor 5")
+	SlashCmdList["CONSOLE"]("cameraDistanceMoveSpeed 50")
+	SlashCmdList["CONSOLE"]("cameraDistanceSmoothSpeed 1")
+end
+
+SLASH_MAXZOOM1 = "/maxzoom"
+SLASH_MAXZOOM2 = "/mz"
+SlashCmdList["MAXZOOM"] = function()
+	if VE.isModuleEnabled(module.identifier) then
+		VE.disableModule(module.identifier)
+		DefaultSettings()
+	else
+		VE.enableModule(module.identifier)
+		MaxSettings()
+	end
+	ConsoleExec("reloadui")
+end
+
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("ADDON_LOADED")
 
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then
-		SlashCmdList["CONSOLE"]("cameraDistanceMax 15")
-		SlashCmdList["CONSOLE"]("cameraDistanceMaxFactor 1.9")
-		SlashCmdList["CONSOLE"]("cameraDistanceMoveSpeed 8.33")
-		SlashCmdList["CONSOLE"]("cameraDistanceSmoothSpeed 8.33")
+		DefaultSettings()
 	end
 
-	SlashCmdList["CONSOLE"]("cameraDistanceMax 50")
-	SlashCmdList["CONSOLE"]("cameraDistanceMaxFactor 5")
-	SlashCmdList["CONSOLE"]("cameraDistanceMoveSpeed 50")
-	SlashCmdList["CONSOLE"]("cameraDistanceSmoothSpeed 1")
+	MaxSettings()
 end)
