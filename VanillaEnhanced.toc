@@ -53,12 +53,13 @@ Modules\TargetCastingBar.lua
 Modules\TravelJournal.lua
 Modules\MiniPlayerFrame.xml
 Modules\MiniPowerFrame.xml
-Modules\AuctionEnhancements.xml
-Modules\TrinketManager.lua
 Modules\CompactFrames.xml
 Modules\CombatCursor.lua
 
 # Work in progress
+Modules\AuctionEnhancements.xml
+Modules\TrinketManager.lua
+Modules\ThreatMeter.xml
 
 # Retired
 # Modules\RaidFrames.lua

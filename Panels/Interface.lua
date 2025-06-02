@@ -155,6 +155,15 @@ VE.panels.Interface = function(parent)
 		end
 	end
 
+	do
+		local module = VE.getModule("ThreatMeter")
+		if module then
+			VE.elements.Checkbox(frame, 270, -320, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
 	-- Aura tracker
 
 	do
