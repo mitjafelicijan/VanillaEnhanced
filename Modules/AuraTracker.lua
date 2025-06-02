@@ -87,6 +87,8 @@ local function GetValidAuras()
 end
 
 local function GenerateEmptyFrames()
+	if module.plug.frame then return end
+
 	local half = GetScreenHeight() / 2
 	local offset = half - ((half / 100) * module.config.offsetPercentage)
 	if module.config.offsetPosition == "bottom" then offset = -offset end
