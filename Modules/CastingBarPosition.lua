@@ -7,7 +7,8 @@ local module = VE.registerModule({
 	plug = nil,
 	superWoWRequired = false,
 	config = {
-		offsetPercentage = 30,
+		offsetPercentage = 42,
+		offset = 280,
 	},
 	data = {
 		offset = 0,
@@ -22,14 +23,19 @@ if not VE.superWoWCheck(module) then
 	return
 end
 
+local function AdjustCastingBarPosition()
+	CastingBarFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, module.data.offset)
+end
+
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterAllEvents()
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 
-	if event == "ADDON_LOADED" then
+	if event == "PLAYER_ENTERING_WORLD" then
 		local half = GetScreenHeight() / 2
-		module.data.offset = half - ((half / 100) * module.config.offsetPercentage)
+		module.data.offset = math.ceil(half - ((half / 100) * module.config.offsetPercentage))
+		-- module.data.offset = module.config.offset
 	end
 
 	if event == "SPELLCAST_START" or event == "SPELLCAST_CHANNEL_START" then
@@ -65,7 +71,7 @@ module.plug:SetScript("OnEvent", function()
 	end
 
 	if CastingBarFrame:IsShown() then
-		CastingBarFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, module.data.offset)
+		AdjustCastingBarPosition()
 	end
 end)
 
