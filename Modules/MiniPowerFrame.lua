@@ -9,7 +9,7 @@ local module = VE.registerModule({
 	config = {
 		backgroundAlpha = 0.8,
 		show = {
-			[0] = false,  -- mana
+			[0] = true,  -- mana
 			[1] = true,   -- rage
 			[3] = true,   -- energy
 		},
@@ -27,6 +27,16 @@ local module = VE.registerModule({
 		-- temporary vars
 		aura = nil,
 		texture = nil,
+
+		-- power tick spark
+        lastPower = 0,
+        currentPower = 0,
+        sparkTarget = nil,
+        sparkStart = nil,
+        sparkMax = nil,
+        sparkCurrent = nil,
+        pwidth = 114,
+        pheight = 10,
 	},
 })
 
@@ -121,6 +131,55 @@ local function ToggleMiniPowerFrame()
 	end
 end
 
+
+local function UpdateSparkPosition()
+	if not module.data.sparkStart then 
+		-- Hide spark if power is full
+		if UnitMana("player") == UnitManaMax("player") then
+			module.data.spark:Hide()
+		end
+		return 
+	end
+
+	module.data.sparkCurrent = GetTime() - module.data.sparkStart
+
+	if module.data.sparkCurrent > module.data.sparkMax then
+		module.data.sparkStart, module.data.sparkMax, module.data.sparkCurrent = nil, nil, nil
+
+		-- Hide spark when animation completes and power is full
+		if UnitMana("player") == UnitManaMax("player") then
+			module.data.spark:Hide()
+		end
+		return
+	end
+
+	-- Only show spark if power isn't full
+	if UnitMana("player") < UnitManaMax("player") then
+		module.data.spark:Show()
+	end
+
+	local pos = module.data.pwidth * (module.data.sparkCurrent / module.data.sparkMax)
+	module.data.spark:SetPoint("LEFT", module.data.powerBar, "LEFT", pos - ((module.data.pheight + 5) / 2), 0)
+end
+
+local function HandlePowerUpdate()
+	module.data.powerBar:SetMinMaxValues(0, UnitManaMax("player"))
+	module.data.powerBar:SetValue(UnitMana("player"))
+
+	-- Handle spark animation for power ticks
+	module.data.currentPower = UnitMana("player")
+	local diff = module.data.currentPower - module.data.lastPower
+
+	if (module.data.playerPower == 3) or  -- Energy
+		(module.data.playerPower == 0 and diff > 0) then  -- Mana regen
+		module.data.sparkTarget = 2
+		module.data.sparkStart = GetTime()
+		module.data.sparkMax = module.data.sparkTarget
+	end
+
+	module.data.lastPower = module.data.currentPower
+end
+
 function MiniPowerFrame_OnLoad()
 	this:RegisterEvent("PLAYER_ENTERING_WORLD")
 	this:RegisterEvent("UNIT_MANA")
@@ -135,15 +194,25 @@ function MiniPowerFrame_OnLoad()
 	module.data.powerBar = getglobal(this:GetName() .. "PowerStatusBar")
 	module.data.playerDebuffs = getglobal(this:GetName() .. "PlayerDebuffs")
 	module.data.comboPoints = getglobal(this:GetName() .. "ComboPoints")
+	module.data.spark = getglobal(this:GetName() .. "PowerSpark")
 	module.data.miniPowerFrame = getglobal(this:GetName())
+
+	-- Set up spark
+    module.data.spark:SetBlendMode("ADD")
+    module.data.spark:SetAlpha(0.6)
+    module.data.spark:SetTexCoord(0, 1, 0, 1)
 
 	-- Set background.
 	VE.dframe(module.data.powerBar, 0, 0, 0, module.config.backgroundAlpha)
+
+	-- Initialize lastPower
+	module.data.lastPower = UnitMana("player")
 
 	SwitchPowerBarColor()
 	UpdatePlayerDebuffs()
 	ToggleComboPoints()
 	ToggleMiniPowerFrame()
+	UpdateSparkPosition()
 end
 
 function MiniPowerFrame_OnEvent()
@@ -175,4 +244,15 @@ function MiniPowerFrame_OnEvent()
 			UpdatePlayerDebuffs()
 		end
 	end
+
+	if event == "UNIT_MANA" or event == "UNIT_RAGE" or event == "UNIT_ENERGY" then
+		if arg1 == "player" then
+			HandlePowerUpdate()
+		end
+	end
+end
+
+function MiniPowerFrame_OnUpdate()
+	if not VE.isModuleEnabled(module.identifier) then return end
+	UpdateSparkPosition()
 end

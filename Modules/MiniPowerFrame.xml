@@ -141,6 +141,17 @@
 					<Layer level="BORDER">
 						<Texture file="Interface\Tooltips\UI-StatusBar-Border" setAllPoints="true"/>
 					</Layer>
+					<Layer level="OVERLAY">
+						<Texture name="$parentSpark" file="Interface\CastingBar\UI-CastingBar-Spark">
+							<Size>
+								<AbsDimension x="20" y="22"/>
+							</Size>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+							<Color r="1.0" g="1.0" b="1.0" a="0.0"/>
+						</Texture>
+					</Layer>
 				</Layers>
 			</Frame>
 
@@ -192,6 +203,9 @@
 			<OnEvent>
 				MiniPowerFrame_OnEvent()
 			</OnEvent>
+			<OnUpdate>
+				MiniPowerFrame_OnUpdate()
+			</OnUpdate>
 		</Scripts>
 	</Frame>
 </Ui>
