@@ -1,7 +1,7 @@
 local module = VE.registerModule({
 	identifier = "ThreatMeter",
 	meta = {
-		label = "Threat Meter",
+		label = "Threat Meter (wip)",
 		description = "...",
 	},
 	plug = nil,
@@ -17,6 +17,7 @@ local module = VE.registerModule({
 if not VE.superWoWCheck(module) then
 	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
 	return
+	this:RegisterEvent("PLAYER_TARGET_CHANGED")
 end
 
 local print = VE.print
@@ -37,16 +38,16 @@ function ThreatMeter_OnEvent()
 	if event == "PLAYER_ENTERING_WORLD" then
 		print("ThreatMeter")
 	end
-	
+
 	if event == "RAW_COMBATLOG" then
 		local event_name = arg1
 		local event_text = arg2
-		
+
 		--arg1: original event name.
 		--arg2: event text with GUIDs
 		--dprint(string.format("event: %s, arg2: %s", event_name, arg2))
 		-- dprint(string.format("event: %s", event_name))
-	
+
 		if event_name == "CHAT_MSG_COMBAT_FRIENDLYPLAYER_HITS" then
 			dprint(string.format("event: %s", event_name))
 			dprint(string.format("text: %s", event_text))

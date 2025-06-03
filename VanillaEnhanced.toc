@@ -60,6 +60,7 @@ Modules\CombatCursor.lua
 Modules\AuctionEnhancements.xml
 Modules\TrinketManager.lua
 Modules\ThreatMeter.xml
+Modules\NearbyTargets.xml
 
 # Retired
 # Modules\RaidFrames.lua
