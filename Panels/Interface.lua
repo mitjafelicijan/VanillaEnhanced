@@ -164,18 +164,27 @@ VE.panels.Interface = function(parent)
 		end
 	end
 
-	-- Aura tracker
-
 	do
-		local module = VE.getModule("AuraTracker")
+		local module = VE.getModule("NearbyTargets")
 		if module then
-			VE.elements.Checkbox(frame, 20, -350, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -350, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
 	end
 
-	VE.elements.InputArea(frame, 16, -375, 500, 40, "title", "tooltip description", nil, (VanillaEnhancedData["AuraTrackerUserAuars"] or ""), 200, function(text)
+	-- Aura tracker
+
+	do
+		local module = VE.getModule("AuraTracker")
+		if module then
+			VE.elements.Checkbox(frame, 20, -380, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	VE.elements.InputArea(frame, 16, -405, 500, 40, "title", "tooltip description", nil, (VanillaEnhancedData["AuraTrackerUserAuars"] or ""), 200, function(text)
 		VanillaEnhancedData["AuraTrackerUserAuars"] = text
 	end)
 

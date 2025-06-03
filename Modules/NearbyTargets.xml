@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+	<Script file="NearbyTargets.lua" />
+
+	<Button name="NearbyEnemyFrameTemplate" frameLevel="3" virtual="true" hidden="true">
+		<Size>
+			<AbsDimension x="152" y="20"/>
+		</Size>
+		<Frames>
+			<Frame frameStrata="BACKGROUND" frameLevel="1">
+				<Size>
+					<AbsDimension x="152" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture setAllPoints="true" file="Interface\AddOns\VanillaEnhanced\Assets\Black8x8" />
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<Button name="$parentInRange" hidden="true">
+				<Size>
+					<AbsDimension x="10" y="10"/>
+				</Size>
+				<Anchors>
+					<Anchor point="RIGHT">
+						<Offset x="-4" y="0"/>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="$parentTexture" file="Interface\AddOns\VanillaEnhanced\Assets\NearybyEnemies-InRange" setAllPoints="true"/>
+					</Layer>
+				</Layers>
+			</Button>
+
+			<StatusBar name="$parentHealthBar" frameLevel="2" hidden="false">
+				<Size>
+					<AbsDimension x="152" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent">
+						<Offset x="0" y="0"/>
+					</Anchor>
+				</Anchors>
+				<BarTexture file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-HealthFill" />
+			</StatusBar>
+		</Frames>
+
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentNameText" inherits="GameFontHighlightSmall">
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent">
+							<Offset x="4" y="0" />
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+
+		<Scripts>
+			<OnLoad>
+				NearbyEnemyFrame_OnLoad()
+			</OnLoad>
+			<OnClick>
+				NearbyEnemyFrame_OnClick()
+			</OnClick>
+		</Scripts>
+	</Button>
+
+	<Frame name="NearbyTargets" frameLevel="4" parent="UIParent" frameStrata="BACKGROUND" toplevel="true" hidden="true" movable="true" resizable="false" clampedToScreen="true">
+		<Size>
+			<AbsDimension x="160" y="308"/>
+		</Size>
+		<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+			<EdgeSize val="16" />
+		</Backdrop>
+
+		<Anchors>
+			<Anchor point="CENTER" relativeTo="$parent">
+				<Offset>
+					<AbsDimension x="200" y="0"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+
+		<Frames>
+			<Button name="$parentFrame1" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="4" y="-4"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+
+			<Button name="$parentFrame2" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentFrame1" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
+			<Button name="$parentFrame3" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentFrame2" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
+			<Button name="$parentFrame4" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentFrame3" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
+			<Button name="$parentFrame5" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentFrame4" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
+			<Button name="$parentFrame6" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentFrame5" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
+			<Button name="$parentFrame7" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentFrame6" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
+			<Button name="$parentFrame8" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentFrame7" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
+			<Button name="$parentFrame9" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentFrame8" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
+			<Button name="$parentFrame10" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentFrame9" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
+			<Button name="$parentFrame11" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentFrame10" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
+			<Button name="$parentFrame12" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentFrame11" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
+			<Button name="$parentFrame13" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentFrame12" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
+			<Button name="$parentFrame14" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentFrame13" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+
+			<Button name="$parentFrame15" inherits="NearbyEnemyFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentFrame14" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</Button>
+		</Frames>
+
+		<Scripts>
+			<OnLoad>
+				NearbyTargets_OnLoad()
+			</OnLoad>
+			<OnEvent>
+				NearbyTargets_OnEvent()
+			</OnEvent>
+		</Scripts>
+	</Frame>
+</Ui>
