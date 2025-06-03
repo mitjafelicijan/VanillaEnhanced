@@ -547,6 +547,10 @@ function GroupMemberFrame_OnLoad()
 		end
 	end)
 
+	this:SetScript("OnHide", function()
+		CompactFrames:StopMovingOrSizing()
+	end)
+
 	-- Reset all healing prediction status bars.
 	local frame = getglobal(string.format("%sHealthBarPrediction", this:GetName()))
 	if frame then
