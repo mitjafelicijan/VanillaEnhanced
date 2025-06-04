@@ -19,6 +19,8 @@ local module = VE.registerModule({
 			shapeshift = nil,
 			pet = nil,
 			bonus = nil,
+			exp = nil,
+			rep = nil,
 		}
 	},
 })
@@ -39,7 +41,7 @@ local function Initialize()
 
 	module.data.bars.pivot = CreateFrame("Frame", "CompactActionBars", UIParent)
 	module.data.bars.pivot:SetWidth(module.data.bars.size.width)
-	module.data.bars.pivot:SetHeight((module.data.bars.size.height * 3) + (module.data.bars.spacing * 2))
+	module.data.bars.pivot:SetHeight((module.data.bars.size.height * 3) + (module.data.bars.spacing * 5))
 	module.data.bars.pivot:SetPoint("Center", UIParent, "Bottom", 0, (module.data.bars.size.height * 2))
 
 	module.data.bars.right = CreateFrame("Frame", "CompactActionBarsRight", module.data.bars.pivot)
@@ -71,6 +73,24 @@ local function Initialize()
 	module.data.bars.pet:SetWidth(module.data.bars.size.width)
 	module.data.bars.pet:SetHeight(module.data.bars.size.height)
 	module.data.bars.pet:SetPoint("BottomLeft", module.data.bars.right, "BottomLeft", 0, module.data.bars.size.height + module.data.bars.spacing + 6)
+
+	module.data.bars.exp = CreateFrame("Frame", "ExperienceBar", module.data.bars.pivot)
+	module.data.bars.exp:SetWidth(module.data.bars.size.width / 2)
+	module.data.bars.exp:SetHeight(20)
+	module.data.bars.exp:SetPoint("TopLeft", module.data.bars.right, "TopLeft", -2, -126)
+	module.data.bars.exp.tex = module.data.bars.exp:CreateTexture("ExperienceBarNormal", "OVERLAY")
+	module.data.bars.exp.tex:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-Skills-BarBorder")
+	module.data.bars.exp.tex:SetAllPoints(module.data.bars.exp)
+	module.data.bars.exp.tex:SetDrawLayer("OVERLAY", 7)
+
+	module.data.bars.rep = CreateFrame("Frame", "ReputationBar", module.data.bars.pivot)
+	module.data.bars.rep:SetWidth(module.data.bars.size.width / 2)
+	module.data.bars.rep:SetHeight(20)
+	module.data.bars.rep:SetPoint("TopRight", module.data.bars.right, "TopRight", -2, -126)
+	module.data.bars.rep.tex = module.data.bars.rep:CreateTexture("ReputationBarNormal", "OVERLAY")
+	module.data.bars.rep.tex:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-Skills-BarBorder")
+	module.data.bars.rep.tex:SetAllPoints(module.data.bars.rep)
+	module.data.bars.rep.tex:SetDrawLayer("OVERLAY", 7)
 end
 
 local function RepositionMultiBarMain()
@@ -232,16 +252,12 @@ local function HideOtherUI()
 	end
 
 	if MainMenuExpBar then
-		MainMenuExpBar:Hide()
-		MainMenuExpBar.Show = function() end
+	-- 	MainMenuExpBar:Hide()
+	-- 	MainMenuExpBar.Show = function() end
 		if MainMenuExpBarLeftCap then MainMenuExpBarLeftCap:Hide() end
 		if MainMenuExpBarRightCap then MainMenuExpBarRightCap:Hide() end
 	end
 
-	ReputationWatchBar:SetScript("OnEvent", function()
-		this:SetParent(UIParent)
-		this:Hide()
-	end)
 
 	local mainBarTextures = {
 		"MainMenuBarTexture0",
@@ -268,6 +284,66 @@ local function HideOtherUI()
 	if MainMenuBarRightEndCap then MainMenuBarRightEndCap:Hide() end
 end
 
+local function RepositionExperienceBar()
+	MainMenuXPBarTexture0:Hide()
+	MainMenuXPBarTexture1:Hide()
+	MainMenuXPBarTexture2:Hide()
+	MainMenuXPBarTexture3:Hide()
+
+	if UnitLevel("player") == 60 then
+		module.data.bars.exp:Hide()
+		return
+	end
+
+	MainMenuExpBar:SetWidth((module.data.bars.size.width / 2) - 10)
+	MainMenuExpBar:SetHeight(10)
+	MainMenuExpBar:ClearAllPoints()
+	MainMenuExpBar:SetPoint("Center", module.data.bars.exp, "Center", 0, 0)
+	MainMenuExpBar:SetParent(module.data.bars.exp)
+	MainMenuExpBar:SetFrameStrata("MEDIUM")
+	MainMenuExpBar:SetFrameLevel(module.data.bars.exp:GetFrameLevel())
+
+	MainMenuBarExpText:SetPoint("Center", MainMenuExpBar, "Center", 0, 10)
+	
+	local Original_MainMenuExpBar_Update = MainMenuExpBar_Update
+	MainMenuExpBar_Update = function()
+		Original_MainMenuExpBar_Update()
+	end
+end
+
+local function RepositionReputationBar()
+	ReputationWatchBar:Hide()
+	ReputationWatchBar:SetWidth((module.data.bars.size.width / 2) - 10)
+	ReputationWatchBar:SetHeight(10)
+	ReputationWatchStatusBar:SetAllPoints()
+
+	local Original_ReputationWatchBar_Update = ReputationWatchBar_Update
+	ReputationWatchBar:SetScript("OnEvent", function()
+		Original_ReputationWatchBar_Update()
+		
+		ReputationWatchBar:Hide()
+		module.data.bars.rep:Hide()
+		
+		if not GetWatchedFactionInfo() then return end
+
+		module.data.bars.rep:Show()
+
+		ReputationWatchBar:Show()
+		ReputationWatchBar:ClearAllPoints()
+		ReputationWatchBar:SetPoint("CENTER", module.data.bars.rep, "CENTER", 0, 0)
+		ReputationWatchBar:SetParent(module.data.bars.rep)
+
+		ReputationWatchBarTexture0:Hide()
+		ReputationWatchBarTexture1:Hide()
+		ReputationWatchBarTexture2:Hide()
+		ReputationWatchBarTexture3:Hide()
+
+		ReputationXPBarTexture0:Hide()
+		ReputationXPBarTexture1:Hide()
+		ReputationXPBarTexture2:Hide()
+	end)
+end
+
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
@@ -284,6 +360,8 @@ module.plug:SetScript("OnEvent", function()
 		RepositionPetBar()
 		RepositionBonusBar()
 		RepositionBags()
+		RepositionExperienceBar()
+		RepositionReputationBar()
 		HideOtherUI()
 	end
 
