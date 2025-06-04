@@ -56,12 +56,15 @@ Modules\MiniPowerFrame.xml
 Modules\CompactFrames.xml
 Modules\CombatCursor.lua
 Modules\CompactActionBars.lua
+Modules\NearbyTargets.xml
+Modules\TrinketManager.lua
+Modules\HideEBC.lua
+Modules\HideLFT.lua
+Modules\HideBGF.lua
 
 # Work in progress
 Modules\AuctionEnhancements.xml
-Modules\TrinketManager.lua
 Modules\ThreatMeter.xml
-Modules\NearbyTargets.xml
 
 # Retired
 # Modules\RaidFrames.lua

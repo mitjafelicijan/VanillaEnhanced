@@ -62,6 +62,33 @@ VE.panels.Interface = function(parent)
 		end
 	end
 
+	do
+		local module = VE.getModule("HideEBC")
+		if module then
+			VE.elements.Checkbox(frame, 20, -260, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("HideLFT")
+		if module then
+			VE.elements.Checkbox(frame, 20, -290, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("HideBGF")
+		if module then
+			VE.elements.Checkbox(frame, 20, -320, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
 	-- Right column
 
 	do
