@@ -55,6 +55,7 @@ Modules\MiniPlayerFrame.xml
 Modules\MiniPowerFrame.xml
 Modules\CompactFrames.xml
 Modules\CombatCursor.lua
+Modules\CompactActionBars.lua
 
 # Work in progress
 Modules\AuctionEnhancements.xml

@@ -181,17 +181,23 @@ module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 
 	if event == "PLAYER_ENTERING_WORLD" and not module.plug.frame then
-		local parent = MultiBarBottomRight -- UIParent
-		module.plug.frame = CreateFrame("Frame", "TrinketManagerFrame", parent)
-		module.plug.frame:SetPoint("BottomLeft", parent, "BottomLeft", -2, 60)
-		module.plug.frame:SetWidth(module.config.iconSize * 2)
-		module.plug.frame:SetHeight(module.config.iconSize)
+		local parent = MultiBarBottomRight
 
-		CreateTrinketSlot(module.plug.frame, "Trinket1", 0, 13)
-		CreateTrinketSlot(module.plug.frame, "Trinket2", (module.config.iconSize * module.config.iconScale) + 2, 14)
-		
+		if CompactActionBars and CompactActionBarsRight then
+			parent = CompactActionBarsRight
+		end
+
+		module.plug.frame = CreateFrame("Frame", "TrinketManagerFrame", MultiBarBottomRight)
+		module.plug.frame:SetPoint("Right", parent, "BottomRight", -1, (module.config.iconSize * 2) - 2)
+		module.plug.frame:SetWidth(module.config.iconSize * 3 + 25)
+		module.plug.frame:SetHeight(module.config.iconSize)
+		module.plug.frame:SetFrameStrata("LOW")
+
+		CreateTrinketSlot(module.plug.frame, "Trinket1", (module.config.iconSize * module.config.iconScale * 1) + 2, 13)
+		CreateTrinketSlot(module.plug.frame, "Trinket2", (module.config.iconSize * module.config.iconScale * 2) + 4, 14)
+
 		if UnitClass("player") == "Druid" then
-			CreateIdolSlot(module.plug.frame, "Idol1", (module.config.iconSize * module.config.iconScale * 2) + 4, module.config.slots.idol1)
+			CreateIdolSlot(module.plug.frame, "Idol1", 0, module.config.slots.idol1)
 		end
 	end
 
