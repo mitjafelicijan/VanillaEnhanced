@@ -218,6 +218,7 @@ end
 function MiniPowerFrame_OnEvent()
 	if not VE.isModuleEnabled(module.identifier) then
 		this:UnregisterAllEvents()
+		this:Hide()
 		return
 	end
 
