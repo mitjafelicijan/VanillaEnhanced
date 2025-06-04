@@ -340,7 +340,7 @@ local function UpdateMemberFrame(unitInfo, frameName)
 	getglobal(frameName).info = unitInfo
 
 	if string.len(unitInfo.name) > 10 then
-		nameText:SetText(string.format("%s...", string.sub(unitInfo.name, 1, 9)))
+		nameText:SetText(string.format("%s...", string.sub(unitInfo.name, 1, 7)))
 	else
 		nameText:SetText(unitInfo.name)
 	end
