@@ -3,7 +3,7 @@
 
 	<Button name="BuffAuraTemplate" virtual="true" hidden="true">
 		<Size>
-			<AbsDimension x="14" y="14"/>
+			<AbsDimension x="12" y="12"/>
 		</Size>
 		<Anchors>
 			<Anchor point="BOTTOMLEFT"></Anchor>
@@ -31,11 +31,11 @@
 
 	<Button name="GroupMemberFrameTemplate" virtual="true">
 		<Size>
-			<AbsDimension x="90" y="42"/>
+			<AbsDimension x="68" y="34"/>
 		</Size>
 		<Layers>
 			<Layer level="ARTWORK">
-				<FontString name="$parentNameText" inherits="GameFontHighlightSmall">
+				<FontString name="$parentNameText" inherits="GameFontHighlightSmall" text="Player">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="$parent">
 							<Offset x="15" y="-3" />
@@ -56,7 +56,6 @@
 					<Size>
 						<AbsDimension x="12" y="12"/>
 					</Size>
-
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="$parent">
 							<Offset x="3" y="-3"/>
@@ -77,12 +76,33 @@
 
 				<Texture name="$parentDisconnectIcon" file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-Disconnect" hidden="true">
 					<Size>
-						<AbsDimension x="32" y="32"/>
+						<AbsDimension x="28" y="28"/>
 					</Size>
-
 					<Anchors>
 						<Anchor point="CENTER" relativeTo="$parent">
-							<Offset x="0" y="-4"/>
+							<Offset x="0" y="0"/>
+						</Anchor>
+					</Anchors>
+				</Texture>
+
+				<Texture name="$parentPowerTexture1" file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-HSeparator" hidden="false">
+					<Size>
+						<AbsDimension x="66" y="8"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativeTo="$parent">
+							<Offset x="0" y="-12"/>
+						</Anchor>
+					</Anchors>
+				</Texture>
+
+				<Texture name="$parentPowerTexture2" file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-HSeparator" hidden="false">
+					<Size>
+						<AbsDimension x="66" y="8"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativeTo="$parent">
+							<Offset x="0" y="-20"/>
 						</Anchor>
 					</Anchors>
 				</Texture>
@@ -91,7 +111,7 @@
 		<Frames>
 			<Frame frameStrata="BACKGROUND">
 				<Size>
-					<AbsDimension x="90" y="42"/>
+					<AbsDimension x="68" y="34"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT"/>
@@ -105,7 +125,7 @@
 
 			<StatusBar name="$parentHealthBarPrediction" frameLevel="1" hidden="false">
 				<Size>
-					<AbsDimension x="90" y="36"/>
+					<AbsDimension x="68" y="28"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent">
@@ -117,7 +137,7 @@
 
 			<StatusBar name="$parentHealthBar" frameLevel="2" hidden="false">
 				<Size>
-					<AbsDimension x="90" y="36"/>
+					<AbsDimension x="68" y="28"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent">
@@ -129,11 +149,11 @@
 
 			<StatusBar name="$parentPowerBar" frameLevel="2">
 				<Size>
-					<AbsDimension x="90" y="7"/>
+					<AbsDimension x="68" y="8"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent">
-						<Offset x="0" y="-36"/>
+						<Offset x="0" y="-28"/>
 					</Anchor>
 				</Anchors>
 				<BarTexture file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-PowerFill" />
@@ -141,7 +161,7 @@
 
 			<Frame name="$parentAura">
 				<Size>
-					<AbsDimension x="70" y="14"/>
+					<AbsDimension x="68" y="14"/>
 				</Size>
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeTo="$parent">
@@ -179,7 +199,7 @@
 
 			<Frame name="$parentDispell">
 				<Size>
-					<AbsDimension x="70" y="14"/>
+					<AbsDimension x="68" y="14"/>
 				</Size>
 				<Anchors>
 					<Anchor point="BOTTOMRIGHT" relativeTo="$parent">
@@ -231,7 +251,7 @@
 
 	<Frame name="GroupFrameTemplate" frameLevel="4" virtual="true">
 		<Size>
-			<AbsDimension x="98" y="218"/>
+			<AbsDimension x="76" y="179"/>
 		</Size>
 		<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
 			<EdgeSize val="16" />

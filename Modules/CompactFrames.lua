@@ -7,6 +7,7 @@ local module = VE.registerModule({
 	plug = nil,
 	superWoWRequired = true,
 	config = {
+		debug = false,    -- Enable this to show frames / for debugging.
 		spellEffectiveness = {
 			["Healing Touch"] = { [1] = 37, [2] = 88, [3] = 195, [4] = 363, [5] = 572, [6] = 742, [7] = 936, [8] = 1199, [9] = 1516, [10] = 1890, [11] = 2267 },
 			["Regrowth"] = { [1] = 84, [2] = 164, [3] = 240, [4] = 318, [5] = 405, [6] = 511, [7] = 646, [8] = 809, [9] = 1003 },
@@ -606,41 +607,45 @@ function CompactFrames_OnEvent()
 		return
 	end
 
-	if not IsParty() and not IsRaid() then
-		this:Hide()
-		return
-	end
-
-	HideNativeFrames()
-
-	if event == "PLAYER_ENTERING_WORLD" or event == "PARTY_MEMBERS_CHANGED" or event == "RAID_ROSTER_UPDATE" then
+	if module.config.debug then
+		this:Show()
+	else
 		if not IsParty() and not IsRaid() then
 			this:Hide()
+			return
 		end
 
-		if IsParty() then
-			UpdatePartyGroup()
-			this:Show()
+		HideNativeFrames()
+
+		if event == "PLAYER_ENTERING_WORLD" or event == "PARTY_MEMBERS_CHANGED" or event == "RAID_ROSTER_UPDATE" then
+			if not IsParty() and not IsRaid() then
+				this:Hide()
+			end
+
+			if IsParty() then
+				UpdatePartyGroup()
+				this:Show()
+			end
+
+			if IsRaid() then
+				UpdateRaidGroups()
+				this:Show()
+			end
 		end
 
-		if IsRaid() then
-			UpdateRaidGroups()
-			this:Show()
+		if event == "PLAYER_TARGET_CHANGED" then
+			if not IsParty() and not IsRaid() then return end
+
+			ResetHighlightedFrames()
+
+			if UnitExists("target") then
+				local targetName = UnitName("target")
+				HighlightUnitFrameByMemberName(targetName)
+			end
 		end
-	end
 
-	if event == "PLAYER_TARGET_CHANGED" then
-		if not IsParty() and not IsRaid() then return end
-
-		ResetHighlightedFrames()
-
-		if UnitExists("target") then
-			local targetName = UnitName("target")
-			HighlightUnitFrameByMemberName(targetName)
+		if event == "UNIT_CASTEVENT" then
+			UpdateHealPrediction(arg1, arg2, arg3, arg4, arg5)
 		end
-	end
-
-	if event == "UNIT_CASTEVENT" then
-		UpdateHealPrediction(arg1, arg2, arg3, arg4, arg5)
 	end
 end
