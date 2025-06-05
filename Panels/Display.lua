@@ -36,6 +36,12 @@ VE.panels.Display = function(parent)
 		ShowHelm(checked)
 	end)
 
+	do
+		local module = VE.getModule("BigPlayerFrame")
+		VE.elements.Checkbox(frame, 20, -290, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+		end, module.superWoWRequired)
+	end
 
 	-- Right column
 

@@ -61,6 +61,7 @@ Modules\TrinketManager.lua
 Modules\HideEBC.lua
 Modules\HideLFT.lua
 Modules\HideBGF.lua
+Modules\BigPlayerFrame.lua
 
 # Work in progress
 Modules\AuctionEnhancements.xml
