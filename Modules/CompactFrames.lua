@@ -599,6 +599,7 @@ function CompactFrames_OnLoad()
 	this:RegisterEvent("PARTY_MEMBER_DISABLE")
 	this:RegisterEvent("PLAYER_TARGET_CHANGED")
 	this:RegisterEvent("UNIT_CASTEVENT")
+	this:RegisterEvent("UPDATE_MASTER_LOOT_LIST")
 end
 
 function CompactFrames_OnEvent()
@@ -646,6 +647,11 @@ function CompactFrames_OnEvent()
 
 		if event == "UNIT_CASTEVENT" then
 			UpdateHealPrediction(arg1, arg2, arg3, arg4, arg5)
+		end
+
+		if event == "UPDATE_MASTER_LOOT_LIST" then
+			-- https://wowpedia.fandom.com/wiki/API_GetLootMethod
+			print(string.format("master looter > arg1: %s, arg2: %s, arg3: %s", arg1, arg2, arg3))
 		end
 	end
 end
