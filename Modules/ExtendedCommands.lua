@@ -227,4 +227,9 @@ module.plug:SetScript("OnEvent", function()
 			TargetLastEnemy()
 		end
 	end
+
+	SLASH_CLEARTARGET1 = "/cleartarget"
+	SlashCmdList["CLEARTARGET"] = function()
+		ClearTarget()
+	end
 end)
