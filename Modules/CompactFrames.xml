@@ -29,6 +29,8 @@
 		</Layers>
 	</Button>
 
+	<Font name="MyCustomSmallFont" font="Fonts\FRIZQT__.ttf" height="8" outline="NONE"/>
+
 	<Button name="GroupMemberFrameTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="68" y="34"/>
@@ -38,7 +40,7 @@
 				<FontString name="$parentNameText" inherits="GameFontHighlightSmall" text="Player">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="$parent">
-							<Offset x="15" y="-3" />
+							<Offset x="14" y="-3" />
 						</Anchor>
 					</Anchors>
 				</FontString>
@@ -58,7 +60,7 @@
 					</Size>
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="$parent">
-							<Offset x="3" y="-3"/>
+							<Offset x="3" y="-2"/>
 						</Anchor>
 					</Anchors>
 				</Texture>
@@ -69,7 +71,7 @@
 					</Size>
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="$parent">
-							<Offset x="3" y="-3"/>
+							<Offset x="3" y="-2"/>
 						</Anchor>
 					</Anchors>
 				</Texture>
