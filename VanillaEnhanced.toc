@@ -3,7 +3,7 @@
 ## Author: Mitja Felicijan (mitja.felicijan@gmail.com)
 ## Notes: Preserves the original Vanilla UI with modern enhancements and quality-of-life improvements.
 ## Version: 1.0
-## SavedVariablesPerCharacter: VanillaEnhancedModules, VanillaEnhancedData
+## SavedVariablesPerCharacter: VanillaEnhancedModules, VanillaEnhancedData, VanillaEnhancedOptions
 ## Bindings: Bindings.xml
 
 # Data

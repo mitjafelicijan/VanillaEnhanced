@@ -6,8 +6,20 @@ local module = VE.registerModule({
 	},
 	plug = nil,
 	superWoWRequired = true,
-	config = {},
+	config = {
+		classColors = false,
+	},
 	data = {},
+	options = {
+		{
+			identifier = "BigPlayerFrameClassColors",
+			meta = {
+				label = "Class colors",
+				description = "Use class colors for the health statusbar.",
+			},
+			superWoWRequired = true,
+		}
+	},
 })
 
 -- Check for SuperWoW dependency.
@@ -35,9 +47,6 @@ module.plug:SetScript("OnEvent", function()
 		TargetFrameNameBackground.Show = function() return end
 		TargetFrameNameBackground:Hide()
 
-		local color = VE.config.ClassColors[UnitClass("player")]
-		PlayerFrameHealthBar:SetStatusBarColor(color.r, color.g, color.b, 1)
-
 		local original = TargetFrame_CheckClassification
 		function TargetFrame_CheckClassification()
 			local classification = UnitClassification("target")
@@ -54,26 +63,31 @@ module.plug:SetScript("OnEvent", function()
 			end
 		end
 
-		local Original_UnitFrameHealthBar_Update = UnitFrameHealthBar_Update
-		function UnitFrameHealthBar_Update(statusbar, unit)
-			-- VE.print(string.format("unit: %s, class: %s, status: %s", unit, UnitClass(unit), statusbar:GetName()))
-			Original_UnitFrameHealthBar_Update(statusbar, unit)
+		if VE.isOptionEnabled("BigPlayerFrameClassColors") then
+			local color = VE.config.ClassColors[UnitClass("player")]
+			PlayerFrameHealthBar:SetStatusBarColor(color.r, color.g, color.b, 1)
 
-			local statusbarName = statusbar:GetName()
+			local Original_UnitFrameHealthBar_Update = UnitFrameHealthBar_Update
+			function UnitFrameHealthBar_Update(statusbar, unit)
+				-- VE.print(string.format("unit: %s, class: %s, status: %s", unit, UnitClass(unit), statusbar:GetName()))
+				Original_UnitFrameHealthBar_Update(statusbar, unit)
 
-			if statusbarName == "PlayerFrameHealthBar" then
-				local color = VE.config.ClassColors[UnitClass("player")]
-				if color then PlayerFrameHealthBar:SetStatusBarColor(color.r, color.g, color.b, 1) end
-			end
+				local statusbarName = statusbar:GetName()
 
-			if statusbarName == "TargetFrameHealthBar" then
-				local color = VE.config.ClassColors[UnitClass("target")]
-				if color then TargetFrameHealthBar:SetStatusBarColor(color.r, color.g, color.b, 1) end
+				if statusbarName == "PlayerFrameHealthBar" then
+					local color = VE.config.ClassColors[UnitClass("player")]
+					if color then PlayerFrameHealthBar:SetStatusBarColor(color.r, color.g, color.b, 1) end
+				end
+
+				if statusbarName == "TargetFrameHealthBar" then
+					local color = VE.config.ClassColors[UnitClass("target")]
+					if color then TargetFrameHealthBar:SetStatusBarColor(color.r, color.g, color.b, 1) end
+				end
 			end
 		end
 	end
 
-	if event == "PLAYER_TARGET_CHANGED" then
+	if event == "PLAYER_TARGET_CHANGED" and VE.isOptionEnabled("BigPlayerFrameClassColors") then
 		local color = VE.config.ClassColors[UnitClass("target")]
 		if color then
 			TargetFrameHealthBar:SetStatusBarColor(color.r, color.g, color.b, 1)

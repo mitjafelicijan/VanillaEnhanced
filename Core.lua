@@ -8,11 +8,16 @@ if not VanillaEnhancedData then
 	VanillaEnhancedData = {}
 end
 
+if not VanillaEnhancedOptions then
+	VanillaEnhancedOptions = {}
+end
+
 VE = {}
 
 VE.panels = {}
 VE.elements = {}
 VE.modules = {}
+VE.options = {}
 VE.hooks = {}
 
 VE.config = {
@@ -25,7 +30,7 @@ VE.config = {
 		Paladin = { r = 0.96, g = 0.55, b = 0.73 },
 		Priest = { r = 1.00, g = 1.00, b = 1.00 },
 		Rogue = { r = 1.00, g = 0.96, b = 0.41 },
-		Shaman = { r = 0.00, g = 0.44, b = 0.87 },
+		Shaman = { r = 0.14, g = 0.35, b = 1.00 },
 		Warlock = { r = 0.53, g = 0.53, b = 0.93 },
 		Warrior = { r = 0.78, g = 0.61, b = 0.43 },
 	},
@@ -171,6 +176,16 @@ VE.registerModule = function(module)
 		VanillaEnhancedModules[module.identifier] = false
 	end
 
+	if module.options then
+		for _, option in pairs(module.options) do
+			if VanillaEnhancedOptions[option.identifier] == nil then
+				VanillaEnhancedOptions[option.identifier] = false
+			end
+
+			table.insert(VE.options, option)
+		end
+	end
+
 	table.insert(VE.modules, module)
 	return module
 end
@@ -195,6 +210,26 @@ VE.getModule = function(identifier)
 	return nil
 end
 
+VE.enableOption = function(identifier)
+	VanillaEnhancedOptions[identifier] = true
+end
+
+VE.disableOption = function(identifier)
+	VanillaEnhancedOptions[identifier] = false
+end
+
+VE.getOption = function(identifier)
+	if VanillaEnhancedOptions then
+		for _, option in VE.options do
+			if option.identifier == identifier then
+				option.enabled = VanillaEnhancedOptions[identifier]
+				return option
+			end
+		end
+	end
+	return nil
+end
+
 VE.superWoWCheck = function(module)
 	if not SUPERWOW_VERSION and module.superWoWRequired then
 		return false
@@ -212,6 +247,12 @@ end
 VE.isModuleEnabled = function(module)
 	if  VanillaEnhancedModules and VanillaEnhancedModules[module] ~= nil then
 		return VanillaEnhancedModules[module]
+	end
+end
+
+VE.isOptionEnabled = function(option)
+	if  VanillaEnhancedOptions and VanillaEnhancedOptions[option] ~= nil then
+		return VanillaEnhancedOptions[option]
 	end
 end
 

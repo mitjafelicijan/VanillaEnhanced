@@ -38,9 +38,16 @@ VE.panels.Display = function(parent)
 
 	do
 		local module = VE.getModule("BigPlayerFrame")
-		VE.elements.Checkbox(frame, 20, -290, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+		VE.elements.Checkbox(frame, 20, -300, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 			if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 		end, module.superWoWRequired)
+	end
+
+	do
+		local option = VE.getOption("BigPlayerFrameClassColors")
+		VE.elements.Checkbox(frame, 40, -330, 140, option.meta.label, option.meta.description, nil, option.enabled, function(checked)
+			if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
+		end, option.superWoWRequired)
 	end
 
 	-- Right column
