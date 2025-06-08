@@ -146,7 +146,7 @@
 					</Anchor>
 					<Anchor point="BOTTOMRIGHT">
 						<Offset>
-							<AbsDimension x="-37" y="11"/>
+							<AbsDimension x="-36" y="11"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
