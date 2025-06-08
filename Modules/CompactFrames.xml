@@ -31,7 +31,7 @@
 
 	<Button name="GroupMemberFrameTemplate" virtual="true">
 		<Size>
-			<AbsDimension x="72" y="34"/>
+			<AbsDimension x="72" y="38"/>
 		</Size>
 		<Layers>
 			<Layer level="ARTWORK">
@@ -55,7 +55,7 @@
 					</Size>
 					<Anchors>
 						<Anchor point="CENTER" relativeTo="$parent">
-							<Offset x="0" y="-12"/>
+							<Offset x="0" y="-14"/>
 						</Anchor>
 					</Anchors>
 				</Texture>
@@ -66,7 +66,7 @@
 					</Size>
 					<Anchors>
 						<Anchor point="CENTER" relativeTo="$parent">
-							<Offset x="0" y="-20"/>
+							<Offset x="0" y="-22"/>
 						</Anchor>
 					</Anchors>
 				</Texture>
@@ -111,7 +111,7 @@
 		<Frames>
 			<Frame frameStrata="BACKGROUND">
 				<Size>
-					<AbsDimension x="72" y="34"/>
+					<AbsDimension x="72" y="38"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT"/>
@@ -125,7 +125,7 @@
 
 			<StatusBar name="$parentHealthBarPrediction" frameLevel="1" hidden="false">
 				<Size>
-					<AbsDimension x="72" y="28"/>
+					<AbsDimension x="72" y="32"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent">
@@ -137,7 +137,7 @@
 
 			<StatusBar name="$parentHealthBar" frameLevel="2" hidden="false">
 				<Size>
-					<AbsDimension x="72" y="28"/>
+					<AbsDimension x="72" y="32"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent">
@@ -153,7 +153,7 @@
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent">
-						<Offset x="0" y="-28"/>
+						<Offset x="0" y="-32"/>
 					</Anchor>
 				</Anchors>
 				<BarTexture file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-PowerFill" />
@@ -251,7 +251,7 @@
 	
 	<Frame name="GroupFrameTemplate" frameLevel="4" virtual="true">
 		<Size>
-			<AbsDimension x="80" y="179"/>
+			<AbsDimension x="80" y="199"/>
 		</Size>
 		<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
 			<EdgeSize val="16" />
@@ -300,7 +300,7 @@
 		</Size>
 		<Layers>
 			<Layer level="ARTWORK">
-				<FontString name="$parentNameText" inherits="GameFontHighlightSmall" text="Player">
+				<FontString name="$parentNameText" inherits="GameFontHighlightSmall" text="Focused Player">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="$parent">
 							<Offset x="14" y="-3" />
@@ -553,7 +553,7 @@
 
 			<!-- 3 focus member frames -->
 
-			<Button name="FocusFrame1" inherits="FocusMemberFrameTemplate">
+			<Button name="FocusFrame1" inherits="FocusMemberFrameTemplate" hidden="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="GroupFrame4" relativePoint="TOPRIGHT">
 						<Offset>
@@ -563,7 +563,7 @@
 				</Anchors>
 			</Button>
 
-			<Button name="FocusFrame2" inherits="FocusMemberFrameTemplate">
+			<Button name="FocusFrame2" inherits="FocusMemberFrameTemplate" hiddeen="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="FocusFrame1" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -573,7 +573,7 @@
 				</Anchors>
 			</Button>
 
-			<Button name="FocusFrame3" inherits="FocusMemberFrameTemplate">
+			<Button name="FocusFrame3" inherits="FocusMemberFrameTemplate" hidden="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="FocusFrame2" relativePoint="BOTTOMLEFT">
 						<Offset>

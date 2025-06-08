@@ -33,6 +33,14 @@ VE.panels.RaidParty = function(parent)
 		end
 	end
 
+	VE.elements.DropDown(frame, 50, -210, 160, nil, 0, {
+		{ key = 0, text = "No Auras on Unit Frames", tooltip = "Do not show auras" },
+		{ key = 2, text = "Show Only Buffs", tooltip = "Show only party buffs" },
+		{ key = 1, text = "Show Only Debuffs", tooltip = "Show only party debuffs" },
+		{ key = 3, text = "Show Only HOT's", tooltip = "Show only party HOT's" },
+	}, function(key)
+		-- VE.SetCVar("cameraSmoothStyle", key)
+	end)
 
 	-- Right column
 
