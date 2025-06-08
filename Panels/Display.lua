@@ -50,6 +50,13 @@ VE.panels.Display = function(parent)
 		end, option.superWoWRequired)
 	end
 
+	do
+		local module = VE.getModule("NameplateThreat")
+		VE.elements.Checkbox(frame, 20, -370, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+		end, module.superWoWRequired)
+	end
+
 	-- Right column
 
 	VE.elements.Checkbox(frame, 270, -20, 140, USE_UBERTOOLTIPS, OPTION_TOOLTIP_USE_UBERTOOLTIPS, nil, VE.GetCVarAsBoolean("UberTooltips"), function(checked)
@@ -94,6 +101,15 @@ VE.panels.Display = function(parent)
 		local module = VE.getModule("HideLuaErrors")
 		if module then
 			VE.elements.Checkbox(frame, 270, -270, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("BulletinBoard")
+		if module then
+			VE.elements.Checkbox(frame, 270, -300, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end

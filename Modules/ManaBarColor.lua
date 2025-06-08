@@ -1,8 +1,8 @@
 local module = VE.registerModule({
 	identifier = "ManaBarColor",
 	meta = {
-		label = "Lighter Mana Bar Color",
-		description = "Adjusts the default mana bar color to a lighter shade of blue for better visibility.",
+		label = "White Mana Bar Color",
+		description = "Adjusts the default mana bar color to white for better visibility.",
 	},
 	plug = nil,
 	superWoWRequired = false,
