@@ -22,6 +22,9 @@ module.plug:RegisterEvent("MERCHANT_SHOW")
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 
+	-- Always open all bags.
+	OpenAllBags()
+
 	if IsShiftKeyDown() then return end
 	if CanMerchantRepair() then
 		local repairCost, canRepair = GetRepairAllCost()
