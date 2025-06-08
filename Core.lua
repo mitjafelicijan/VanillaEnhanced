@@ -35,7 +35,8 @@ VE.config = {
 		Warrior = { r = 0.78, g = 0.61, b = 0.43 },
 	},
 	PowerColors = {
-		Mana = { r = 0.00, g = 0.70, b = 1.00 },
+		-- Mana = { r = 0.00, g = 0.70, b = 1.00 },  -- light blue
+		Mana = { r = 1.00, g = 1.00, b = 1.00 },     -- white
 		Rage = { r = 0.80, g = 0.00, b = 0.00 },
 		Focus = { r = 1.00, g = 0.50, b = 0.25 },
 		Energy = { r = 1.00, g = 1.00, b = 0.00 },
@@ -98,20 +99,26 @@ VE.split = function(str, pattern)
 		local part = ""
 		for i = 1, strlen(str) do
 			local c = strsub(str, i, i)
-			if c ~= "," then
+			if c ~= pattern then
 				part = part .. c
 			else
 				table.insert(tab, VE.trim(part))
 				part = ""
 			end
+			c = nil
 		end
 
 		-- Insert last one if there is one.
 		if strlen(VE.trim(part)) > 0 then
 			table.insert(tab, VE.trim(part))
 		end
+		part = nil
 	end
 	return tab
+end
+
+VE.replace = function(str, pattern, replacement)
+	return string.gsub(str, pattern, replacement)
 end
 
 VE.trim = function(str)
