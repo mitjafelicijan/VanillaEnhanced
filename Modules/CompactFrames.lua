@@ -42,6 +42,11 @@ local print = VE.print
 local iprint = VE.iprint
 local dprint = VE.dprint
 
+-- Set up default value of no Auras displayed on unit frames.
+if not VanillaEnhancedOptions["CompactFramesAuras"] then
+	VanillaEnhancedOptions["CompactFramesAuras"] = 0
+end
+
 local function IsRaid()
 	if GetNumRaidMembers() > 0 then return true end
 	return false
@@ -394,14 +399,21 @@ local function UpdateMemberFrame(unitInfo, frameName)
 	end
 
 	-- Update HOTs.
-	for i = 1, 5 do
-		local auraFrame = getglobal(string.format("%sAura%s", frameName, i))
-		if unitInfo.hots[i] then
-			local auraTexture = getglobal(string.format("%sAura%sTexture", frameName, i))
-			auraTexture:SetTexture(unitInfo.hots[i].texture)
-			auraFrame:Show()
-		else
-			auraFrame:Hide()
+	if VanillaEnhancedOptions["CompactFramesAuras"] > 0 then
+		for i = 1, 5 do
+			local _aura = nil
+			if VanillaEnhancedOptions["CompactFramesAuras"] == 1 then _aura = unitInfo.buffs[i] end
+			if VanillaEnhancedOptions["CompactFramesAuras"] == 2 then _aura = unitInfo.debuffs[i] end
+			if VanillaEnhancedOptions["CompactFramesAuras"] == 3 then _aura = unitInfo.hots[i] end
+
+			local auraFrame = getglobal(string.format("%sAura%s", frameName, i))
+			if _aura then
+				local auraTexture = getglobal(string.format("%sAura%sTexture", frameName, i))
+				auraTexture:SetTexture(_aura.texture)
+				auraFrame:Show()
+			else
+				auraFrame:Hide()
+			end
 		end
 	end
 
