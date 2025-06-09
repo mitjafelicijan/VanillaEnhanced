@@ -36,6 +36,24 @@ local module = VE.registerModule({
 		activeMembers = {},
 		healPredictionCache = {},
 	},
+	options = {
+		{
+			identifier = "CompactFramesShowPets",
+			meta = {
+				label = "Show Pets",
+				description = "Show pet unit frames.",
+			},
+			superWoWRequired = false,
+		},
+		{
+			identifier = "CompactFramesShowFocusFrames",
+			meta = {
+				label = "Show Focus Frames",
+				description = "Show up to three focus unit frames like tanks etc.",
+			},
+			superWoWRequired = false,
+		},
+	},
 })
 
 local print = VE.print

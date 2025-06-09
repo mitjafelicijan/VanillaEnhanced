@@ -18,7 +18,7 @@ local module = VE.registerModule({
 				description = "Use class colors for the health statusbar.",
 			},
 			superWoWRequired = true,
-		}
+		},
 	},
 })
 

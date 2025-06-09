@@ -42,6 +42,20 @@ VE.panels.RaidParty = function(parent)
 		VanillaEnhancedOptions["CompactFramesAuras"] = key
 	end)
 
+	do
+		local option = VE.getOption("CompactFramesShowPets")
+		VE.elements.Checkbox(frame, 50, -245, 140, option.meta.label, option.meta.description, nil, option.enabled, function(checked)
+			if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
+		end, option.superWoWRequired)
+	end
+
+	do
+		local option = VE.getOption("CompactFramesShowFocusFrames")
+		VE.elements.Checkbox(frame, 50, -275, 140, option.meta.label, option.meta.description, nil, option.enabled, function(checked)
+			if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
+		end, option.superWoWRequired)
+	end
+
 	-- Right column
 
 	if VE.config.Debug then VE.dframe(frame, 0.0, 1.0, 1.0, 0.2) end
