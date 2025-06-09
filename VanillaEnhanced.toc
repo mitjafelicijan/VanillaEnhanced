@@ -63,14 +63,11 @@ Modules\HideLFT.lua
 Modules\HideBGF.lua
 Modules\BigPlayerFrame.lua
 Modules\NameplateThreat.lua
+Modules\BulletinBoard.xml
 
 # Work in progress
-Modules\BulletinBoard.xml
 # Modules\AuctionEnhancements.xml
 # Modules\ThreatMeter.xml
-
-# Retired
-# Modules\RaidFrames.lua
 
 # Control panels
 Panels\Controls.lua
