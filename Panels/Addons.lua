@@ -15,8 +15,6 @@ VE.panels.Addons = function(parent)
 		local addonIdx = i
 
 		local name, title, notes, enabled, loadable, reason, security = GetAddOnInfo(i)
-		local isLoaded = IsAddOnLoaded(i)
-
 		VE.elements.Checkbox(frame, x, y, 140, title, notes, nil, IsAddOnLoaded(addonIdx), function(checked)
 			if checked then
 				EnableAddOn(addonIdx)

@@ -2,7 +2,7 @@
 ## Title: Vanilla Enhanced
 ## Author: Mitja Felicijan (mitja.felicijan@gmail.com)
 ## Notes: Preserves the original Vanilla UI with modern enhancements and quality-of-life improvements.
-## Version: 1.0
+## Version: 1.1
 ## SavedVariablesPerCharacter: VanillaEnhancedModules, VanillaEnhancedData, VanillaEnhancedOptions
 ## Bindings: Bindings.xml
 
@@ -20,23 +20,30 @@ Modules\FrameStack.lua
 
 # Modules
 Modules\AlignGrid.lua
-Modules\AuctionAutoPrice.lua
 Modules\AuraTracker.lua
 Modules\AutoLoot.lua
 Modules\AutoRepair.lua
 Modules\BagSearch.lua
 Modules\BankBags.lua
+Modules\BigPlayerFrame.lua
 Modules\BlockAuctionHouse.lua
 Modules\BlockGrouping.lua
 Modules\BlockMailbox.lua
+Modules\BulletinBoard.xml
 Modules\CastingBarPosition.lua
 Modules\ChatEnhancements.lua
+Modules\CombatCursor.lua
+Modules\CompactActionBars.lua
+Modules\CompactFrames.xml
 Modules\CompareTooltip.lua
 Modules\CooldownTimers.lua
 Modules\DruidManaBar.lua
 Modules\EnergyManaTick.lua
 Modules\ExtendedCommands.lua
 Modules\FreeBagSlots.lua
+Modules\HideBGF.lua
+Modules\HideEBC.lua
+Modules\HideLFT.lua
 Modules\HideLuaErrors.lua
 Modules\LastMessageOnly.lua
 Modules\LowHealth.lua
@@ -44,40 +51,32 @@ Modules\MailboxEnhancements.lua
 Modules\ManaBarColor.lua
 Modules\MaxCameraZoom.lua
 Modules\MinimapClock.lua
+Modules\MiniPlayerFrame.xml
+Modules\MiniPowerFrame.xml
 Modules\NameplateComboPoints.lua
 Modules\NameplateScaling.lua
+Modules\NameplateThreat.lua
+Modules\NearbyTargets.xml
 Modules\OutOfRange.lua
 Modules\PullBreakTimer.lua
 Modules\RestedXPTooltip.lua
 Modules\TargetCastingBar.lua
 Modules\TravelJournal.lua
-Modules\MiniPlayerFrame.xml
-Modules\MiniPowerFrame.xml
-Modules\CompactFrames.xml
-Modules\CombatCursor.lua
-Modules\CompactActionBars.lua
-Modules\NearbyTargets.xml
 Modules\TrinketManager.lua
-Modules\HideEBC.lua
-Modules\HideLFT.lua
-Modules\HideBGF.lua
-Modules\BigPlayerFrame.lua
-Modules\NameplateThreat.lua
-Modules\BulletinBoard.xml
 
 # Work in progress
 # Modules\AuctionEnhancements.xml
 
 # Control panels
+Panels\ActionBars.lua
+Panels\Addons.lua
+Panels\Camera.lua
+Panels\ChatSocial.lua
+Panels\Combat.lua
 Panels\Controls.lua
 Panels\Display.lua
 Panels\Interface.lua
-Panels\Camera.lua
-Panels\Combat.lua
-Panels\ActionBars.lua
-Panels\ChatSocial.lua
 Panels\RaidParty.lua
-Panels\Addons.lua
 
 # Main settings panel
 Settings.lua
