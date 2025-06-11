@@ -68,10 +68,15 @@ module.plug:SetScript("OnEvent", function()
 		module.plug.manabar.power:SetWidth(module.plug.manabar:GetWidth() - 5)
 		module.plug.manabar.power:SetHeight(module.plug.manabar:GetHeight() - 5)
 		module.plug.manabar.power:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-		module.plug.manabar.power:SetStatusBarColor(0.0, 0.7, 1.0, 1.0)
 		module.plug.manabar.power:SetMinMaxValues(0, maxMana)
 		module.plug.manabar.power:SetValue(currentMana)
 		module.plug.manabar.power:SetFrameLevel(2)
+		module.plug.manabar.power:SetStatusBarColor(
+			VE.config.PowerColors.Mana.r,
+			VE.config.PowerColors.Mana.g,
+			VE.config.PowerColors.Mana.b,
+			VE.config.PowerColors.Mana.a
+		)
 
 		module.plug.manabar.border = CreateFrame("Frame", nil, module.plug.manabar)
 		module.plug.manabar.border:SetAllPoints(module.plug.manabar)
