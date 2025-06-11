@@ -417,7 +417,7 @@ local function UpdateMemberFrame(unitInfo, frameName)
 	end
 
 	-- Update HOTs.
-	if VanillaEnhancedOptions["CompactFramesAuras"] > 0 then
+	if VanillaEnhancedOptions["CompactFramesAuras"] and VanillaEnhancedOptions["CompactFramesAuras"] > 0 then
 		for i = 1, 5 do
 			local _aura = nil
 			if VanillaEnhancedOptions["CompactFramesAuras"] == 1 then _aura = unitInfo.buffs[i] end
