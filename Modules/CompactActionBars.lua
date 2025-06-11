@@ -116,6 +116,10 @@ local function RepositionMultiBarMain()
 		ActionBarDownButton:ClearAllPoints()
 		ActionBarDownButton:SetPoint("TOP", ActionBarUpButton, "BOTTOM", 0, 11)
 	end
+
+	-- Move main menu bar out of the viewport.
+	MainMenuBar:ClearAllPoints()
+	MainMenuBar:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, -100)
 end
 
 local function HideMultiBarMain()
@@ -257,7 +261,6 @@ local function HideOtherUI()
 		if MainMenuExpBarLeftCap then MainMenuExpBarLeftCap:Hide() end
 		if MainMenuExpBarRightCap then MainMenuExpBarRightCap:Hide() end
 	end
-
 
 	local mainBarTextures = {
 		"MainMenuBarTexture0",
