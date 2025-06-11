@@ -563,7 +563,7 @@
 				</Anchors>
 			</Button>
 
-			<Button name="FocusFrame2" inherits="FocusMemberFrameTemplate" hiddeen="true">
+			<Button name="FocusFrame2" inherits="FocusMemberFrameTemplate" hidden="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="FocusFrame1" relativePoint="BOTTOMLEFT">
 						<Offset>
