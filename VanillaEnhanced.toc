@@ -67,7 +67,6 @@ Modules\BulletinBoard.xml
 
 # Work in progress
 # Modules\AuctionEnhancements.xml
-# Modules\ThreatMeter.xml
 
 # Control panels
 Panels\Controls.lua
