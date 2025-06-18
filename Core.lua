@@ -37,7 +37,7 @@ VE.config = {
 	PowerColors = {
 		-- Mana = { r = 0.00, g = 0.70, b = 1.00 },  -- light blue
 		Mana = { r = 1.00, g = 1.00, b = 1.00 },     -- white
-		Rage = { r = 0.80, g = 0.00, b = 0.00 },
+		Rage = { r = 1.00, g = 0.00, b = 0.00 },
 		Focus = { r = 1.00, g = 0.50, b = 0.25 },
 		Energy = { r = 1.00, g = 1.00, b = 0.00 },
 	},
