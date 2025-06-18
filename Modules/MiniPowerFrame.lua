@@ -80,6 +80,9 @@ end
 local function SwitchPowerBarColor()
 	module.data.playerPower = UnitPowerType("player")
 
+	-- Toggle spark depending on a power type.
+	if module.data.playerPower == 1 then module.data.spark:Hide() else module.data.spark:Show() end
+
 	if module.data.playerPower == 0 then
 		module.data.powerBar:SetStatusBarColor(VE.config.PowerColors.Mana.r, VE.config.PowerColors.Mana.g, VE.config.PowerColors.Mana.b)
 	end
