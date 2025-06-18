@@ -61,7 +61,7 @@ local function GetValidAuras()
 
 	-- Remove auras that dont need to be displayed.
 	for _, aura in pairs(userAuras) do
-		for i = 0, 15 do
+		for i = 0, 31 do
 			local _, _, id, _ = UnitBuff("player", i)
 		end
 	end
@@ -69,7 +69,7 @@ local function GetValidAuras()
 	for _, aura in pairs(userAuras) do
 		local found = false
 
-		for i = 0, 15 do
+		for i = 0, 31 do
 			local texture, _, _, _ = UnitBuff("player", i)
 			if texture then
 				if aura.texture == texture then
