@@ -22,6 +22,7 @@ Modules\FrameStack.lua
 Modules\AlignGrid.lua
 Modules\AuraTracker.lua
 Modules\AutoLoot.lua
+Modules\AutoSell.lua
 Modules\AutoRepair.lua
 Modules\BagSearch.lua
 Modules\BankBags.lua

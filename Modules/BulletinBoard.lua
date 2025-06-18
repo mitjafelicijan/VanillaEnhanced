@@ -246,6 +246,205 @@ function BulletinBoardListing_OnEnter()
 	line = nil
 end
 
+local function CreateMultiSelectDropdown1(name, parent, items, width, fn)
+    local frame = CreateFrame("Button", name, parent, "UIDropDownMenuTemplate")
+    frame:SetWidth(width or 150)
+    frame:SetHeight(44)
+    
+    -- Store selected items
+    frame.selectedItems = {}
+    for _, item in ipairs(items) do
+        frame.selectedItems[item] = false
+    end
+    
+    -- Function to count selected items
+    local function CountSelected()
+        local count = 0
+        for _, selected in pairs(frame.selectedItems) do
+            if selected then count = count + 1 end
+        end
+        return count
+    end
+    
+    -- Function to update the dropdown text
+    local function UpdateText()
+        local selectedCount = CountSelected()
+        local firstSelected
+        
+        if selectedCount > 0 then
+            for item, selected in pairs(frame.selectedItems) do
+                if selected then
+                    firstSelected = item
+                    break
+                end
+            end
+        end
+        
+        local text
+        if selectedCount == 0 then
+            text = "Select options"
+        elseif selectedCount == 1 then
+            text = firstSelected
+        else
+            text = string.format("%d selected", selectedCount)
+        end
+        getglobal(frame:GetName().."Text"):SetText(text)
+    end
+    
+    -- Create an invisible frame for our timer
+    frame.timerFrame = CreateFrame("Frame", nil, frame)
+    frame.timerFrame:Hide()
+    
+    -- Custom dropdown handler
+    local function Dropdown_OnClick()
+        local value = this.value
+        frame.selectedItems[value] = not frame.selectedItems[value]
+        UpdateText()
+
+        frame.timerFrame.startTime = GetTime()
+        frame.timerFrame:SetScript("OnUpdate", function()
+            if GetTime() - this.startTime > 0.01 then
+                this:SetScript("OnUpdate", nil)
+                ToggleDropDownMenu(1, nil, frame, frame:GetName(), 8, 7)
+                this:Hide()
+            end
+        end)
+        frame.timerFrame:Show()
+	end
+
+	-- Initialize the dropdown
+	UIDropDownMenu_Initialize(frame, function()
+		for _, item in ipairs(items) do
+			local info = {
+				text = item,
+				value = item,
+				func = Dropdown_OnClick,
+				checked = frame.selectedItems[item],
+				isTitle = false,
+				notCheckable = false
+			}
+			UIDropDownMenu_AddButton(info)
+		end
+	end)
+
+	-- Initial setup
+	UIDropDownMenu_SetWidth(width or 150, frame)
+	UIDropDownMenu_SetButtonWidth(24, frame)
+	UIDropDownMenu_JustifyText("LEFT", frame)
+	UpdateText()
+
+    return frame
+end
+
+local function CreateMultiSelectDropdown(name, parent, items, width)
+    local frame = CreateFrame("Button", name, parent, "UIDropDownMenuTemplate")
+    frame:SetWidth(width or 150)
+    frame:SetHeight(44)
+    
+    -- Store selected items by id
+    frame.selectedItems = {}
+    
+    -- Function to count selected items
+    local function CountSelected()
+        local count = 0
+        for _, selected in pairs(frame.selectedItems) do
+            if selected then count = count + 1 end
+        end
+        return count
+    end
+    
+    -- Function to update the dropdown text
+    local function UpdateText()
+        local selectedCount = CountSelected()
+        local firstSelectedName
+        
+        if selectedCount > 0 then
+            for _, item in ipairs(items) do
+                if frame.selectedItems[item.id] then
+                    firstSelectedName = item.name
+                    break
+                end
+            end
+        end
+        
+        local text
+        if selectedCount == 0 then
+            text = "Select options"
+        elseif selectedCount == 1 then
+            text = firstSelectedName
+        else
+            text = string.format("%d selected", selectedCount)
+        end
+        getglobal(frame:GetName().."Text"):SetText(text)
+    end
+    
+    -- Create timer frame (vanilla-compatible OnUpdate)
+    frame.timerFrame = CreateFrame("Frame", nil, frame)
+    frame.timerFrame:Hide()
+    frame.timerFrame:SetScript("OnUpdate", function()
+        if not this.startTime then return end
+        if GetTime() - this.startTime > 0.01 then
+            this:SetScript("OnUpdate", nil)
+            this.startTime = nil
+            ToggleDropDownMenu(1, nil, frame, frame:GetName(), 8, 7)
+            this:Hide()
+        end
+    end)
+    
+    -- Custom dropdown handler
+    local function Dropdown_OnClick()
+        local id = this.value
+        frame.selectedItems[id] = not frame.selectedItems[id]
+        UpdateText()
+        
+        -- Schedule menu reopen
+        frame.timerFrame.startTime = GetTime()
+        frame.timerFrame:Show()
+    end
+    
+    -- Initialize the dropdown
+    UIDropDownMenu_Initialize(frame, function()
+        for _, item in ipairs(items) do
+            local info = {
+                text = item.name,
+                value = item.id,
+                func = Dropdown_OnClick,
+                checked = frame.selectedItems[item.id],
+                isTitle = false,
+                notCheckable = false
+            }
+            UIDropDownMenu_AddButton(info)
+        end
+    end)
+    
+    -- Initial setup
+    UIDropDownMenu_SetWidth(width or 150, frame)
+    UIDropDownMenu_SetButtonWidth(24, frame)
+    UIDropDownMenu_JustifyText("LEFT", frame)
+    UpdateText()
+    
+    -- Public methods
+    function frame:GetSelectedIds()
+        local selected = {}
+        for id, isSelected in pairs(self.selectedItems) do
+            if isSelected then table.insert(selected, id) end
+        end
+        return selected
+    end
+    
+    function frame:SetSelectedIds(ids)
+        for id, _ in pairs(self.selectedItems) do
+            self.selectedItems[id] = false
+        end
+        for _, id in ipairs(ids) do
+            self.selectedItems[id] = true
+        end
+        UpdateText()
+    end
+    
+    return frame
+end
+
 function BulletinBoardListing_OnLeave()
 	getglobal(string.format("%sBackground", this:GetName())):SetVertexColor(0, 0, 0, 0.3)
 	GameTooltip:Hide()
@@ -256,6 +455,22 @@ function BulletinBoard_OnLoad()
 	this:RegisterEvent("CHAT_MSG_CHANNEL")
 
 	tinsert(UISpecialFrames, this:GetName())
+
+	-- InitializeBulletinBoardTypeDropdown()
+
+	local items = {"Option 1", "Option 2", "Option 3", "Option 4"}
+	local items = {
+		{id = "opt1", name = "Option 1"},
+		{id = "opt2", name = "Option 2"},
+		{id = "opt3", name = "Option 3"},
+		{id = "opt4", name = "Option 4"}
+	}
+	local dropdown = CreateMultiSelectDropdown("BulletinBoardTypeDropdown", BulletinBoard, items, 120, function(selected)
+		for _, item in ipairs(selected) do
+			print(item)
+		end
+	end)
+	dropdown:SetPoint("TOPLEFT", BulletinBoard, "TOPLEFT", 70, -40)
 end
 
 function BulletinBoard_OnShow()
@@ -273,6 +488,45 @@ function BulletinBoard_OnShow()
 	end
 
 	nativeFrames = nil
+
+
+	-- if not BulletinBoardDungeonsDropdown.initialized then
+	-- 	UIDropDownMenu_SetWidth(120, BulletinBoardDungeonsDropdown)
+	-- 	UIDropDownMenu_Initialize(BulletinBoardDungeonsDropdown, function()
+	-- 		local options = {
+	-- 			{ text = "Option A", value = "A" },
+	-- 			{ text = "Option B", value = "B" },
+	-- 			{ text = "Option C", value = "C" },
+	-- 		}
+
+	-- 		local info = {}
+	-- 		info.text = "Dungeons"
+	-- 		info.value = nil
+	-- 		info.keepShownOnClick = true
+
+	-- 		UIDropDownMenu_AddButton(info)
+	-- 		if UIDROPDOWNMENU_MENU_LEVEL == 1 then
+	-- 			for _, instance in ipairs(module.config.instances) do
+	-- 				if instance.type == "dungeon" then
+	-- 					local info = {}
+	-- 					info.text = instance.name
+	-- 					info.value = instance.id
+	-- 					info.keepShownOnClick = true
+	-- 					-- info.checked = BulletinBoardInstanceDropdown.selected[instance.id] or false
+	-- 					info.func = function()
+	-- 						UIDropDownMenu_SetSelectedID(BulletinBoardDungeonsDropdown, this:GetID())
+	-- 						print(this.value)
+	-- 					end
+	-- 					UIDropDownMenu_AddButton(info)
+	-- 				end
+	-- 			end
+	-- 		end
+
+	-- 		UIDropDownMenu_SetSelectedID(BulletinBoardDungeonsDropdown, 1)
+	-- 	end)
+
+	-- 	BulletinBoardDungeonsDropdown.initialized = true
+	-- end
 end
 
 function BulletinBoard_OnEvent()
