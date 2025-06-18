@@ -388,6 +388,13 @@ local function UpdateMemberFrame(unitInfo, frameName)
 		if unitInfo.lead then leaderIcon:Show() else leaderIcon:Hide() end
 	end
 
+	-- In range detection.
+	if unitInfo.inRange == 1 then
+		this:SetAlpha(1.0)
+	else
+		this:SetAlpha(0.4)
+	end
+
 	if not unitInfo.isOnline then
 		healthBar:SetStatusBarColor(0.0, 0.0, 0.0)
 		healthBar:SetMinMaxValues(0, 1)
@@ -396,6 +403,7 @@ local function UpdateMemberFrame(unitInfo, frameName)
 		powerBar:SetMinMaxValues(0, 1)
 		powerBar:SetValue(1)
 		disconnectIcon:Show()
+		this:SetAlpha(1.0)
 	else
 		local powerColor = VE.config.PowerColors[unitInfo.power.name]
 		local healthColor = VE.config.ClassColors[unitInfo.class]
@@ -452,13 +460,6 @@ local function UpdateMemberFrame(unitInfo, frameName)
 			dispellFrame:Show()
 			nextDispellAura = nextDispellAura + 1
 		end	
-	end
-
-	-- In range detection.
-	if unitInfo.inRange == 1 then
-		this:SetAlpha(1.0)
-	else
-		this:SetAlpha(0.4)
 	end
 end
 
