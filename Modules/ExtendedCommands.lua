@@ -38,25 +38,8 @@ local function GoIntoDruidFormId(formId)
 	end
 end
 
-local function MouseoverUnit()
-	local unit = "mouseover"
-
-	if not UnitExists(unit) then
-		local frame = GetMouseFocus()
-		local fparent = frame:GetParent()
-
-		if frame.label and frame.id then unit = frame.label .. frame.id
-		elseif frame.unit then unit = frame.unit
-		elseif fparent and fparent.unit then unit = fparent.unit
-		elseif UnitExists("target") then unit = "target"
-		elseif GetCVar("autoSelfCast") == "1" then unit = "player"
-		else unit = nil end
-	end
-
-	return unit
-end
-
 -- FIXME: Check why cheetah and pack don't work properly.
+-- https://turtle-wow.fandom.com/wiki/Queriable_buff_effects#Hunter_related
 local function GetCurrentAspect()
 	local _, class = UnitClass("player")
 	if class ~= "HUNTER" then return nil end
@@ -64,18 +47,20 @@ local function GetCurrentAspect()
 	for i = 1, 16 do
 		local buff = UnitBuff("player", i)
 		if buff then
-			if buff == "Interface\\Icons\\Ability_Mount_JungleTiger" then
+			if buff == "Interface\\Icons\\Ability_Mount_PinkTiger" then
+				return "Beast"
+			elseif buff == "Interface\\Icons\\Ability_Mount_JungleTiger" then
 				return "Cheetah"
+			elseif buff == "Interface\\Icons\\Spell_Nature_RavenForm" then
+				return "Hawk"
 			elseif buff == "Interface\\Icons\\Ability_Mount_WhiteTiger" then
 				return "Pack"
 			elseif buff == "Interface\\Icons\\Ability_Hunter_AspectOfTheMonkey" then
 				return "Monkey"
-			elseif buff == "Interface\\Icons\\Spell_Nature_RavenForm" then
-				return "Hawk"
 			elseif buff == "Interface\\Icons\\Spell_Nature_ProtectionformNature" then
 				return "Wild"
-			elseif buff == "Interface\\Icons\\Ability_Mount_PinkTiger" then
-				return "Beast"
+			elseif buff == "Interface\\Icons\\Ability_Mount_WhiteDireWolf" then
+				return "Wolf"
 			end
 		end
 	end
@@ -191,6 +176,9 @@ module.plug:SetScript("OnEvent", function()
 				-- Ghostwolf form.
 				startPos, endPos = string.find(buffTexture, "Spell_Nature_SpiritWolf")
 				if startPos ~= nil and endPos ~= nil then CancelPlayerBuff(i) end
+				-- Qiraji Battle tanks.
+				startPos, endPos = string.find(buffTexture, "inv_misc_qirajicrystal")
+				if startPos ~= nil and endPos ~= nil then CancelPlayerBuff(i) end
 			end
 		end
 	end
@@ -207,25 +195,32 @@ module.plug:SetScript("OnEvent", function()
 		end
 	end
 
-	SLASH_STCAST1 = "/mcast"
-	SlashCmdList["STCAST"] = function(msg, editbox)
+	SLASH_MCAST1 = "/mcast"
+	SlashCmdList["MCAST"] = function(msg)
 		local spell = msg or nil
-		local unit = MouseoverUnit()
-		local restoreHostileTarget = false
+		local unit = GetMouseFocus() and GetMouseFocus().unit
+		if not unit or not spell then return end
 
-		-- Target hostile. Will need to revert back to it.
-		if UnitCanAttack("player", "target") then
-			restoreHostileTarget = true
-		end
-
-		TargetUnit(unit)
-		SpellTargetUnit(unit)
 		CastSpellByName(spell)
-
-		-- Restoring back to the hostile target.
-		if restoreHostileTarget then
-			TargetLastEnemy()
+		if SpellIsTargeting() then
+			SpellTargetUnit(unit)
 		end
+	end
+
+	SLASH_DCAST1 = "/dcast"
+	SlashCmdList["DCAST"] = function(msg, editbox)
+		VE.executeWithDelay(2, function()
+			-- Attempt to cast the spell
+			local success = CastSpellByName(msg)
+
+			-- Check if the cast was successful
+			if not success then
+				VE.print("Failed to cast " .. msg)
+			else
+				VE.print("Successfully cast " .. msg)
+			end
+
+		end)
 	end
 
 	SLASH_CLEARTARGET1 = "/cleartarget"
