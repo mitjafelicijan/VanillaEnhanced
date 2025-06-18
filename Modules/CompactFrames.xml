@@ -31,7 +31,7 @@
 
 	<Button name="GroupMemberFrameTemplate" virtual="true">
 		<Size>
-			<AbsDimension x="72" y="38"/>
+			<AbsDimension x="76" y="38"/>
 		</Size>
 		<Layers>
 			<Layer level="ARTWORK">
@@ -51,7 +51,7 @@
 				</FontString>
 				<Texture name="$parentPowerTexture1" file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-HSeparator" hidden="false">
 					<Size>
-						<AbsDimension x="72" y="8"/>
+						<AbsDimension x="76" y="8"/>
 					</Size>
 					<Anchors>
 						<Anchor point="CENTER" relativeTo="$parent">
@@ -62,7 +62,7 @@
 
 				<Texture name="$parentPowerTexture2" file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-HSeparator" hidden="false">
 					<Size>
-						<AbsDimension x="72" y="8"/>
+						<AbsDimension x="76" y="8"/>
 					</Size>
 					<Anchors>
 						<Anchor point="CENTER" relativeTo="$parent">
@@ -71,9 +71,10 @@
 					</Anchors>
 				</Texture>
 
-				<Texture name="$parentHighlight" file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-Highlight" setAllPoints="true" hidden="true" />
 			</Layer>
 			<Layer level="OVERLAY">
+				<Texture name="$parentHighlight" file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-Highlight" setAllPoints="true" hidden="true" />
+
 				<Texture name="$parentLeaderIcon" file="Interface\AddOns\VanillaEnhanced\Assets\RaidFrame-Leader" hidden="true">
 					<Size>
 						<AbsDimension x="12" y="12"/>
@@ -102,7 +103,7 @@
 					</Size>
 					<Anchors>
 						<Anchor point="CENTER" relativeTo="$parent">
-							<Offset x="0" y="-6"/>
+							<Offset x="0" y="-3"/>
 						</Anchor>
 					</Anchors>
 				</Texture>
@@ -111,7 +112,7 @@
 		<Frames>
 			<Frame frameStrata="BACKGROUND">
 				<Size>
-					<AbsDimension x="72" y="38"/>
+					<AbsDimension x="76" y="38"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT"/>
@@ -125,7 +126,7 @@
 
 			<StatusBar name="$parentHealthBarPrediction" frameLevel="1" hidden="false">
 				<Size>
-					<AbsDimension x="72" y="32"/>
+					<AbsDimension x="76" y="32"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent">
@@ -137,7 +138,7 @@
 
 			<StatusBar name="$parentHealthBar" frameLevel="2" hidden="false">
 				<Size>
-					<AbsDimension x="72" y="32"/>
+					<AbsDimension x="76" y="32"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent">
@@ -149,7 +150,7 @@
 
 			<StatusBar name="$parentPowerBar" frameLevel="2">
 				<Size>
-					<AbsDimension x="72" y="8"/>
+					<AbsDimension x="76" y="8"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent">
@@ -161,7 +162,7 @@
 
 			<Frame name="$parentAura">
 				<Size>
-					<AbsDimension x="72" y="14"/>
+					<AbsDimension x="76" y="14"/>
 				</Size>
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeTo="$parent">
@@ -199,7 +200,7 @@
 
 			<Frame name="$parentDispell">
 				<Size>
-					<AbsDimension x="72" y="14"/>
+					<AbsDimension x="76" y="14"/>
 				</Size>
 				<Anchors>
 					<Anchor point="BOTTOMRIGHT" relativeTo="$parent">
@@ -248,10 +249,10 @@
 			</onleave>
 		</Scripts>
 	</Button>
-	
+
 	<Frame name="GroupFrameTemplate" frameLevel="4" virtual="true">
 		<Size>
-			<AbsDimension x="80" y="199"/>
+			<AbsDimension x="84" y="199"/>
 		</Size>
 		<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
 			<EdgeSize val="16" />
@@ -519,7 +520,7 @@
 
 	<Frame name="CompactFrames" parent="UIParent" frameStrata="LOW" movable="true" resizable="false" clampedToScreen="true" hidden="true">
 		<Size>
-			<AbsDimension x="100" y="220"/>
+			<AbsDimension x="104" y="220"/>
 		</Size>
 		<Anchors>
 			<Anchor point="TOPLEFT" relativeTo="$parent">
