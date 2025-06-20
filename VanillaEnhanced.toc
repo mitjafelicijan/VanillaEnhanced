@@ -8,6 +8,8 @@
 
 # Data
 Data\SpellInfo.lua
+Data\WoWCodexWeapons.lua
+Data\WoWCodexArmor.lua
 
 # Essentials
 Core.lua
@@ -22,8 +24,8 @@ Modules\FrameStack.lua
 Modules\AlignGrid.lua
 Modules\AuraTracker.lua
 Modules\AutoLoot.lua
-Modules\AutoSell.lua
 Modules\AutoRepair.lua
+Modules\AutoSell.lua
 Modules\BagSearch.lua
 Modules\BankBags.lua
 Modules\BigPlayerFrame.lua
@@ -46,6 +48,7 @@ Modules\HideBGF.lua
 Modules\HideEBC.lua
 Modules\HideLFT.lua
 Modules\HideLuaErrors.lua
+Modules\ItemLevel.lua
 Modules\LastMessageOnly.lua
 Modules\LowHealth.lua
 Modules\MailboxEnhancements.lua
