@@ -101,7 +101,7 @@ local function UnitAuras(unit)
 	}
 
 	-- Buffs
-	for j = 1, 16 do
+	for j = 1, 32 do
 		local texture, applications = UnitBuff(unit, j)
 		if texture then
 			table.insert(payload.buffs, {
