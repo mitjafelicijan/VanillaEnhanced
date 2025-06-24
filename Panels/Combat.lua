@@ -64,6 +64,39 @@ VE.panels.Combat = function(parent)
 	end)
 
 	-- Right column
+	do
+		local module = VE.getModule("NameplateThreat")
+		VE.elements.Checkbox(frame, 270, -20, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+		end, module.superWoWRequired)
+	end
+
+	do
+		local module = VE.getModule("CombatCursor")
+		if module then
+			VE.elements.Checkbox(frame, 270, -50, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("NearbyTargets")
+		if module then
+			VE.elements.Checkbox(frame, 270, -80, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("LowHealth")
+		if module then
+			VE.elements.Checkbox(frame, 270, -110, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
 
 	VE.elements.Checkbox(frame, 270, -190, 210, COMBAT_TEXT_SHOW_REACTIVES_TEXT, OPTION_TOOLTIP_COMBAT_TEXT_SHOW_REACTIVES, nil, VE.GetUVarAsBoolean("COMBAT_TEXT_SHOW_REACTIVES"), function(checked)
 		VE.SetUVar("COMBAT_TEXT_SHOW_REACTIVES", checked)

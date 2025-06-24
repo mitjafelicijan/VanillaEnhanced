@@ -72,15 +72,16 @@ Modules\TrinketManager.lua
 # Modules\AuctionEnhancements.xml
 
 # Control panels
-Panels\ActionBars.lua
-Panels\Addons.lua
-Panels\Camera.lua
-Panels\ChatSocial.lua
-Panels\Combat.lua
 Panels\Controls.lua
 Panels\Display.lua
 Panels\Interface.lua
+Panels\Camera.lua
+Panels\Combat.lua
+Panels\ActionBars.lua
+Panels\ChatSocial.lua
 Panels\RaidParty.lua
+Panels\Features.lua
+Panels\Addons.lua
 
 # Main settings panel
 Settings.lua

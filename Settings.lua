@@ -9,6 +9,7 @@ local categories = {
 	{ key = "actionbars", label = "Action Bars", description = "", active = false, features = nil },
 	{ key = "chatsocial", label = "Chat & Social", description = "", active = false, features = nil },
 	{ key = "raidparty", label = "Raid & Party", description = "", active = false, features = nil },
+	{ key = "features", label = "Features", description = "", active = false, features = nil },
 	{ key = "addons", label = "AddOns", description = "", active = false, features = nil },
 }
 
@@ -188,6 +189,7 @@ frame:SetScript("OnEvent", function()
 		frame.panel.panels["actionbars"] = VE.panels.ActionBars(frame.panel)
 		frame.panel.panels["chatsocial"] = VE.panels.ChatSocial(frame.panel)
 		frame.panel.panels["raidparty"] = VE.panels.RaidParty(frame.panel)
+		frame.panel.panels["features"] = VE.panels.Features(frame.panel)
 		frame.panel.panels["addons"] = VE.panels.Addons(frame.panel)
 		frame.panel.panels[config.startPanel]:Show()
 

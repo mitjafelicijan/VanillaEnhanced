@@ -216,6 +216,7 @@ function MiniPowerFrame_OnLoad()
 	ToggleComboPoints()
 	ToggleMiniPowerFrame()
 	UpdateSparkPosition()
+	HandlePowerUpdate()
 end
 
 function MiniPowerFrame_OnEvent()
