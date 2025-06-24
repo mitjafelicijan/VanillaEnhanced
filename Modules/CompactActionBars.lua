@@ -236,28 +236,12 @@ local function RepositionBags()
 end
 
 local function HideOtherUI()
-	local microButtons = {
-		"CharacterMicroButton", "SpellbookMicroButton", "TalentMicroButton",
-		"QuestLogMicroButton", "SocialsMicroButton", "WorldMapMicroButton",
-		"MainMenuMicroButton", "HelpMicroButton"
-	}
-
-	for _, buttonName in pairs(microButtons) do
-		local button = getglobal(buttonName)
-		if button then
-			button:Hide()
-			button.Show = function() end
-		end
-	end
-
-	-- Hide the micro button background
+	-- Hide the micro button Performance.
 	if getglobal("MainMenuBarPerformanceBar") then
 		MainMenuBarPerformanceBar:Hide()
 	end
 
 	if MainMenuExpBar then
-	-- 	MainMenuExpBar:Hide()
-	-- 	MainMenuExpBar.Show = function() end
 		if MainMenuExpBarLeftCap then MainMenuExpBarLeftCap:Hide() end
 		if MainMenuExpBarRightCap then MainMenuExpBarRightCap:Hide() end
 	end
@@ -347,6 +331,29 @@ local function RepositionReputationBar()
 	end)
 end
 
+local function RepositionMicroMenu()
+    local microButtons = {
+        "CharacterMicroButton", "SpellbookMicroButton", "TalentMicroButton",
+        "QuestLogMicroButton", "SocialsMicroButton", "WorldMapMicroButton",
+        "MainMenuMicroButton", "HelpMicroButton",
+    }
+
+	local length = table.getn(microButtons)
+	local reversedMicroButtons = {}
+	for i = 1, length do
+		reversedMicroButtons[i] = microButtons[length - i + 1]
+	end
+
+	for i, buttonName in pairs(reversedMicroButtons) do
+		local button = getglobal(buttonName)
+		if button then
+			button:SetScale(0.7)
+			button:ClearAllPoints()
+			button:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -8 - (button:GetWidth() * i) + button:GetWidth(), 65)
+			button.Show = function() end
+		end
+	end
+end
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
@@ -365,6 +372,7 @@ module.plug:SetScript("OnEvent", function()
 		RepositionBags()
 		RepositionExperienceBar()
 		RepositionReputationBar()
+		RepositionMicroMenu()
 		HideOtherUI()
 	end
 
