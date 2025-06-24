@@ -1,8 +1,13 @@
 local _G = getfenv(0)
+VE_NEXT_ID = 0
+
+local function GetNextID()
+	VE_NEXT_ID = VE_NEXT_ID + 1
+	return VE_NEXT_ID
+end
 
 VE.elements.Checkbox = function(parent, x, y, componentWidth, labelText, tooltipTitle, tooltipDescription, initialState, callback, superWoWRequired)
-	local idx = math.random(1, 1000)
-	local name = "CheckBox"..tostring(idx)
+	local name = "CheckBox"..tostring(GetNextID())
 
 	local frame = CreateFrame("Button", name, parent)
 	frame:SetPoint("TopLeft", x, y)
@@ -56,8 +61,7 @@ VE.elements.Checkbox = function(parent, x, y, componentWidth, labelText, tooltip
 end
 
 VE.elements.Slider = function(parent, x, y, componentWidth, labelText, tooltipTitle, tooltipDescription, minValue, maxValue, stepValue, initialValue, callback)
-	local idx = math.random(1, 1000)
-	local name = "Slider"..tostring(idx)
+	local name = "Slider"..tostring(GetNextID())
 
 	local frame = CreateFrame("Button", name, parent)
 	frame:SetPoint("TopLeft", x, y)
@@ -105,8 +109,7 @@ VE.elements.Slider = function(parent, x, y, componentWidth, labelText, tooltipTi
 end
 
 VE.elements.DropDown = function(parent, x, y, componentWidth, labelText, initialState, items, callback, superWoWRequired)
-	local idx = math.random(1, 1000)
-	local name = "DropDown"..tostring(idx)
+	local name = "DropDown"..tostring(GetNextID())
 	local labelOffset = 0
 
 	-- Calculate offset of DropDown if label is also provided.
@@ -176,8 +179,7 @@ VE.elements.DropDown = function(parent, x, y, componentWidth, labelText, initial
 end
 
 VE.elements.InputArea = function(parent, x, y, width, height, labelText, tooltipTitle, tooltipDescription, initialValue, maxLetters, callback)
-	local idx = math.random(1, 1000)
-	local name = "InputArea"..tostring(idx)
+	local name = "InputArea"..tostring(GetNextID())
 
 	local frame = CreateFrame("Frame", name, parent)
 	frame:SetPoint("TopLeft", x, y)
