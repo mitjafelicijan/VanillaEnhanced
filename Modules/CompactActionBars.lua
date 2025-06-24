@@ -21,7 +21,8 @@ local module = VE.registerModule({
 			bonus = nil,
 			exp = nil,
 			rep = nil,
-		}
+		},
+		microButtonScale = 0.7,
 	},
 })
 
@@ -347,7 +348,7 @@ local function RepositionMicroMenu()
 	for i, buttonName in pairs(reversedMicroButtons) do
 		local button = getglobal(buttonName)
 		if button then
-			button:SetScale(0.7)
+			button:SetScale(module.data.microButtonScale)
 			button:ClearAllPoints()
 			button:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -8 - (button:GetWidth() * i) + button:GetWidth(), 65)
 			button.Show = function() end
