@@ -11,7 +11,7 @@ local module = VE.registerModule({
 		debuffCount = 16,
 		perRow = 16,
 		auraSize = 28,
-		auraSpacing = 4,
+		auraSpacing = 3,
 	},
 	data = {},
 })
@@ -150,6 +150,16 @@ module.plug:SetScript("OnEvent", function()
 	if event == "PLAYER_ENTERING_WORLD" then
 		CreatePlayerBuffFrames()
 		CreatePlayerDebuffFrames()
+
+		local BuffFrame_Enchant_OnUpdate_Original = BuffFrame_Enchant_OnUpdate
+		function BuffFrame_Enchant_OnUpdate(elapsed)
+			BuffFrame_Enchant_OnUpdate_Original(elapsed)
+			TemporaryEnchantFrame:ClearAllPoints()
+			TemporaryEnchantFrame:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -Minimap:GetWidth() - 50, -120)
+			TempEnchant1:SetScale(module.config.auraSize / 32)
+			TempEnchant2:SetScale(module.config.auraSize / 32)
+		end
+
 		this:UnregisterEvent("PLAYER_ENTERING_WORLD")
 	end
 
