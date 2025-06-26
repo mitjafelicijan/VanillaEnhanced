@@ -134,7 +134,6 @@ local function ToggleMiniPowerFrame()
 	end
 end
 
-
 local function UpdateSparkPosition()
 	if not module.data.sparkStart then 
 		-- Hide spark if power is full

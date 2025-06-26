@@ -45,6 +45,13 @@ local function CreatePlayerBuffFrames()
 		button.texture:SetTexture(0, 0, 1, 1.0)
 		button.texture:SetAllPoints()
 
+		button.stack = button:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
+		button.stack:SetTextColor(1, 1, 1)
+		button.stack:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -2, 2)
+		button.stack:SetDrawLayer("OVERLAY", 2)
+		button.stack:SetText("")
+		button.stack:Hide()
+
 		button:SetScript("OnEnter", function()
 			GameTooltip:SetOwner(this, "ANCHOR_BOTTOMLEFT")
 			GameTooltip:SetPlayerBuff(this.id)
@@ -71,11 +78,21 @@ local function UpdatePlayerBuffs()
 		if(id > -1) then
 			local timeLeft = GetPlayerBuffTimeLeft(id)
 			local texture = GetPlayerBuffTexture(id)
+			local stackCount = GetPlayerBuffApplications(id) or 0
 			button.texture:SetTexture(texture)
 			button:Show()
 			button.id = id
+
+			if stackCount > 1 then
+				button.stack:SetText(stackCount)
+				button.stack:Show()
+			else
+				button.stack:SetText("")
+				button.stack:Hide()
+			end
 		else
 			button:Hide()
+			button.stack:Hide()
 		end
 	end
 end
@@ -103,6 +120,13 @@ local function CreatePlayerDebuffFrames()
 		button.texture:SetTexture(0, 0, 1, 1.0)
 		button.texture:SetAllPoints()
 
+		button.stack = button:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
+		button.stack:SetTextColor(1, 1, 1)
+		button.stack:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -2, 2)
+		button.stack:SetDrawLayer("OVERLAY", 2)
+		button.stack:SetText("")
+		button.stack:Hide()
+
 		button:SetScript("OnEnter", function()
 			GameTooltip:SetOwner(this, "ANCHOR_BOTTOMLEFT")
 			GameTooltip:SetPlayerBuff(this.id)
@@ -129,11 +153,22 @@ local function UpdatePlayerDebuffs()
 		if(id > -1) then
 			local timeLeft = GetPlayerBuffTimeLeft(id)
 			local texture = GetPlayerBuffTexture(id)
+			local stackCount = GetPlayerBuffApplications(id) or 0
+
 			button.texture:SetTexture(texture)
 			button.id = id
 			button:Show()
+
+			if stackCount > 1 then
+				button.stack:SetText(stackCount)
+				button.stack:Show()
+			else
+				button.stack:SetText("")
+				button.stack:Hide()
+			end
 		else
 			button:Hide()
+			button.stack:Hide()
 		end
 	end
 end
