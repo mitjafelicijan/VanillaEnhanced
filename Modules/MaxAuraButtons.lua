@@ -22,6 +22,18 @@ if not VE.superWoWCheck(module) then
 	return
 end
 
+local function FormatTime(seconds)
+	if seconds <= 0 then
+		return ""
+	elseif seconds < 60 then
+		return string.format("%ds", seconds)
+	elseif seconds < 3600 then
+		return string.format("%dm", seconds/60)
+	else
+		return string.format("%dhr", seconds/3600)
+	end
+end
+
 local function CreatePlayerBuffFrames()
 	module.plug.buffs = CreateFrame("Frame", "PlayerBuffFrame", UIParent)
 	module.plug.buffs:SetWidth(10)
@@ -32,24 +44,31 @@ local function CreatePlayerBuffFrames()
 		local col = math.mod(i, module.config.perRow)
 		local row = math.floor(i / module.config.perRow)
 		local xOffset = -col * (module.config.auraSize + module.config.auraSpacing)
-		local yOffset = -row * (module.config.auraSize + module.config.auraSpacing)
+		local yOffset = -row * (module.config.auraSize + module.config.auraSpacing + 10)
 
 		local button = CreateFrame("Button", "PlayerBuff" .. tostring(i), module.plug.buffs)
-		button.id = i
 		button:RegisterForClicks("RightButtonUp")
 		button:SetPoint("TOPRIGHT", module.plug.buffs, "TOPRIGHT", xOffset, yOffset)
 		button:SetWidth(module.config.auraSize)
 		button:SetHeight(module.config.auraSize)
 
+		button.id = i
+		button.lastUpdate = 0
+
 		button.texture = button:CreateTexture("PlayerBuff" .. tostring(i) .. "Texture", "ARTWORK")
 		button.texture:SetTexture(0, 0, 1, 1.0)
 		button.texture:SetAllPoints()
+
+		button.timeLeft = button:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+		button.timeLeft:SetTextColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b)
+		button.timeLeft:SetPoint("CENTER", button, "BOTTOM", 0, -6)
+		button.timeLeft:SetDrawLayer("OVERLAY", 2)
+		button.timeLeft:Hide()
 
 		button.stack = button:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
 		button.stack:SetTextColor(1, 1, 1)
 		button.stack:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -2, 2)
 		button.stack:SetDrawLayer("OVERLAY", 2)
-		button.stack:SetText("")
 		button.stack:Hide()
 
 		button:SetScript("OnEnter", function()
@@ -66,6 +85,20 @@ local function CreatePlayerBuffFrames()
 			CancelPlayerBuff(this.id)
 		end)
 
+		button:SetScript("OnUpdate", function()
+			this.lastUpdate = this.lastUpdate + arg1
+			if this.lastUpdate >= 1 then
+				local timeLeft = GetPlayerBuffTimeLeft(this.id)
+				if timeLeft > 0 then
+					this.timeLeft:SetText(SecondsToTimeAbbrev(timeLeft))
+					this.timeLeft:Show()
+				else
+					this.timeLeft:Hide()
+				end
+				this.lastUpdate = 0
+			end
+		end)
+
 		button:Hide()
 	end
 end
@@ -76,7 +109,6 @@ local function UpdatePlayerBuffs()
 		local button = getglobal("PlayerBuff" .. tostring(i))
 
 		if(id > -1) then
-			local timeLeft = GetPlayerBuffTimeLeft(id)
 			local texture = GetPlayerBuffTexture(id)
 			local stackCount = GetPlayerBuffApplications(id) or 0
 			button.texture:SetTexture(texture)
@@ -90,6 +122,8 @@ local function UpdatePlayerBuffs()
 				button.stack:SetText("")
 				button.stack:Hide()
 			end
+
+
 		else
 			button:Hide()
 			button.stack:Hide()
@@ -101,7 +135,7 @@ local function CreatePlayerDebuffFrames()
 	module.plug.debuffs = CreateFrame("Frame", "PlayerDebuffFrame", UIParent)
 	module.plug.debuffs:SetWidth(10)
 	module.plug.debuffs:SetHeight(10)
-	module.plug.debuffs:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -Minimap:GetWidth() - 50, -80)
+	module.plug.debuffs:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -Minimap:GetWidth() - 50, -95)
 
 	for i = 0, ((module.config.buffCount / 2) - 1) do
 		local col = math.mod(i, module.config.perRow)
@@ -110,15 +144,23 @@ local function CreatePlayerDebuffFrames()
 		local yOffset = -row * (module.config.auraSize + module.config.auraSpacing)
 
 		local button = CreateFrame("Button", "PlayerDebuff" .. tostring(i), module.plug.debuffs)
-		button.id = i
 		button:RegisterForClicks("RightButtonUp")
 		button:SetPoint("TOPRIGHT", module.plug.debuffs, "TOPRIGHT", xOffset, yOffset)
 		button:SetWidth(module.config.auraSize)
 		button:SetHeight(module.config.auraSize)
 
+		button.id = i
+		button.lastUpdate = 0
+
 		button.texture = button:CreateTexture("PlayerDebuff" .. tostring(i) .. "Texture", "ARTWORK")
 		button.texture:SetTexture(0, 0, 1, 1.0)
 		button.texture:SetAllPoints()
+
+		button.timeLeft = button:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+		button.timeLeft:SetTextColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b)
+		button.timeLeft:SetPoint("CENTER", button, "BOTTOM", 0, -6)
+		button.timeLeft:SetDrawLayer("OVERLAY", 2)
+		button.timeLeft:Hide()
 
 		button.stack = button:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
 		button.stack:SetTextColor(1, 1, 1)
@@ -139,6 +181,20 @@ local function CreatePlayerDebuffFrames()
 
 		button:SetScript("OnClick", function()
 			CancelPlayerBuff(this.id)
+		end)
+
+		button:SetScript("OnUpdate", function()
+			this.lastUpdate = this.lastUpdate + arg1
+			if this.lastUpdate >= 1 then
+				local timeLeft = GetPlayerBuffTimeLeft(this.id)
+				if timeLeft > 0 then
+					this.timeLeft:SetText(SecondsToTimeAbbrev(timeLeft))
+					this.timeLeft:Show()
+				else
+					this.timeLeft:Hide()
+				end
+				this.lastUpdate = 0
+			end
 		end)
 
 		button:Hide()
@@ -190,7 +246,7 @@ module.plug:SetScript("OnEvent", function()
 		function BuffFrame_Enchant_OnUpdate(elapsed)
 			BuffFrame_Enchant_OnUpdate_Original(elapsed)
 			TemporaryEnchantFrame:ClearAllPoints()
-			TemporaryEnchantFrame:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -Minimap:GetWidth() - 50, -120)
+			TemporaryEnchantFrame:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -Minimap:GetWidth() - 50, -125)
 			TempEnchant1:SetScale(module.config.auraSize / 32)
 			TempEnchant2:SetScale(module.config.auraSize / 32)
 		end
