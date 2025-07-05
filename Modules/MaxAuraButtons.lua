@@ -246,9 +246,9 @@ module.plug:SetScript("OnEvent", function()
 		function BuffFrame_Enchant_OnUpdate(elapsed)
 			BuffFrame_Enchant_OnUpdate_Original(elapsed)
 			TemporaryEnchantFrame:ClearAllPoints()
-			TemporaryEnchantFrame:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -Minimap:GetWidth() - 50, -125)
-			TempEnchant1:SetScale(module.config.auraSize / 32)
-			TempEnchant2:SetScale(module.config.auraSize / 32)
+			TemporaryEnchantFrame:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -Minimap:GetWidth() - 50, -140)
+			TempEnchant1:SetScale(module.config.auraSize / 30)
+			TempEnchant2:SetScale(module.config.auraSize / 30)
 		end
 
 		this:UnregisterEvent("PLAYER_ENTERING_WORLD")
