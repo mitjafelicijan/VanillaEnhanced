@@ -76,11 +76,13 @@ module.plug:SetScript("OnEvent", function()
 				local _, _, itemString  = string.find(link, "|H(.+)|h")
 				local name, _, quality, level, _, _, _, equipLoc = GetItemInfo(itemString)
 				if quality and level and equipLoc ~= "" then
-					if level == 0 then level = "#" end
-					local color = module.config.quality[tonumber(quality)]
-					label:SetText(level)
-					label:SetTextColor(color.r, color.g, color.b)
-					label:Show()
+					-- if level == 0 then level = "#" end
+					if level > 1 then
+						local color = module.config.quality[tonumber(quality)]
+						label:SetText(level)
+						label:SetTextColor(color.r, color.g, color.b)
+						label:Show()
+					end
 				end
 			end
 		end
@@ -100,7 +102,7 @@ module.plug:SetScript("OnEvent", function()
 		if link then
 			local _, _, itemString  = string.find(link, "|H(.+)|h")
 			local _, _, quality, level = GetItemInfo(itemString)
-			if quality and level then
+			if quality and level > 1 then
 				local color = module.config.quality[tonumber(quality)]
 				label:SetText(level)
 				label:SetTextColor(color.r, color.g, color.b)
