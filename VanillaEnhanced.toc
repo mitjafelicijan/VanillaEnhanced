@@ -55,9 +55,9 @@ Modules\MailboxEnhancements.lua
 Modules\ManaBarColor.lua
 Modules\MaxAuraButtons.lua
 Modules\MaxCameraZoom.lua
-Modules\MinimapClock.lua
 Modules\MiniPlayerFrame.xml
 Modules\MiniPowerFrame.xml
+Modules\MinimapClock.lua
 Modules\NameplateComboPoints.lua
 Modules\NameplateScaling.lua
 Modules\NameplateThreat.lua
@@ -65,6 +65,7 @@ Modules\NearbyTargets.xml
 Modules\OutOfRange.lua
 Modules\PullBreakTimer.lua
 Modules\RestedXPTooltip.lua
+Modules\SoloSelfFound.lua
 Modules\TargetCastingBar.lua
 Modules\TravelJournal.lua
 Modules\TrinketManager.lua
