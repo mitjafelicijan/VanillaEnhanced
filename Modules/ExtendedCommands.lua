@@ -227,4 +227,19 @@ module.plug:SetScript("OnEvent", function()
 	SlashCmdList["CLEARTARGET"] = function()
 		ClearTarget()
 	end
+
+	SLASH_FEEDPET1 = "/feedpet"
+	SlashCmdList["FEEDPET"] = function(food)
+		for b = 0, 4 do
+			for s = 1, GetContainerNumSlots(b) do
+				local itemLink = GetContainerItemLink(b, s)
+				if itemLink and string.find(itemLink, food) then
+					PickupContainerItem(b, s)
+					DropItemOnUnit("pet")
+					return
+				end
+			end
+		end
+		VE.print("Food not found in bags.")
+	end
 end)
