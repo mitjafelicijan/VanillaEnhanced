@@ -75,9 +75,9 @@ module.plug:SetScript("OnEvent", function()
 			if link then
 				local _, _, itemString  = string.find(link, "|H(.+)|h")
 				local name, _, quality, level, _, _, _, equipLoc = GetItemInfo(itemString)
-				if quality and level and equipLoc ~= "" then
+				if quality and level and equipLoc ~= "" and equipLoc ~= "INVTYPE_AMMO" then
 					-- if level == 0 then level = "#" end
-					if level > 1 then
+					if level ~= 0 or level > 1 then
 						local color = module.config.quality[tonumber(quality)]
 						label:SetText(level)
 						label:SetTextColor(color.r, color.g, color.b)
