@@ -52,6 +52,8 @@ Modules\ItemLevel.lua
 Modules\LastMessageOnly.lua
 Modules\LowHealth.lua
 Modules\MailboxEnhancements.lua
+Modules\MaintainDruidForms.lua
+Modules\MaintainHunterAspects.lua
 Modules\ManaBarColor.lua
 Modules\MaxAuraButtons.lua
 Modules\MaxCameraZoom.lua

@@ -32,6 +32,24 @@ VE.panels.Controls = function(parent)
 		VE.SetCVar("mouseSpeed", value)
 	end)
 
+	do
+		local module = VE.getModule("MaintainDruidForms")
+		if module then
+			VE.elements.Checkbox(frame, 20, -290, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("MaintainHunterAspects")
+		if module then
+			VE.elements.Checkbox(frame, 20, -320, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
 	-- Right column
 
 	do
