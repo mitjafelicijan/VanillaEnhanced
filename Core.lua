@@ -276,6 +276,27 @@ VE.executeWithDelay = function(delay, fn)
 	end)
 end
 
+VE.GetSpellNameById = function(spellId)
+	return GetSpellName(spellId, "BOOKTYPE_SPELL");
+end
+
+VE.GetSpellIdByName = function(spellName, spellPage)
+	local whatPage = spellPage;
+	if not spellPage then whatPage = GetNumSpellTabs() end
+
+	local _, _, offset, numSpells = GetSpellTabInfo(whatPage);
+	numSpells = offset + numSpells;
+	if not spellPage then offset = 0 end
+
+	for spellId = numSpells, offset+1, -1 do
+		if GetSpellName(spellId, "BOOKTYPE_SPELL") == spellName then
+			return spellId;
+		end
+	end
+
+	return nil;
+end
+
 VE.GetSpellInfoByID = function(id)
 	if not GetSpellInfo["spells"][id] then
 		return nil, nil, nil, nil, nil, nil
