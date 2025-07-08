@@ -62,12 +62,18 @@ local function UpdateTrinketSlot(name, slot)
 	local trinketLink = GetInventoryItemLink("player", slot)
 	local texture = GetInventoryItemTexture("player", slot)
 
+	if not texture then
+		module.plug.frame[name]:Hide()
+		return
+	end
+
 	module.plug.frame[name]:SetNormalTexture(texture or "Interface\\Icons\\INV_Misc_QuestionMark")
 	module.plug.frame[name]:SetPushedTexture(texture or "Interface\\Icons\\INV_Misc_QuestionMark")
 
 	module.plug.frame[name]:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
 	module.plug.frame[name]:GetHighlightTexture():SetAllPoints()
 	module.plug.frame[name]:GetHighlightTexture():SetBlendMode("ADD")
+	module.plug.frame[name]:Show()
 
 	local start, duration, enable = GetInventoryItemCooldown("player", slot)
 	CooldownFrame_SetTimer(module.plug.frame[name].cooldown, start or 0, duration or 0, enable or 0)
