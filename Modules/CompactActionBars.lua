@@ -73,7 +73,7 @@ local function Initialize()
 	module.data.bars.pet = CreateFrame("Frame", "CompactActionBarsPet", module.data.bars.right)
 	module.data.bars.pet:SetWidth(module.data.bars.size.width)
 	module.data.bars.pet:SetHeight(module.data.bars.size.height)
-	module.data.bars.pet:SetPoint("BottomLeft", module.data.bars.right, "BottomLeft", 0, module.data.bars.size.height + module.data.bars.spacing + 6)
+	module.data.bars.pet:SetPoint("BottomLeft", module.data.bars.right, "BottomLeft", -1, module.data.bars.size.height + module.data.bars.spacing + 6)
 
 	module.data.bars.exp = CreateFrame("Frame", "ExperienceBar", module.data.bars.pivot)
 	module.data.bars.exp:SetWidth(module.data.bars.size.width / 2)
@@ -358,6 +358,7 @@ end
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
+module.plug:RegisterEvent("PET_BAR_UPDATE")
 
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
@@ -383,5 +384,12 @@ module.plug:SetScript("OnEvent", function()
 		else
 			ShowMultiBarMain()
 		end
+	end
+
+	-- Fixes position of shapeshift button when pet actionbar is present.
+	if event == "PET_BAR_UPDATE" then
+		local multiplier = 1
+		if PetActionButton1:IsVisible() then multiplier = 2 end
+		module.data.bars.shapeshift:SetPoint("BottomLeft", module.data.bars.right, "BottomLeft", -2, module.data.bars.size.height * multiplier + module.data.bars.spacing + 6)
 	end
 end)
