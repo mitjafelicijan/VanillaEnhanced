@@ -74,9 +74,16 @@ module.plug:SetScript("OnEvent", function()
 			local link = GetContainerItemLink(bagID, slotIndex)
 			if link then
 				local _, _, itemString  = string.find(link, "|H(.+)|h")
-				local name, _, quality, level, _, _, _, equipLoc = GetItemInfo(itemString)
-				if quality and level and equipLoc ~= "" and equipLoc ~= "INVTYPE_AMMO" then
+				local name, _, quality, level, _, itemType, _, equipLoc = GetItemInfo(itemString)
+				if quality and level and equipLoc ~= "" and equipLoc ~= "INVTYPE_AMMO" or itemType == "Quest" then
 					-- if level == 0 then level = "#" end
+
+					if itemType == "Quest" then
+						label:SetText("Q")
+						label:SetTextColor(0.5, 0.0, 1.0)
+						label:Show()
+					end
+					
 					if level ~= 0 or level > 1 then
 						local color = module.config.quality[tonumber(quality)]
 						label:SetText(level)
