@@ -15,6 +15,9 @@ local module = VE.registerModule({
 			[4] = {r = 1.0, g = 0.1, b = 1.0, key = "Epic" },      -- Epic (Purple)
 			[5] = {r = 1.0, g = 0.5, b = 0.0, key = "Legendary" }, -- Legendary (Orange)
 		},
+		itemType = {
+			Quest = {r = 0.7, g = 0.2, b = 1.0 },
+		},
 		slots = {
 			"HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "ShirtSlot",
 			"TabardSlot", "WristSlot", "HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot",
@@ -79,8 +82,9 @@ module.plug:SetScript("OnEvent", function()
 					-- if level == 0 then level = "#" end
 
 					if itemType == "Quest" then
+						local color = module.config.itemType.Quest
 						label:SetText("Q")
-						label:SetTextColor(0.5, 0.0, 1.0)
+						label:SetTextColor(color.r, color.g, color.b)
 						label:Show()
 					end
 					
