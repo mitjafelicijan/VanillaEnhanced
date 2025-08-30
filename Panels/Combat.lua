@@ -98,6 +98,15 @@ VE.panels.Combat = function(parent)
 		end
 	end
 
+	do
+		local module = VE.getModule("TargetChangeStopAttack")
+		if module then
+			VE.elements.Checkbox(frame, 270, -140, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
 	VE.elements.Checkbox(frame, 270, -190, 210, COMBAT_TEXT_SHOW_REACTIVES_TEXT, OPTION_TOOLTIP_COMBAT_TEXT_SHOW_REACTIVES, nil, VE.GetUVarAsBoolean("COMBAT_TEXT_SHOW_REACTIVES"), function(checked)
 		VE.SetUVar("COMBAT_TEXT_SHOW_REACTIVES", checked)
 	end)
