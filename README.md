@@ -1,54 +1,80 @@
 # Vanilla Game Options
 
-TBC style Interface Options panel with additional tweaks for World of Warcraft Client v1.12.
+TBC style Interface Options panel with additional tweaks for World of Warcraft
+Client v1.12.
 
 > [!IMPORTANT]
 > This was tested with Turtle WoW Client which is a bit modified so it may not
 > work properly on clean 1.12 client.
-
 
 > [!IMPORTANT]
 > None of the additional tweaks are enabled by default so you will have to
 > enable them yourself. This is because some of the might conflict with your
 > existing addons.
 
+> [!IMPORTANT]
+> Some of the modules rely on
+> [SuperWoW](https://github.com/balakethelock/SuperWoW) to work properly so
+> make sure you also have that installed.
+
 Introduces a replacement for Interface Options and adds additional tweaks:
 
 - Align Grid
-- Auction Auto Price
+- Auction Enhancements
 - Aura Tracker
 - Auto Loot
 - Auto Repair
+- Auto Sell
 - Bag Search
 - Bank Bags
+- Big Player Frame
 - Block Auction House
 - Block Grouping
 - Block Mailbox
+- Bulletin Board
 - Casting Bar Position
 - Chat Enhancements
+- Combat Cursor
+- Compact Action Bars
+- Compact Frames
+- Compact Frames
 - Compare Tooltip
 - Cooldown Timers
 - Druid Mana Bar
 - Energy Mana Tick
+- Enhanced Aura Buttons
 - Event Trace
 - Extended Commands
 - Frame Stack
 - Free Bag Slots
-- Hide Lua Errors
+- Hide BGF
+- Hide EBC
+- Hide LFT
+- Hide Errors
+- Hunter Target Distance
+- Item Level
 - Last Message Only
 - Low Health
 - Mailbox Enhancements
+- Maintain Druid Forms
+- Maintain Hunter Aspects
 - Mana Bar Color
 - Max Camera Zoom
 - Minimap Clock
-- Nameplate ComboPoints
+- Mini Player Frame
+- Mini Power Frame
+- Nameplate Combo Points
 - Nameplate Scaling
+- Nameplate Threat
+- Nearby Targets
 - Out Of Range
 - Pull Break Timer
-- Raid Frames
 - Rested XP Tooltip
+- Solo Self Found
 - Target Casting Bar
+- Target Change Stop Attack
 - Travel Journal
+- Trinket Manager
 
 ## Settings panels
 
@@ -61,3 +87,13 @@ Introduces a replacement for Interface Options and adds additional tweaks:
 ![Action Bars](Promo/ActionBars.jpg)
 ![Chat and Social](Promo/ChatSocial.jpg)
 ![Raid and Party](Promo/RaidParty.jpg)
+
+## Some of the features
+
+### Compact Action Bars
+
+![Compact Action Bars](Promo/CompactActionBars.jpg)
+
+### Mini Player Frame
+
+![MiniPlayerFrame](Promo/MiniPlayerFrame.jpg)
