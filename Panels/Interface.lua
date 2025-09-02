@@ -196,9 +196,18 @@ VE.panels.Interface = function(parent)
 	end
 
 	do
-		local module = VE.getModule("MaxAuraButtons")
+		local module = VE.getModule("EnhancedAuraButtons")
 		if module then
 			VE.elements.Checkbox(frame, 270, -360, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("HunterTargetDistance")
+		if module then
+			VE.elements.Checkbox(frame, 270, -390, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end

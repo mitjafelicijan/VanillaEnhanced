@@ -1,7 +1,7 @@
 local module = VE.registerModule({
-	identifier = "MaxAuraButtons",
+	identifier = "EnhancedAuraButtons",
 	meta = {
-		label = "Max Aura Buttons",
+		label = "Enhanced Aura Buttons",
 		description = "Increases the maximum visible auras, supporting up to 32 buffs and 16 debuffs at once.",
 	},
 	plug = nil,

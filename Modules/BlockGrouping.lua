@@ -22,6 +22,10 @@ module.plug:RegisterEvent("PARTY_INVITE_REQUEST")
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 
-	DeclineGroup()
-	StaticPopup_Hide("PARTY_INVITE")
+	if event == "PARTY_INVITE_REQUEST" then
+		-- arg1: target name
+		DeclineGroup()
+		StaticPopup_Hide("PARTY_INVITE")
+		SendChatMessage("I am doing a Solo Challenge!", "WHISPER", nil, arg1)
+	end
 end)
