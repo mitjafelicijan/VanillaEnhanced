@@ -7,13 +7,12 @@ local module = VE.registerModule({
 	plug = nil,
 	superWoWRequired = false,
 	config = {
-		debug = false,
 		applySpells = {
 			tigersFury = true,
 			faerieFire = true,
 		},
 		powerShift = {
-			energyThreshold = 5,
+			energyThreshold = 10,
 		},
 		buffs = {
 			["Tiger's Fury"] = "Interface\\Icons\\Ability_Mount_JungleTiger",
@@ -21,8 +20,20 @@ local module = VE.registerModule({
 			["Rip"] = "Interface\\Icons\\Ability_GhoulFrenzy",
 			["Rake"] = "Interface\\Icons\\Ability_Druid_DisemBowel",
 		},
+		spellTimeout = {
+			rake = 8.10,
+			fff = 1.60,
+		},
+		idols = {
+			["Idol of Savagery"] = "Interface\\Icons\\INV_QirajIdol_War",
+		},
 	},
-	data = {},
+	data = {
+		queue = {
+			rake = 0,
+			fff = 0,
+		},
+	},
 })
 
 -- Check for SuperWoW dependency.
@@ -66,26 +77,67 @@ local function cancelDruidForm()
 	end
 end
 
+local function idolEquiped(idol)
+	local slot = 18
+	local trinketLink = GetInventoryItemLink("player", slot)
+	local texture = GetInventoryItemTexture("player", slot)
+	return (texture == module.config.idols[idol])
+end
+
 local function rotation(arg)
 	if not UnitExists("target") then return end
 
 	local currentEnergy, currentMana = UnitMana("player")
 	local maxEnergy, maxMana = UnitManaMax("player")
-	local powerType = UnitPowerType("player") -- 3 is cat
-
-	if module.config.debug then
-		print(string.format("> mana(%s/%s), energy(%s/%s), power: %s", currentMana, maxMana, currentEnergy, maxEnergy, powerType))
-	end
+	local powerType = UnitPowerType("player") -- 3 is cat	
 
 	if arg == "powershift" then
 		-- If not in cat form then switch back to cat.
 		if powerType ~= 3 then
 			CastShapeshiftForm(3)
+			return
 		else
 			-- If energy falls to N or below cancel druid forms.
 			if currentEnergy <= module.config.powerShift.energyThreshold then
 				cancelDruidForm()
+				return
 			end
+		end
+	end
+
+	-- Cast Rake when the old one expires.
+	do
+		local now = GetTime()
+		local lastCast = module.data.queue.rake
+		local elapsed = now - lastCast
+		local timeout = module.config.spellTimeout.rake
+
+		-- Add 10% of the timeout if Idol of Savagery equiped.
+		if idolEquiped("Idol of Savagery") then
+			timeout = math.ceil(timeout + (timeout * 0.10))
+		end
+
+		if elapsed >= timeout then
+			module.data.queue.rake = now
+			CastSpellByName("Rake")
+		end
+	end
+
+	-- Check if Fearie Fire (Feral) is applied, and if not, apply it the highest rank.
+	do
+		local now = GetTime()
+		local lastCast = module.data.queue.fff
+		local elapsed = now - lastCast
+		if elapsed >= module.config.spellTimeout.fff then
+			module.data.queue.fff = now
+			local highestFFF = 0
+			for i = 1,200 do
+				local spellName = GetSpellName(i, "spell")
+				if spellName == "Faerie Fire (Feral)" then
+					highestFFF = i
+				end
+			end
+			CastSpell(highestFFF, "spell")
 		end
 	end
 
@@ -94,36 +146,16 @@ local function rotation(arg)
 		CastSpellByName("Tiger's Fury")
 	end
 
-	-- Check if Fearie Fire (Feral) is applied, and if not, apply it.
-	if module.config.applySpells.faerieFire and not unitHasDebuff("target", module.config.buffs["Faerie Fire"]) then
-		-- FIXME: Stupid hack because CastSpellByName doesn't work for this spell.
-		for i = 1,200 do
-			local spellName = GetSpellName(i, "spell")
-			if spellName == "Faerie Fire (Feral)" then
-				CastSpell(i, "spell")
-				break
-			end
-		end
-	end
-
 	-- Execute the rest of rotation.
 	local points = GetComboPoints()
-	if points == 0 then
-		CastSpellByName("Rake")
-	elseif points == 5 then
+	if points == 5 then
 		if unitHasDebuff("target", module.config.buffs["Rip"]) then
 			CastSpellByName("Ferocious Bite")
 		else
 			CastSpellByName("Rip")
 		end
 	else
-		-- Backfill Rake if target is missing one.
-		if not unitHasDebuff("target", module.config.buffs["Rake"]) then
-			CastSpellByName("Rake")
-		else
-			-- This is the filler spell.
-			CastSpellByName("Shred")
-		end
+		CastSpellByName("Shred")
 	end
 end
 
