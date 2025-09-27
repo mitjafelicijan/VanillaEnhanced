@@ -6,7 +6,17 @@ local module = VE.registerModule({
 	},
 	plug = nil,
 	superWoWRequired = false,
-	config = {},
+	config = {
+		raidPullout = {
+			disableDrag = true,
+			initialLeftOffset = 10,
+			initialTopOffset = -180,
+			frameWidth = 80,
+			frameHeight = 200,
+			perRow = 3,
+
+		},
+	},
 	data = {},
 })
 
@@ -14,6 +24,53 @@ local module = VE.registerModule({
 if not VE.superWoWCheck(module) then
 	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
 	return
+end
+
+local print = VE.print
+
+local function ShowRaidPullouts()
+	local currentIdx = 0
+	for i = 1,8 do
+		local pullout = RaidPullout_GenerateGroupFrame(i)
+		if pullout then
+			local col = math.mod(currentIdx, module.config.raidPullout.perRow)
+			local row = math.floor(currentIdx / module.config.raidPullout.perRow)
+			local leftOffset = module.config.raidPullout.initialLeftOffset + (col * module.config.raidPullout.frameWidth)
+			local topOffset = module.config.raidPullout.initialTopOffset - (row * module.config.raidPullout.frameHeight)
+
+			if module.config.raidPullout.disableDrag then
+				pullout:EnableMouse(false)
+				pullout:SetMovable(false)
+			end
+
+			-- Make bar a bit bigger.
+			-- FIXME: This targets correct bars but the style is all messed up.
+			-- for j = 1,5 do
+			-- 	button = getglobal(pullout:GetName().."Button"..j);
+			-- 	if button then
+			-- 		healthBar = getglobal(button:GetName().."HealthBar");
+			-- 		healthBar:SetHeight(10)
+			-- 		manaBar = getglobal(button:GetName().."ManaBar");
+			-- 		manaBar:SetHeight(10)
+			-- 	end
+			-- end
+
+			pullout:ClearAllPoints()
+			pullout:SetPoint("TOPLEFT", UIParent, "TOPLEFT", leftOffset, topOffset)
+			pullout:Show()
+
+			currentIdx = currentIdx + 1
+		end
+	end
+end
+
+local function HideRaidPullouts()
+	for i = 1, 8 do
+		local pullout = getglobal("RaidPullout"..i)
+		if pullout then
+			pullout:Hide()
+		end
+	end
 end
 
 module.plug = CreateFrame("Frame", module.identifier)
@@ -27,6 +84,32 @@ module.plug:SetScript("OnEvent", function()
 	SLASH_TweeksReload3 = "/rl"
 	SlashCmdList["TweeksReload"] = function()
 		ConsoleExec("reloadui")
+	end
+
+	SLASH_RaidPullout1 = "/rp"
+	SlashCmdList["RaidPullout"] = function(arg)
+		if GetNumRaidMembers() == 0 then
+			VE.print("|cffff8000Not in a Raid! Pullout frames not available!")
+			return
+		end
+
+		if arg == "" then
+			VE.print("Usage: /rp show||hide||reload")
+		end
+
+		if arg == "show" then
+			HideRaidPullouts()
+			ShowRaidPullouts()
+		end
+
+		if arg == "hide" then
+			HideRaidPullouts()
+		end
+
+		if arg == "reload" then
+			HideRaidPullouts()
+			ShowRaidPullouts()
+		end
 	end
 
 	SLASH_CANCELFORM1 = "/cancelform"
