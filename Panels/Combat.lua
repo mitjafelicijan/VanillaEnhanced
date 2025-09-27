@@ -99,7 +99,7 @@ VE.panels.Combat = function(parent)
 	end
 
 	do
-		local module = VE.getModule("TargetChangeStopAttack")
+		local module = VE.getModule("DruidOneButton")
 		if module then
 			VE.elements.Checkbox(frame, 270, -140, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end

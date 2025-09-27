@@ -41,6 +41,7 @@ Modules\CompactFrames.xml
 Modules\CompareTooltip.lua
 Modules\CooldownTimers.lua
 Modules\DruidManaBar.lua
+Modules\DruidOneButton.lua
 Modules\EnergyManaTick.lua
 Modules\EnhancedAuraButtons.lua
 Modules\ExtendedCommands.lua
@@ -67,17 +68,16 @@ Modules\NameplateThreat.lua
 Modules\NearbyTargets.xml
 Modules\OutOfRange.lua
 Modules\PullBreakTimer.lua
+Modules\QuestItemTooltip.lua
 Modules\RestedXPTooltip.lua
 Modules\SoloSelfFound.lua
 Modules\TargetCastingBar.lua
-Modules\TargetChangeStopAttack.lua
 Modules\TravelJournal.lua
 Modules\TrinketManager.lua
-Modules\QuestItemTooltip.lua
-Modules\DruidOneButton.lua
 
 # Work in progress
 # Modules\AuctionEnhancements.xml
+# Modules\TargetChangeStopAttack.lua
 
 # Control panels
 Panels\Controls.lua
