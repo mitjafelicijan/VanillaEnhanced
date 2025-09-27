@@ -74,6 +74,7 @@ Modules\TargetChangeStopAttack.lua
 Modules\TravelJournal.lua
 Modules\TrinketManager.lua
 Modules\QuestItemTooltip.lua
+Modules\DruidOneButton.lua
 
 # Work in progress
 # Modules\AuctionEnhancements.xml
