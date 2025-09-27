@@ -73,6 +73,7 @@ Modules\TargetCastingBar.lua
 Modules\TargetChangeStopAttack.lua
 Modules\TravelJournal.lua
 Modules\TrinketManager.lua
+Modules\QuestItemTooltip.lua
 
 # Work in progress
 # Modules\AuctionEnhancements.xml
