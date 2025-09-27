@@ -91,7 +91,7 @@ module.plug:SetScript("OnEvent", function()
 		module.plug.manabar.text:SetPoint("CENTER", module.plug.manabar, "Center", 0, 0)
 		module.plug.manabar.text:SetDrawLayer("OVERLAY", 2)
 		module.plug.manabar.text:Hide()
-		
+
 		PlayerFrame:SetScript("OnEnter", function()
 			if not module.plug.manabar:IsVisible() then return end
 			local _, maxMana = UnitManaMax("player")
@@ -117,5 +117,17 @@ module.plug:SetScript("OnEvent", function()
 			module.plug.manabar.power:SetMinMaxValues(0, maxMana)
 			module.plug.manabar.power:SetValue(currentMana)
 		end
+	end
+end)
+
+module.plug:SetScript("OnUpdate", function()
+	if not VE.isModuleEnabled(module.identifier) then return end
+
+	local _, playerClass = UnitClass("player")
+	if playerClass ~= "DRUID" then return end
+
+	-- Hides Turtle WoW new Druid mana bar.
+	if PlayerFrameAlternatePowerBar then
+		PlayerFrameAlternatePowerBar:Hide()
 	end
 end)
