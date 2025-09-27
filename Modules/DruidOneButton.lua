@@ -112,7 +112,7 @@ local function rotation(arg)
 		local elapsed = now - lastCast
 		local timeout = module.config.spellTimeout.rake
 
-		-- Add 10% of the timeout if Idol of Savagery equiped.
+		-- Reduce timeout of Rake by 10% if Idol of Savagery equiped.
 		if idolEquiped("Idol of Savagery") then
 			timeout = math.ceil(timeout + (timeout * 0.10))
 		end
