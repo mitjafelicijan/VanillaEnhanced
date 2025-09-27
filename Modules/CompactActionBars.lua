@@ -345,16 +345,19 @@ local function RepositionMicroMenu()
 		reversedMicroButtons[i] = microButtons[length - i + 1]
 	end
 
+	local active = 1
 	for i, buttonName in pairs(reversedMicroButtons) do
 		local button = getglobal(buttonName)
 		if button then
 			button:SetScale(module.data.microButtonScale)
 			button:ClearAllPoints()
-			button:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -8 - (button:GetWidth() * i) + button:GetWidth(), 65)
+			button:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -8 - (button:GetWidth() * active) + button:GetWidth(), 65)
 			button.Show = function() end
+			active = active + 1
 		end
 	end
 end
+
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
