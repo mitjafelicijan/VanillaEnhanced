@@ -1,3 +1,6 @@
+-- FIXME: When bag is missing Q items get offset when you move them outside of
+--        main bag.
+
 local module = VE.registerModule({
 	identifier = "ItemLevel",
 	meta = {
