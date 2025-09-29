@@ -87,7 +87,8 @@ module.plug:SetScript("OnEvent", function()
 		ConsoleExec("reloadui")
 	end
 
-	SLASH_RaidPullout1 = "/rp"
+	SLASH_RaidPullout1 = "/raidpull"
+	SLASH_RaidPullout2 = "/rp"
 	SlashCmdList["RaidPullout"] = function(arg)
 		if GetNumRaidMembers() == 0 then
 			VE.print("|cffff8000Not in a Raid! Pullout frames not available!")
