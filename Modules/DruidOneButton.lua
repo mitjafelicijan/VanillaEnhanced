@@ -12,7 +12,8 @@ local module = VE.registerModule({
 			faerieFire = true,
 		},
 		powerShift = {
-			energyThreshold = 10,
+			energyThreshold = 30,    -- when energy goes below this value shapeshift
+			minManaThreshold = 30,   -- never dip below this (in percentage)
 		},
 		buffs = {
 			["Tiger's Fury"] = "Interface\\Icons\\Ability_Mount_JungleTiger",
@@ -89,19 +90,14 @@ local function rotation(arg)
 
 	local currentEnergy, currentMana = UnitMana("player")
 	local maxEnergy, maxMana = UnitManaMax("player")
+	local manaPercent = (currentMana / maxMana) * 100
 	local powerType = UnitPowerType("player") -- 3 is cat	
 
+	-- print(string.format("mana=%d%% energy=%d", manaPercent, currentEnergy))
+
 	if arg == "powershift" then
-		-- If not in cat form then switch back to cat.
-		if powerType ~= 3 then
-			CastShapeshiftForm(3)
-			return
-		else
-			-- If energy falls to N or below cancel druid forms.
-			if currentEnergy <= module.config.powerShift.energyThreshold then
-				cancelDruidForm()
-				return
-			end
+		if currentEnergy <= module.config.powerShift.energyThreshold and manaPercent > module.config.powerShift.minManaThreshold then
+			CastSpellByName("Reshift")
 		end
 	end
 
