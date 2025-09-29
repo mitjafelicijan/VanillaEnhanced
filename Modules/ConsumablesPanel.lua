@@ -25,14 +25,15 @@ if not VE.superWoWCheck(module) then
 end
 
 local function UpdateBagConsumables()
-	module.data.consumables = {}
+	wipe(module.data.consumables)
+
 	for bagID = 0, NUM_BAG_SLOTS do
 		for slotIndex = 1, GetContainerNumSlots(bagID) do
 			local link = GetContainerItemLink(bagID, slotIndex)
 			local texture, itemCount = GetContainerItemInfo(bagID, slotIndex)
 			if link then
 				local itemID = VE.find(link, "item:(%d+)")
-				local name, _, _, _, t, itemType, itemSubType = GetItemInfo(itemID)
+				local name, _, _, _, _, itemType, itemSubType = GetItemInfo(itemID)
 				if itemType and itemType == "Consumable" and itemSubType == 10 then
 					table.insert(module.data.consumables, {
 						name = name,
@@ -72,8 +73,10 @@ local function UpdateButtonConsumables()
 
 			local highlight = button:GetHighlightTexture()
 			highlight:SetAllPoints(button)
-			highlight:SetTexture("Interface\\Buttons\\ButtonHilight-Square")  -- classic WoW highlight
+			highlight:SetTexture("Interface\\Buttons\\ButtonHilight-Square")
 			highlight:SetBlendMode("ADD")
+
+			button.text:SetText(string.format("%s", item.count))
 
 			button.meta = item
 			button:Show()
@@ -172,12 +175,14 @@ module.plug:SetScript("OnEvent", function()
 					GameTooltip:Hide()
 				end)
 
+				button.text = button:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
+				button.text:SetTextColor(1, 1, 1)
+				button.text:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -3, 3)
+				button.text:SetDrawLayer("OVERLAY", 2)
+
 				idx = idx + 1
 			end
 		end
-
-		UpdateBagConsumables()
-		UpdateButtonConsumables()
 
 		SLASH_CONSUMABLES1 = "/consumables"
 		SlashCmdList["CONSUMABLES"] = function(msg)
