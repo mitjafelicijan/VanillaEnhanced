@@ -26,7 +26,7 @@ module.plug:SetScript("OnEvent", function()
 		module.indicator = CreateFrame("Frame", nil, UIParent)
 		module.indicator:SetWidth(84)
 		module.indicator:SetHeight(18)
-		module.indicator:SetPoint("CENTER", UIParent, "CENTER", 0, -100)
+		module.indicator:SetPoint("CENTER", UIParent, "CENTER", 0, -150)
 
 		module.indicator:SetBackdrop({
 			bgFile = "Interface/Tooltips/UI-Tooltip-Background",
