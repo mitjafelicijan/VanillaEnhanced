@@ -73,6 +73,7 @@ Modules\SoloSelfFound.lua
 Modules\TargetCastingBar.lua
 Modules\TravelJournal.lua
 Modules\TrinketManager.lua
+Modules\ConsumablesPanel.lua
 
 # Work in progress
 # Modules\AuctionEnhancements.xml

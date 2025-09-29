@@ -127,6 +127,31 @@ VE.trim = function(str)
 	return str
 end
 
+VE.findAll = function(str, pattern)
+	local results = {}
+
+	local iterator = string.gfind(str, pattern)
+	while true do
+		local a, b, c, d, e, f, g, h, i = iterator()
+		if not a then break end
+
+		local captures = {}
+		for _, v in ipairs({a, b, c, d, e, f, g, h, i}) do
+			if v ~= nil then table.insert(captures, v) end
+		end
+
+		table.insert(results, captures)
+	end
+
+	return results
+end
+
+-- Example: local a, b = VE.find(link, "item:(%d+):%d*:.*|h%[(.-)%]|h")
+VE.find = function(str, pattern)
+	local all = VE.findAll(str, pattern)
+	return unpack(all[1])
+end
+
 VE.dframe = function(node, r, g, b, a)
 	node.t = node:CreateTexture(nil, "BACKGROUND")
 	node.t:SetAllPoints(node)
