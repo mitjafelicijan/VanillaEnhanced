@@ -76,7 +76,7 @@ Modules\TrinketManager.lua
 Modules\ConsumablesPanel.lua
 
 # Work in progress
-# Modules\AuctionEnhancements.xml
+Modules\AuctionEnhancements.xml
 # Modules\TargetChangeStopAttack.lua
 # Modules\BulletinBoard.xml
 
