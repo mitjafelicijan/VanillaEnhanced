@@ -52,6 +52,20 @@ local function CreateLabelOrSkip(parent, quality, level)
 	label:Hide()
 end
 
+local function AreBagsShown()
+	if BankFrame:IsShown() then
+		return true
+	end
+
+	for i = 1,5 do
+		if getglobal("ContainerFrame"..i):IsShown() then
+			return true
+		end
+	end
+
+	return false
+end
+
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("BAG_OPEN")
@@ -61,6 +75,7 @@ module.plug:RegisterEvent("UNIT_INVENTORY_CHANGED")
 
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
+	if not AreBagsShown() then return end
 
 	if event == "PLAYER_ENTERING_WORLD" then
 		-- OpenAllBags()
