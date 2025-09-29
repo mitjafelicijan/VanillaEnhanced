@@ -27,6 +27,7 @@ if not VE.superWoWCheck(module) then
 end
 
 local print = VE.print
+local gfind = string.gmatch or string.gfind
 
 local function ShowRaidPullouts()
 	local currentIdx = 0
@@ -240,5 +241,11 @@ module.plug:SetScript("OnEvent", function()
 			end
 		end
 		VE.print("Food not found in bags.")
+	end
+
+	SLASH_SANDBOX1 = "/sandbox"
+	SLASH_SANDBOX2 = "/sa"
+	SlashCmdList["SANDBOX"] = function(msg, editbox)
+		VE.iprint("Currently empty! Used for debugging only!")
 	end
 end)
