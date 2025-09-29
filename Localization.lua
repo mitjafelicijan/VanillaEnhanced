@@ -1,6 +1,6 @@
 BINDING_HEADER_VE_ADDON_BINDINGS = "Vanilla Game Options"
 
+BINDING_NAME_VE_TOGGLE_BANK_BAGS = "Toggle bank bags"
+BINDING_NAME_VE_TOGGLE_CONSUMABLES = "Toggle consumables panel"
 BINDING_NAME_VE_USE_TRINKET1 = "Use trinket 1"
 BINDING_NAME_VE_USE_TRINKET2 = "Use trinket 2"
-
-BINDING_NAME_VE_TOGGLE_CONSUMABLES = "Toggle consumables panel"

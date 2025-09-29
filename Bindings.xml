@@ -1,6 +1,10 @@
 <Bindings>
-	<Binding name="Toggles bank bags" header="VE_ADDON_BINDINGS">
+	<Binding name="VE_TOGGLE_BANK_BAGS" header="VE_ADDON_BINDINGS">
 		BankBagsToggle()
+	</Binding>
+
+	<Binding name="VE_TOGGLE_CONSUMABLES" header="VE_ADDON_BINDINGS">
+		ToggleConsumablesPanel()
 	</Binding>
 
 	<Binding name="VE_USE_TRINKET1" header="VE_ADDON_BINDINGS">
@@ -9,9 +13,5 @@
 	
 	<Binding name="VE_USE_TRINKET2" header="VE_ADDON_BINDINGS">
 		UseTrinket2()
-	</Binding>
-
-	<Binding name="VE_TOGGLE_CONSUMABLES" header="VE_ADDON_BINDINGS">
-		ToggleConsumablesPanel()
 	</Binding>
 </Bindings>
