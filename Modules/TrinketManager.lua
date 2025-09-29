@@ -181,7 +181,7 @@ end
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("UNIT_INVENTORY_CHANGED")
-module.plug:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+-- module.plug:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
