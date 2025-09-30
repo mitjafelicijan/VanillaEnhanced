@@ -9,8 +9,8 @@ local module = VE.registerModule({
 	config = {
 		buttonSize = 36,
 		buttonPadding = 0,
-		rows = 5,
-		columns = 5,
+		rows = 6,
+		columns = 6,
 	},
 	data = {
 		buttons = nil,
