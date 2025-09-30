@@ -191,6 +191,8 @@ function MiniPowerFrame_OnLoad()
 	this:RegisterEvent("UNIT_AURA")
 	this:RegisterEvent("PLAYER_COMBO_POINTS")
 	this:RegisterEvent("PLAYER_TARGET_CHANGED")
+	this:RegisterEvent("PLAYER_DEAD")
+	this:RegisterEvent("PLAYER_UNGHOST")
 
 	module.data.playerClass = UnitClass("player")
 	module.data.powerBar = getglobal(this:GetName() .. "PowerStatusBar")
@@ -253,6 +255,14 @@ function MiniPowerFrame_OnEvent()
 		if arg1 == "player" then
 			HandlePowerUpdate()
 		end
+	end
+
+	if event == "PLAYER_DEAD" then
+		this:Hide()
+	end
+
+	if event == "PLAYER_UNGHOST" then
+		this:Show()
 	end
 end
 
