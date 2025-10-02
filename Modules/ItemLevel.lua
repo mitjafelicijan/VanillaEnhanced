@@ -75,12 +75,9 @@ module.plug:RegisterEvent("UNIT_INVENTORY_CHANGED")
 
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
-	if not AreBagsShown() then return end
 
-	if event == "PLAYER_ENTERING_WORLD" then
-		-- OpenAllBags()
-		-- ToggleCharacter("PaperDollFrame")
-	end
+	-- Disabled this because on BAG_OPEN AreBagsShown() doesn't yet return true.
+	-- if not AreBagsShown() then return end
 
 	-- Update bags.
 	for bagID = 0, NUM_BAG_SLOTS do
