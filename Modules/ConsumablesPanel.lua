@@ -34,7 +34,12 @@ local function UpdateBagConsumables()
 			if link then
 				local itemID = VE.find(link, "item:(%d+)")
 				local name, _, _, _, _, itemType, itemSubType = GetItemInfo(itemID)
-				if itemType and itemType == "Consumable" and itemSubType == 10 then
+
+				-- if itemType and itemType == "Consumable" then
+				-- 	VE.print(string.format("(%s) %s = %s", itemType, name, itemSubType))
+				-- end
+				
+				if itemType and itemType == "Consumable" then
 					table.insert(module.data.consumables, {
 						name = name,
 						id = itemID,
