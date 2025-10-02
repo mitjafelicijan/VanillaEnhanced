@@ -18,15 +18,33 @@ end
 
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("VARIABLES_LOADED")
+module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 
 	-- Changes global color variable.
-	ManaBarColor[0] = {
-		r = VE.config.PowerColors.Mana.r,
-		g = VE.config.PowerColors.Mana.g,
-		b = VE.config.PowerColors.Mana.b,
-		prefix = TEXT(MANA),
-	}
+	if event == "VARIABLES_LOADED" then
+		ManaBarColor[0] = {
+			r = VE.config.PowerColors.Mana.r,
+			g = VE.config.PowerColors.Mana.g,
+			b = VE.config.PowerColors.Mana.b,
+			prefix = TEXT(MANA),
+		}
+	end
+
+	-- If in party or raid, update the frames.
+	-- This is a fix them you load into a game and mana bar color in unit
+	-- frames is still set to previous color. This happens because of race
+	-- condition with VARIABLES_LOADED event.
+	if event == "PLAYER_ENTERING_WORLD" then
+		if GetNumPartyMembers() > 0 and GetNumRaidMembers() == 0 then
+			for i = 1, 4 do
+				local frame = getglobal("PartyMemberFrame" .. i)
+				if frame then
+					UnitFrame_UpdateManaType(frame)
+				end
+			end
+		end
+	end
 end)
