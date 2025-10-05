@@ -12,8 +12,8 @@ local module = VE.registerModule({
 			faerieFire = true,
 		},
 		powerShift = {
-			energyThreshold = 30,    -- when energy goes below this value shapeshift
-			minManaThreshold = 30,   -- never dip below this (in percentage)
+			energyThreshold = 20,    -- when energy goes below this value shapeshift
+			minManaThreshold = 40,   -- never dip below this (in percentage)
 		},
 		buffs = {
 			["Tiger's Fury"] = "Interface\\Icons\\Ability_Mount_JungleTiger",
@@ -85,7 +85,7 @@ local function idolEquiped(idol)
 	return (texture == module.config.idols[idol])
 end
 
-local function rotation(arg)
+local function rotation(filler, finisher, powershift)
 	if not UnitExists("target") then return end
 
 	local currentEnergy, currentMana = UnitMana("player")
@@ -95,12 +95,11 @@ local function rotation(arg)
 
 	-- print(string.format("mana=%d%% energy=%d", manaPercent, currentEnergy))
 
-	if arg == "powershift" then
+	if powershift then
 		if currentEnergy <= module.config.powerShift.energyThreshold and manaPercent > module.config.powerShift.minManaThreshold then
 			CastSpellByName("Reshift")
 		end
 	end
-
 	-- Cast Rake when the old one expires.
 	do
 		local now = GetTime()
@@ -151,7 +150,7 @@ local function rotation(arg)
 			CastSpellByName("Rip")
 		end
 	else
-		CastSpellByName("Shred")
+		CastSpellByName(filler)
 	end
 end
 
@@ -164,6 +163,15 @@ module.frame:SetScript("OnEvent", function()
 
 	SLASH_DruidOneButton1 = "/dob"
 	SlashCmdList["DruidOneButton"] = function(arg)
-		rotation(arg)
+		local args = VE.split(arg, ",")
+		local filler = VE.trim(args[1])
+		local finisher = VE.trim(args[2])
+		local powershift = false
+
+		if args[3] and args[3] == "powershift" then
+			powershift = true
+		end
+
+		rotation(filler, finisher, powershift)
 	end
 end)

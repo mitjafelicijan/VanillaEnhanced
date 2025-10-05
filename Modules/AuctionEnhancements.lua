@@ -49,10 +49,10 @@ end
 local function GetItemsInBags()
 	local items = {}
 
-    for bag = 0, NUM_BAG_SLOTS do
-        local numSlots = GetContainerNumSlots(bag)
-        
-        for slot = 1, numSlots do
+	for bag = 0, NUM_BAG_SLOTS do
+		local numSlots = GetContainerNumSlots(bag)
+
+		for slot = 1, numSlots do
 			local texture, itemCount, locked, quality, readable = GetContainerItemInfo(bag, slot)
 			local itemLink = GetContainerItemLink(bag, slot)
 
@@ -62,7 +62,7 @@ local function GetItemsInBags()
 				local isSoulbound, isQuestItem, isUnique = CheckIfItemIsSellable(bag, slot) -- barow caller trinket
 
 				if not isSoulbound and not isQuestItem and not isUnique then
-					-- print(string.format("[%s] (%s,%s) %s (%s)", tostring(itemCount), bag, slot, name, itemID))
+					print(string.format("[%s] (%s,%s) %s (%s)", tostring(itemCount), bag, slot, name, itemID))
 
 					table.insert(items, {
 						ID = itemID,
@@ -86,16 +86,16 @@ local function AddAuctionHousePostButton()
 	local nextFrameName = "AuctionFrameTab" .. module.data.tabIndex
 	local prevFrameName = "AuctionFrameTab" .. AuctionFrame.numTabs
 
-    local frame = CreateFrame("Button", nextFrameName, AuctionFrame, "AuctionTabTemplate");
+	local frame = CreateFrame("Button", nextFrameName, AuctionFrame, "AuctionTabTemplate");
 	frame:SetID(module.data.tabIndex);
-    frame:SetText("Post");
-    frame:SetPoint("LEFT", getglobal(prevFrameName), "RIGHT", -8, 0);
-    frame:Show();
+	frame:SetText("Post");
+	frame:SetPoint("LEFT", getglobal(prevFrameName), "RIGHT", -8, 0);
+	frame:Show();
 
 	setglobal(nextFrameName, frame);
 
-    PanelTemplates_SetNumTabs(AuctionFrame, module.data.tabIndex);
-    PanelTemplates_EnableTab(AuctionFrame, module.data.tabIndex);
+	PanelTemplates_SetNumTabs(AuctionFrame, module.data.tabIndex);
+	PanelTemplates_EnableTab(AuctionFrame, module.data.tabIndex);
 end
 
 local function AddAuctionHouseBagItemsFrame()
@@ -118,12 +118,25 @@ function AuctionEnhancements_OnLoad()
 	this:RegisterEvent("AUCTION_HOUSE_CLOSED")	
 end
 
+local function CreateEmptyBagItemFrames()
+	for i = 1, 10 do
+		local button = CreateFrame("Button", nil, AuctionEnhancementsBagItemsFrame)
+		button:SetWidth(50)
+		button:SetHeight(50)
+		button:SetPoint("Center", 0, 0)
+
+		VE.dframe(button, 1, 1, 0, 1)
+
+		VE.print(i)
+	end
+end
+
 function AuctionEnhancements_OnEvent()
 	if not VE.isModuleEnabled(module.identifier) then
 		this:UnregisterAllEvents()
 		return
 	end
-	
+
 	VE.iprint(string.format("AuctionEnhancements_OnEvent(%s)", event))
 
 	if event == "ADDON_LOADED" then
@@ -131,6 +144,7 @@ function AuctionEnhancements_OnEvent()
 			AddAuctionHousePostButton()
 			AddAuctionHouseBagItemsFrame()
 			AddAuctionHouseListingsFrame()
+			CreateEmptyBagItemFrames()
 
 			AuctionFrame:SetMovable(true)
 			AuctionFrame:SetScript("OnMouseDown", function() this:StartMoving() end)
@@ -161,7 +175,7 @@ function AuctionEnhancements_OnEvent()
 					OpenAllBags(true)
 
 					-- VE.dframe(AuctionEnhancementsBagItemsFrameButton1, 1, 1, 0, 1)
-					
+
 					VE.dframe(AuctionEnhancementsListingsFrameStatusBar, 0, 0, 0, 1)
 					AuctionEnhancementsListingsFrameStatusBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 					AuctionEnhancementsListingsFrameStatusBar:SetStatusBarColor(0.6, 0.6, 0.6)
@@ -169,7 +183,7 @@ function AuctionEnhancements_OnEvent()
 					AuctionEnhancementsListingsFrameStatusBar:SetValue(5)
 					AuctionEnhancementsListingsFrameScan:Disable()
 
-					GetItemsInBags()
+					-- GetItemsInBags()
 				else
 					AuctionEnhancementsBagItemsFrame:Hide()
 					AuctionEnhancementsListingsFrame:Hide()

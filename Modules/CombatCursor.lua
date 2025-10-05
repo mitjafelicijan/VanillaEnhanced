@@ -23,17 +23,6 @@ if not VE.superWoWCheck(module) then
 	return
 end
 
-SLASH_COMBATCURSOR1 = "/cursor"
-SLASH_COMBATCURSOR2 = "/cc"
-SlashCmdList["COMBATCURSOR"] = function()
-	if VE.isModuleEnabled(module.identifier) then
-		VE.disableModule(module.identifier)
-	else
-		VE.enableModule(module.identifier)
-	end
-	ConsoleExec("reloadui")
-end
-
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 
@@ -56,9 +45,10 @@ module.plug:SetScript("OnEvent", function()
 			module.config.cursorColor.g,
 			module.config.cursorColor.b
 		)
+		module.plug.cursor:Hide()
 
 		module.plug:SetScript("OnUpdate", function()
-			if module.plug.cursor then
+			if module.plug.cursor and module.plug.cursor:IsShown() then
 				local x, y = GetCursorPosition()
 				x = x / uiScale
 				y = y / uiScale
@@ -67,6 +57,17 @@ module.plug:SetScript("OnEvent", function()
 				module.plug.cursor:SetPoint("Center", UIParent, "BottomLeft", x, y)
 			end
 		end)
+
+		SLASH_COMBATCURSOR1 = "/cursor"
+		SLASH_COMBATCURSOR2 = "/cc"
+		SlashCmdList["COMBATCURSOR"] = function()
+			if module.plug.cursor:IsShown() then
+				module.plug.cursor:Hide()
+			else
+				module.plug.cursor:Show()
+			end
+		end
+
 	end
 end)
 

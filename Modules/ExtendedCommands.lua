@@ -13,7 +13,7 @@ local module = VE.registerModule({
 			initialTopOffset = -180,
 			frameWidth = 80,
 			frameHeight = 200,
-			perRow = 3,
+			perRow = 4,
 
 		},
 	},
