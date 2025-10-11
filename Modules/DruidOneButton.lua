@@ -145,7 +145,7 @@ local function rotation(filler, finisher, powershift)
 	local points = GetComboPoints()
 	if points == 5 then
 		if unitHasDebuff("target", module.config.buffs["Rip"]) then
-			CastSpellByName("Ferocious Bite")
+			CastSpellByName(finisher)
 		else
 			CastSpellByName("Rip")
 		end
