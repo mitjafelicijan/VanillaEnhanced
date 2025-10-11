@@ -118,7 +118,7 @@ local function UpdatePlayerDebuffs()
 
 	local xOffset = 0
 	if activeBuffs > 0 then
-		xOffset = (4 - activeBuffs) * (24 / 2) + (activeBuffs * 0.3)
+		xOffset = (4 - activeBuffs) * (28 / 2)
 	end
 
 	module.data.playerDebuffs:ClearAllPoints()
