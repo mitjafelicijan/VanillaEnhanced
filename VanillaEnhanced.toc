@@ -64,7 +64,6 @@ Modules\MiniPowerFrame.xml
 Modules\NameplateComboPoints.lua
 Modules\NameplateScaling.lua
 Modules\NameplateThreat.lua
-Modules\NearbyTargets.xml
 Modules\OutOfRange.lua
 Modules\PullBreakTimer.lua
 Modules\QuestItemTooltip.lua
@@ -79,6 +78,7 @@ Modules\ConsumablesPanel.lua
 Modules\AuctionEnhancements.xml
 # Modules\TargetChangeStopAttack.lua
 # Modules\BulletinBoard.xml
+# Modules\NearbyTargets.xml
 
 # Control panels
 Panels\Controls.lua

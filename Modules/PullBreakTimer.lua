@@ -52,7 +52,7 @@ local function StartCountdown(seconds)
 		-- Timer finished.
 		if remaining < 0 then
 			module.plug.bar:Hide()
-			PlaySoundFile("Interface\\AddOns\\VanillaEnhanced\\Audio\\pull.ogg")
+			-- PlaySoundFile("Interface\\AddOns\\VanillaEnhanced\\Audio\\pull.ogg")
 			module.plug.bar.progress:SetValue(0)
 			module.data.ticker:SetScript("OnUpdate", nil)
 			return

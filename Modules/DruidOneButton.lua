@@ -93,18 +93,16 @@ local function rotation(filler, finisher, powershift)
 	local manaPercent = (currentMana / maxMana) * 100
 	local powerType = UnitPowerType("player") -- 3 is cat	
 
-	-- print(string.format("mana=%d%% energy=%d", manaPercent, currentEnergy))
-
 	if powershift then
 		if currentEnergy <= module.config.powerShift.energyThreshold and manaPercent > module.config.powerShift.minManaThreshold then
 			CastSpellByName("Reshift")
 		end
 	end
+
 	-- Cast Rake when the old one expires.
-	do
+	if IsSpellInRange("Rake", "target") == 1 then
 		local now = GetTime()
-		local lastCast = module.data.queue.rake
-		local elapsed = now - lastCast
+		local elapsed = now - module.data.queue.rake
 		local timeout = module.config.spellTimeout.rake
 
 		-- Reduce timeout of Rake by 10% if Idol of Savagery equiped.
@@ -112,7 +110,7 @@ local function rotation(filler, finisher, powershift)
 			timeout = math.ceil(timeout + (timeout * 0.10))
 		end
 
-		if elapsed >= timeout then
+		if module.data.queue.rake == 0 or elapsed >= timeout then
 			module.data.queue.rake = now
 			CastSpellByName("Rake")
 		end
@@ -142,36 +140,50 @@ local function rotation(filler, finisher, powershift)
 	end
 
 	-- Execute the rest of rotation.
-	local points = GetComboPoints()
-	if points == 5 then
-		if unitHasDebuff("target", module.config.buffs["Rip"]) then
-			CastSpellByName(finisher)
+	-- Check's if mele in range at all.
+	if IsSpellInRange("Claw", "target") == 1 then
+		local points = GetComboPoints()
+		if points == 5 then
+			if unitHasDebuff("target", module.config.buffs["Rip"]) then
+				CastSpellByName(finisher)
+			else
+				CastSpellByName("Rip")
+			end
 		else
-			CastSpellByName("Rip")
+			CastSpellByName(filler)
 		end
-	else
-		CastSpellByName(filler)
 	end
 end
 
 module.frame = CreateFrame("Frame", module.identifier, UIParent)
 module.frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+module.frame:RegisterEvent("PLAYER_ENTER_COMBAT")
+module.frame:RegisterEvent("PLAYER_LEAVE_COMBAT")
+module.frame:RegisterEvent("PLAYER_TARGET_CHANGED")
 
 module.frame:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 	if not UnitClass("player") == "Druid" then return end
 
-	SLASH_DruidOneButton1 = "/dob"
-	SlashCmdList["DruidOneButton"] = function(arg)
-		local args = VE.split(arg, ",")
-		local filler = VE.trim(args[1])
-		local finisher = VE.trim(args[2])
-		local powershift = false
+	if event == "PLAYER_ENTERING_WORLD" then
+		SLASH_DruidOneButton1 = "/dob"
+		SlashCmdList["DruidOneButton"] = function(arg)
+			local args = VE.split(arg, ",")
+			local filler = VE.trim(args[1])
+			local finisher = VE.trim(args[2])
+			local powershift = false
 
-		if args[3] and args[3] == "powershift" then
-			powershift = true
+			if args[3] and args[3] == "powershift" then
+				powershift = true
+			end
+
+			rotation(filler, finisher, powershift)
 		end
+	end
 
-		rotation(filler, finisher, powershift)
+	if event == "PLAYER_ENTER_COMBAT" or
+		event == "PLAYER_LEAVE_COMBAT" or
+		event == "PLAYER_TARGET_CHANGED" then
+		module.data.queue.rake = 0
 	end
 end)

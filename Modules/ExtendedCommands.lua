@@ -10,7 +10,7 @@ local module = VE.registerModule({
 		raidPullout = {
 			disableDrag = true,
 			initialLeftOffset = 10,
-			initialTopOffset = -180,
+			initialTopOffset = -220,
 			frameWidth = 80,
 			frameHeight = 200,
 			perRow = 4,
@@ -46,15 +46,26 @@ local function ShowRaidPullouts()
 
 			-- Make bar a bit bigger.
 			-- FIXME: This targets correct bars but the style is all messed up.
-			-- for j = 1,5 do
-			-- 	button = getglobal(pullout:GetName().."Button"..j);
-			-- 	if button then
-			-- 		healthBar = getglobal(button:GetName().."HealthBar");
-			-- 		healthBar:SetHeight(10)
-			-- 		manaBar = getglobal(button:GetName().."ManaBar");
-			-- 		manaBar:SetHeight(10)
-			-- 	end
-			-- end
+			if false then
+				for j = 1,5 do
+					button = getglobal(pullout:GetName().."Button"..j);
+					print(pullout:GetName().."Button"..j)
+					if button then
+						-- button:SetHeight(30)
+
+						-- Make background texture taller
+						local bg = getglobal(button:GetName().."Frame")
+						if bg then
+							bg:SetHeight(30)  -- increase background texture height
+						end
+
+						healthBar = getglobal(button:GetName().."HealthBar");
+						healthBar:SetHeight(10)
+						manaBar = getglobal(button:GetName().."ManaBar");
+						manaBar:SetHeight(10)
+					end
+				end
+			end
 
 			pullout:ClearAllPoints()
 			pullout:SetPoint("TOPLEFT", UIParent, "TOPLEFT", leftOffset, topOffset)
