@@ -11,7 +11,7 @@ local module = VE.registerModule({
 		actionTooltip = nil,
 		forms = {
 			["Interface\\Icons\\Ability_Racial_BearForm"] = "Bear Form",
-			["Interface\\Icons\\Ability_Racial_BearForm"] = "Dire Bear Form",
+			-- ["Interface\\Icons\\Ability_Racial_BearForm"] = "Dire Bear Form",
 			["Interface\\Icons\\Ability_Druid_AquaticForm"] = "Aquatic Form",
 			["Interface\\Icons\\Ability_Druid_CatForm"] = "Cat Form",
 			["Interface\\Icons\\Ability_Druid_TravelForm"] = "Travel Form",
@@ -55,6 +55,13 @@ module.plug:SetScript("OnEvent", function()
 
 		local spellName = getglobal(module.identifier.."ActionTooltipTextLeft1"):GetText()
 		local currentForm = GetCurrentDruidForm()
+
+		-- We remove Dire from spellName.
+		if spellName then
+			if string.sub(spellName, 1, string.len("Dire")) == "Dire" then
+				spellName = string.sub(spellName, string.len("Dire") + 2)
+			end
+		end
 
 		if spellName ~= currentForm then
 			Original_UseAction(slot, checkCursor, onSelf)
