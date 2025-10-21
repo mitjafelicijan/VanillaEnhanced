@@ -37,13 +37,15 @@ local module = VE.registerModule({
 	},
 })
 
+-- TODO: HP remaining awarness, if mob is lower then 20% then cycles on Shred and Bite.
+-- TODO: Mob type when they are immune to bleed effects.
+-- TODO: Check if you are not behind the target, apply Shred or Claw.
+
 -- Check for SuperWoW dependency.
 if not VE.superWoWCheck(module) then
 	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
 	return
 end
-
-local print = VE.print
 
 local function unitHasBuff(unit, buffTexture)
 	for j = 1, 32 do
