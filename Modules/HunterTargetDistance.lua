@@ -21,6 +21,7 @@ module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
+	if not UnitClass("player") == "Hunter" then return end
 
 	if event == "PLAYER_ENTERING_WORLD" and not module.indicator then
 		module.indicator = CreateFrame("Frame", nil, UIParent)
@@ -32,8 +33,8 @@ module.plug:SetScript("OnEvent", function()
 			bgFile = "Interface/Tooltips/UI-Tooltip-Background",
 			edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
 			tile = true,
-			tileSize = 8,
-			edgeSize = 8,
+			tileSize = 12,
+			edgeSize = 12,
 			insets = { left = 2, right = 2, top = 2, bottom = 2 }
 		})
 		module.indicator:SetBackdropColor(0, 0, 0, 0.5)
@@ -53,10 +54,11 @@ end)
 module.plug:SetScript("OnUpdate", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 	if not module.indicator then return end
+	if not UnitClass("player") == "Hunter" then return end
 
 	if UnitExists("target") and UnitCanAttack("player", "target") and not UnitIsDead("target") then
 		local inMelee = CheckInteractDistance("target", 3)
-		local rangedCheck = IsSpellInRange("Arcane Shot", "target")
+		local rangedCheck = IsSpellInRange("Auto Shot", "target")
 
 		if inMelee then
 			module.indicator.texture:SetTexture(0, 0, 0.6, 1)
