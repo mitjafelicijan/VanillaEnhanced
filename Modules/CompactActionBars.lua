@@ -379,6 +379,9 @@ module.plug:SetScript("OnEvent", function()
 		RepositionReputationBar()
 		RepositionMicroMenu()
 		HideOtherUI()
+
+		-- Fixes strange behaviour of main xp bar.
+		ExhaustionTick_Update()
 	end
 
 	if event == "UPDATE_BONUS_ACTIONBAR" then
