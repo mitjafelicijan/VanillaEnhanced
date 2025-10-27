@@ -10,7 +10,7 @@ local module = VE.registerModule({
 		raidPullout = {
 			disableDrag = true,
 			initialLeftOffset = 10,
-			initialTopOffset = -220,
+			initialTopOffset = -190,
 			frameWidth = 80,
 			frameHeight = 200,
 			perRow = 4,
@@ -28,6 +28,28 @@ end
 
 local print = VE.print
 local gfind = string.gmatch or string.gfind
+
+local function CurrentDruidForm()
+	local inForm = nil
+	for i = 1, GetNumShapeshiftForms() do
+		_, _, active, _ = GetShapeshiftFormInfo(i)
+		if active ~= nil then
+			inForm = i
+		end
+	end
+	return inForm
+end
+
+local function GoIntoDruidFormId(formId)
+	local form = CurrentDruidForm()
+	if form ~= nil and form ~= formId then
+		CastShapeshiftForm(form)
+	end
+	_, _, active, _ = GetShapeshiftFormInfo(formId)
+	if active == nil then
+		CastShapeshiftForm(formId)
+	end
+end
 
 local function ShowRaidPullouts()
 	local currentIdx = 0
@@ -253,6 +275,34 @@ module.plug:SetScript("OnEvent", function()
 			end
 		end
 		VE.print("Food not found in bags.")
+	end
+
+	do
+		SLASH_BEARFORM1 = "/bearform"
+		SlashCmdList["BEARFORM"] = function(msg, editbox)
+			GoIntoDruidFormId(1)
+		end
+	end
+
+	do
+		SLASH_AQUATICFORM1 = "/aquaticform"
+		SlashCmdList["AQUATICFORM"] = function(msg, editbox)
+			GoIntoDruidFormId(2)
+		end
+	end
+
+	do
+		SLASH_CATFORM1 = "/catform"
+		SlashCmdList["CATFORM"] = function(msg, editbox)
+			GoIntoDruidFormId(3)
+		end
+	end
+
+	do
+		SLASH_TRAVELFORM1 = "/travelform"
+		SlashCmdList["TRAVELFORM"] = function(msg, editbox)
+			GoIntoDruidFormId(4)
+		end
 	end
 
 	SLASH_SANDBOX1 = "/sandbox"
