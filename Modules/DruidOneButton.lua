@@ -146,11 +146,9 @@ local function rotation(filler, finisher, powershift)
 	if IsSpellInRange("Claw", "target") == 1 then
 		local points = GetComboPoints()
 		if points == 5 then
-			if unitHasDebuff("target", module.config.buffs["Rip"]) then
-				CastSpellByName(finisher)
-			else
-				CastSpellByName("Rip")
-			end
+			-- Always do Rip. And do Ferocious Bite manually.
+			-- This makes it more reliable.
+			CastSpellByName("Rip")
 		else
 			CastSpellByName(filler)
 		end
