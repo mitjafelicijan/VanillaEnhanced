@@ -27,6 +27,7 @@ Modules\AutoLoot.lua
 Modules\AutoRepair.lua
 Modules\AutoSell.lua
 Modules\AutoDismount.lua
+Modules\AutoCancelForm.lua
 Modules\BagSearch.lua
 Modules\BankBags.lua
 Modules\BigPlayerFrame.lua
