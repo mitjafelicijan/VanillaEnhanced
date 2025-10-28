@@ -1,7 +1,7 @@
 local module = VE.registerModule({
 	identifier = "AutoCancelForm",
 	meta = {
-		label = "Automatic Cancel Form",
+		label = "Automatic Cancel of Forms",
 		description = "Automatically cancels shapeshift form if spell cannot be cast.",
 	},
 	plug = nil,
@@ -23,9 +23,10 @@ module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 	if not UnitClass("player") == "Druid" then return end
 
-	if arg1 == "You are in shapeshift form" or
-		arg1 == "Can't speak while shapeshifted." or
-		arg1 == "You can't do that while shapeshifted." then
+	-- https://github.com/refaim/Turtle-WoW-UI-Source/blob/master/Interface/FrameXML/GlobalStrings.lua
+	if arg1 == SPELL_FAILED_NOT_SHAPESHIFT or
+		arg1 == ERR_CANT_INTERACT_SHAPESHIFTED or
+		arg1 == ERR_NOT_WHILE_SHAPESHIFTED then
 		local inForm = nil
 		for i = 1, GetNumShapeshiftForms() do
 			_, _, active, _ = GetShapeshiftFormInfo(i)

@@ -22,7 +22,8 @@ module.plug:RegisterEvent("UI_ERROR_MESSAGE")
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 
-	if arg1 == "You are mounted" then
+	-- https://github.com/refaim/Turtle-WoW-UI-Source/blob/master/Interface/FrameXML/GlobalStrings.lua
+	if arg1 == SPELL_FAILED_NOT_MOUNTED then
 		SlashCmdList["DISMOUNT"]()
 	end
 end)
