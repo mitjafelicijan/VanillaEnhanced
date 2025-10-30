@@ -11,7 +11,7 @@ local module = VE.registerModule({
 		iconScale = 1.2,
 		slots = {
 			trinket1 = 13,
-			trinker2 = 14,
+			trinket2 = 14,
 			idol1 = 18,
 		},
 	},
