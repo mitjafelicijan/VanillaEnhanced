@@ -305,6 +305,14 @@ module.plug:SetScript("OnEvent", function()
 		end
 	end
 
+	do
+		SLASH_RESETINSTANCES1 = "/reset"
+		SLASH_RESETINSTANCES2 = "/resetinstances"
+		SlashCmdList["RESETINSTANCES"] = function(msg, editbox)
+			ResetInstances()
+		end
+	end
+
 	SLASH_SANDBOX1 = "/sandbox"
 	SLASH_SANDBOX2 = "/sa"
 	SlashCmdList["SANDBOX"] = function(msg, editbox)
