@@ -390,9 +390,9 @@ local function UpdateMemberFrame(unitInfo, frameName)
 
 	-- In range detection.
 	if unitInfo.inRange == 1 then
-		this:SetAlpha(1.0)
+		--this:SetAlpha(1.0)
 	else
-		this:SetAlpha(0.4)
+		--this:SetAlpha(0.4)
 	end
 
 	if not unitInfo.isOnline then
