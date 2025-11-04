@@ -75,9 +75,9 @@ Modules\TargetCastingBar.lua
 Modules\TravelJournal.lua
 Modules\TrinketManager.lua
 Modules\ConsumablesPanel.lua
+Modules\BulletinBoard.xml
 
 # Work in progress
-# Modules\BulletinBoard.xml
 # Modules\AuctionEnhancements.xml
 # Modules\TargetChangeStopAttack.lua
 # Modules\NearbyTargets.xml

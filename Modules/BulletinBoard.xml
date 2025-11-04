@@ -22,14 +22,36 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentMessage" inherits="GameFontHighlightSmall" text="Message">
+				<FontString name="$parentType" inherits="GameFontHighlightSmall" text="Type">
 					<Anchors>
 						<Anchor point="LEFT" relativeTo="$parent">
 							<Offset>
-								<AbsDimension x="144" y="0"/>
+								<AbsDimension x="146" y="0"/>
 							</Offset>
 						</Anchor>
 					</Anchors>
+				</FontString>
+				<FontString name="$parentInstance" inherits="GameFontHighlightSmall" text="Instance">
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent">
+							<Offset>
+								<AbsDimension x="180" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentElapsed" inherits="GameFontHighlightSmall" text="Elapsed">
+					<Size>
+						<AbsDimension x="100" y="14"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent">
+							<Offset>
+								<AbsDimension x="375" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<JustifyH value="RIGHT"/>
 				</FontString>
 
 				<Texture name="$parentRoleDPS" file="Interface\AddOns\VanillaEnhanced\Assets\BulletinBoard-Roles">

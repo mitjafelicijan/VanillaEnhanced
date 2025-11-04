@@ -63,6 +63,7 @@ local module = VE.registerModule({
 		listings = {},
 		trade = {},
 		lastUpdate = 0,
+		selectedInstances = {},
 	},
 })
 
@@ -99,17 +100,26 @@ end
 local function ProcessMessage(sender, message)
 	message = VE.trim(message)
 
+	-- Check if message already in the queue.
+	for _, item in pairs(module.data.listings) do
+		if sender == item.sender and string.lower(message) == string.lower(item.message) then
+			return
+		end
+	end
+
 	local listing = {
 		lfg = false,
 		lfm = false,
 		wtb = false,
 		wts = false,
+		type = nil,
 		tank = false,
 		healer = false,
 		dps = false,
 		instance = nil,
 		sender = sender,
 		message = message,
+		time = GetTime(),
 	}
 
 	-- Remove unnecessary characters for easier parsing.
@@ -128,6 +138,9 @@ local function ProcessMessage(sender, message)
 		if token == "heal" or token == "heals" or token == "healer" or token == "healers" then listing.healer = true end
 		if token == "dps" then listing.dps = true end
 
+		if listing.lfg then listing.type = "LFG" end
+		if listing.lfm then listing.type = "LFM" end
+
 		for key, instance in pairs(module.data.instances) do
 			if token == key then
 				listing.instance = instance
@@ -138,18 +151,6 @@ local function ProcessMessage(sender, message)
 
 	if (listing.lfg or listing.lfm) and listing.instance then
 		table.insert(module.data.listings, 1, listing)
-
-		if module.config.debug then
-			local _meta = (string.format("instance: %s; lfg: %s; lfm: %s; tank: %s, heals: %s; dps: %s; sender: %s", tostring(listing.instance), tostring(listing.lfg), tostring(listing.lfm), tostring(listing.tank), tostring(listing.healer), tostring(listing.dps), listing.sender))
-			local _message = (string.format("  --> message: %s", listing.message))
-			if not listing.instance then
-				eprint(_meta)
-				eprint(_message)
-			else
-				print(_meta)
-				print(_message)
-			end
-		end
 	end
 
 	-- Truncate table to only N listings (same as max rows in UI).
@@ -157,7 +158,6 @@ local function ProcessMessage(sender, message)
 	if listingSize > module.config.maxListings then
 		for i = module.config.maxListings + 1, listingSize do
 			module.data.listings[i] = nil
-			-- dprint(string.format("removing %s listing (%s still in queue)", i, VE.count(module.data.listings)))
 		end
 	end
 
@@ -168,12 +168,39 @@ end
 
 local function UpdateListings()
 	local numListings = VE.count(module.data.listings)
-	
+	local numSelected = VE.count(module.data.selectedInstances)
+
+	-- VE.print(string.format("-- selected: %d", numSelected))
+
 	-- Show active ones.
 	for i, listing in pairs(module.data.listings) do
+		-- local filterPass = false
+		-- if numSelected == 0 then
+		-- 	filterPass = true
+		-- else
+		-- 	for instance, _ in pairs(module.data.selectedInstances) do
+		-- 		if instance == listing.instance then
+		-- 			filterPass = true
+		-- 		end
+		-- 	end
+		-- end
+		-- if not filterPass then break end
+
+		local elapsed = GetTime() - listing.time
+		local elapsedFormatted
+		if elapsed < 60 then
+			elapsedFormatted = string.format("%ds ago", math.floor(elapsed))
+		elseif elapsed < 3600 then
+			elapsedFormatted = string.format("%dm ago", math.floor(elapsed / 60))
+		else
+			elapsedFormatted = string.format("%dh ago", math.floor(elapsed / 3600))
+		end
+
 		getglobal(string.format("BulletinBoardEntry%s", i)).meta = listing
 		getglobal(string.format("BulletinBoardEntry%sSender", i)):SetText(listing.sender)
-		getglobal(string.format("BulletinBoardEntry%sMessage", i)):SetText(listing.message)
+		getglobal(string.format("BulletinBoardEntry%sType", i)):SetText(listing.type)
+		getglobal(string.format("BulletinBoardEntry%sInstance", i)):SetText(GetInstanceName(listing.instance).name)
+		getglobal(string.format("BulletinBoardEntry%sElapsed", i)):SetText(elapsedFormatted)
 		getglobal(string.format("BulletinBoardEntry%s", i)):Show()
 
 		if listing.dps then
@@ -246,80 +273,81 @@ function BulletinBoardListing_OnEnter()
 	line = nil
 end
 
-local function CreateMultiSelectDropdown1(name, parent, items, width, fn)
-    local frame = CreateFrame("Button", name, parent, "UIDropDownMenuTemplate")
-    frame:SetWidth(width or 150)
-    frame:SetHeight(44)
-    
-    -- Store selected items
-    frame.selectedItems = {}
-    for _, item in ipairs(items) do
-        frame.selectedItems[item] = false
-    end
-    
-    -- Function to count selected items
-    local function CountSelected()
-        local count = 0
-        for _, selected in pairs(frame.selectedItems) do
-            if selected then count = count + 1 end
-        end
-        return count
-    end
-    
-    -- Function to update the dropdown text
-    local function UpdateText()
-        local selectedCount = CountSelected()
-        local firstSelected
-        
-        if selectedCount > 0 then
-            for item, selected in pairs(frame.selectedItems) do
-                if selected then
-                    firstSelected = item
-                    break
-                end
-            end
-        end
-        
-        local text
-        if selectedCount == 0 then
-            text = "Select options"
-        elseif selectedCount == 1 then
-            text = firstSelected
-        else
-            text = string.format("%d selected", selectedCount)
-        end
-        getglobal(frame:GetName().."Text"):SetText(text)
-    end
-    
-    -- Create an invisible frame for our timer
-    frame.timerFrame = CreateFrame("Frame", nil, frame)
-    frame.timerFrame:Hide()
-    
-    -- Custom dropdown handler
-    local function Dropdown_OnClick()
-        local value = this.value
-        frame.selectedItems[value] = not frame.selectedItems[value]
-        UpdateText()
+local function CreateMultiSelectDropdown(name, parent, items, width)
+	local frame = CreateFrame("Button", name, parent, "UIDropDownMenuTemplate")
+	frame:SetWidth(width or 150)
+	frame:SetHeight(44)
 
-        frame.timerFrame.startTime = GetTime()
-        frame.timerFrame:SetScript("OnUpdate", function()
-            if GetTime() - this.startTime > 0.01 then
-                this:SetScript("OnUpdate", nil)
-                ToggleDropDownMenu(1, nil, frame, frame:GetName(), 8, 7)
-                this:Hide()
-            end
-        end)
-        frame.timerFrame:Show()
+	module.data.selectedInstances = {}
+
+	-- Function to count selected items.
+	local function CountSelected()
+		local count = 0
+		for _, selected in pairs(module.data.selectedInstances) do
+			if selected then count = count + 1 end
+		end
+		return count
 	end
 
-	-- Initialize the dropdown
+	-- Function to update the dropdown text.
+	local function UpdateText()
+		local selectedCount = CountSelected()
+		local firstSelectedName
+
+		if selectedCount > 0 then
+			for _, item in ipairs(items) do
+				if module.data.selectedInstances[item.id] then
+					firstSelectedName = item.name
+					break
+				end
+			end
+		end
+
+		local text
+		if selectedCount == 0 then
+			text = "Select dungeons or raids"
+		elseif selectedCount == 1 then
+			text = firstSelectedName
+		else
+			text = string.format("%d selected", selectedCount)
+		end
+		getglobal(frame:GetName().."Text"):SetText(text)
+	end
+
+	-- Create timer frame (vanilla-compatible OnUpdate).
+	frame.timerFrame = CreateFrame("Frame", nil, frame)
+	frame.timerFrame:Hide()
+	frame.timerFrame:SetScript("OnUpdate", function()
+		if not this.startTime then return end
+		if GetTime() - this.startTime > 0.01 then
+			this:SetScript("OnUpdate", nil)
+			this.startTime = nil
+			ToggleDropDownMenu(1, nil, frame, frame:GetName(), 8, 7)
+			this:Hide()
+		end
+	end)
+
+	-- Custom dropdown handler.
+	local function Dropdown_OnClick()
+		local id = this.value
+		module.data.selectedInstances[id] = not module.data.selectedInstances[id]
+		UpdateText()
+
+		-- Schedule menu reopen.
+		frame.timerFrame.startTime = GetTime()
+		frame.timerFrame:Show()
+
+		UpdateListings()
+	end
+
+	-- Initialize the dropdown.
 	UIDropDownMenu_Initialize(frame, function()
 		for _, item in ipairs(items) do
 			local info = {
-				text = item,
-				value = item,
+				text = item.name,
+				value = item.id,
 				func = Dropdown_OnClick,
-				checked = frame.selectedItems[item],
+				checked = module.data.selectedInstances[item.id],
 				isTitle = false,
 				notCheckable = false
 			}
@@ -327,122 +355,33 @@ local function CreateMultiSelectDropdown1(name, parent, items, width, fn)
 		end
 	end)
 
-	-- Initial setup
+	-- Initial setup.
 	UIDropDownMenu_SetWidth(width or 150, frame)
 	UIDropDownMenu_SetButtonWidth(24, frame)
 	UIDropDownMenu_JustifyText("LEFT", frame)
 	UpdateText()
 
-    return frame
-end
+	-- Public methods.
+	function frame:GetSelectedIds()
+		local selected = {}
+		for id, isSelected in pairs(module.data.selectedInstances) do
+			if isSelected then table.insert(selected, id) end
+		end
+		return selected
+	end
 
-local function CreateMultiSelectDropdown(name, parent, items, width)
-    local frame = CreateFrame("Button", name, parent, "UIDropDownMenuTemplate")
-    frame:SetWidth(width or 150)
-    frame:SetHeight(44)
-    
-    -- Store selected items by id
-    frame.selectedItems = {}
-    
-    -- Function to count selected items
-    local function CountSelected()
-        local count = 0
-        for _, selected in pairs(frame.selectedItems) do
-            if selected then count = count + 1 end
-        end
-        return count
-    end
-    
-    -- Function to update the dropdown text
-    local function UpdateText()
-        local selectedCount = CountSelected()
-        local firstSelectedName
-        
-        if selectedCount > 0 then
-            for _, item in ipairs(items) do
-                if frame.selectedItems[item.id] then
-                    firstSelectedName = item.name
-                    break
-                end
-            end
-        end
-        
-        local text
-        if selectedCount == 0 then
-            text = "Select options"
-        elseif selectedCount == 1 then
-            text = firstSelectedName
-        else
-            text = string.format("%d selected", selectedCount)
-        end
-        getglobal(frame:GetName().."Text"):SetText(text)
-    end
-    
-    -- Create timer frame (vanilla-compatible OnUpdate)
-    frame.timerFrame = CreateFrame("Frame", nil, frame)
-    frame.timerFrame:Hide()
-    frame.timerFrame:SetScript("OnUpdate", function()
-        if not this.startTime then return end
-        if GetTime() - this.startTime > 0.01 then
-            this:SetScript("OnUpdate", nil)
-            this.startTime = nil
-            ToggleDropDownMenu(1, nil, frame, frame:GetName(), 8, 7)
-            this:Hide()
-        end
-    end)
-    
-    -- Custom dropdown handler
-    local function Dropdown_OnClick()
-        local id = this.value
-        frame.selectedItems[id] = not frame.selectedItems[id]
-        UpdateText()
-        
-        -- Schedule menu reopen
-        frame.timerFrame.startTime = GetTime()
-        frame.timerFrame:Show()
-    end
-    
-    -- Initialize the dropdown
-    UIDropDownMenu_Initialize(frame, function()
-        for _, item in ipairs(items) do
-            local info = {
-                text = item.name,
-                value = item.id,
-                func = Dropdown_OnClick,
-                checked = frame.selectedItems[item.id],
-                isTitle = false,
-                notCheckable = false
-            }
-            UIDropDownMenu_AddButton(info)
-        end
-    end)
-    
-    -- Initial setup
-    UIDropDownMenu_SetWidth(width or 150, frame)
-    UIDropDownMenu_SetButtonWidth(24, frame)
-    UIDropDownMenu_JustifyText("LEFT", frame)
-    UpdateText()
-    
-    -- Public methods
-    function frame:GetSelectedIds()
-        local selected = {}
-        for id, isSelected in pairs(self.selectedItems) do
-            if isSelected then table.insert(selected, id) end
-        end
-        return selected
-    end
-    
-    function frame:SetSelectedIds(ids)
-        for id, _ in pairs(self.selectedItems) do
-            self.selectedItems[id] = false
-        end
-        for _, id in ipairs(ids) do
-            self.selectedItems[id] = true
-        end
-        UpdateText()
-    end
-    
-    return frame
+	function frame:SetSelectedIds(ids)
+		for id, _ in pairs(module.data.selectedInstances) do
+			-- module.data.selectedInstances[id] = false
+			module.data.selectedInstances[id] = nil
+		end
+		for _, id in ipairs(ids) do
+			module.data.selectedInstances[id] = true
+		end
+		UpdateText()
+	end
+
+	return frame
 end
 
 function BulletinBoardListing_OnLeave()
@@ -456,16 +395,7 @@ function BulletinBoard_OnLoad()
 
 	tinsert(UISpecialFrames, this:GetName())
 
-	-- InitializeBulletinBoardTypeDropdown()
-
-	local items = {"Option 1", "Option 2", "Option 3", "Option 4"}
-	local items = {
-		{id = "opt1", name = "Option 1"},
-		{id = "opt2", name = "Option 2"},
-		{id = "opt3", name = "Option 3"},
-		{id = "opt4", name = "Option 4"}
-	}
-	local dropdown = CreateMultiSelectDropdown("BulletinBoardTypeDropdown", BulletinBoard, items, 120, function(selected)
+	local dropdown = CreateMultiSelectDropdown("BulletinBoardTypeDropdown", BulletinBoard, module.config.instances, 200, function(selected)
 		for _, item in ipairs(selected) do
 			print(item)
 		end
@@ -488,45 +418,6 @@ function BulletinBoard_OnShow()
 	end
 
 	nativeFrames = nil
-
-
-	-- if not BulletinBoardDungeonsDropdown.initialized then
-	-- 	UIDropDownMenu_SetWidth(120, BulletinBoardDungeonsDropdown)
-	-- 	UIDropDownMenu_Initialize(BulletinBoardDungeonsDropdown, function()
-	-- 		local options = {
-	-- 			{ text = "Option A", value = "A" },
-	-- 			{ text = "Option B", value = "B" },
-	-- 			{ text = "Option C", value = "C" },
-	-- 		}
-
-	-- 		local info = {}
-	-- 		info.text = "Dungeons"
-	-- 		info.value = nil
-	-- 		info.keepShownOnClick = true
-
-	-- 		UIDropDownMenu_AddButton(info)
-	-- 		if UIDROPDOWNMENU_MENU_LEVEL == 1 then
-	-- 			for _, instance in ipairs(module.config.instances) do
-	-- 				if instance.type == "dungeon" then
-	-- 					local info = {}
-	-- 					info.text = instance.name
-	-- 					info.value = instance.id
-	-- 					info.keepShownOnClick = true
-	-- 					-- info.checked = BulletinBoardInstanceDropdown.selected[instance.id] or false
-	-- 					info.func = function()
-	-- 						UIDropDownMenu_SetSelectedID(BulletinBoardDungeonsDropdown, this:GetID())
-	-- 						print(this.value)
-	-- 					end
-	-- 					UIDropDownMenu_AddButton(info)
-	-- 				end
-	-- 			end
-	-- 		end
-
-	-- 		UIDropDownMenu_SetSelectedID(BulletinBoardDungeonsDropdown, 1)
-	-- 	end)
-
-	-- 	BulletinBoardDungeonsDropdown.initialized = true
-	-- end
 end
 
 function BulletinBoard_OnEvent()
@@ -556,7 +447,7 @@ function BulletinBoard_OnEvent()
 			module.data.lastUpdate = module.data.lastUpdate + arg1
 			if module.data.lastUpdate >= module.config.updateInterval then
 				module.data.lastUpdate = 0
-				
+
 				if this:IsShown() then
 					UpdateListings()
 				end
