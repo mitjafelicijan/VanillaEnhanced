@@ -168,8 +168,10 @@ local function ProcessMessage(sender, message)
 end
 
 local function UpdateListings()
-	-- local numListings = VE.count(module.data.listings)
-
+	-- Hide all rows.
+	for i = 1, module.config.maxListings do
+		getglobal(string.format("BulletinBoardEntry%s", i)):Hide()
+	end
 
 	local elapsed
 	local elapsedFormatted
@@ -184,15 +186,12 @@ local function UpdateListings()
 			end
 		end
 
-		-- VE.print(numSelected)
-
 		local allowed = true
 		if numSelected > 0 then
 			allowed = false
 			for id, isSelected in pairs(module.data.selectedInstances) do
 				if isSelected and id == listing.instance then
 					allowed = true
-					-- VE.print(string.format("> YES > %s, %s > %s", id, listing.instance, listing.sender))
 				end
 			end
 		end
