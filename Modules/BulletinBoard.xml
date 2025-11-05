@@ -22,7 +22,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentType" inherits="GameFontHighlightSmall" text="Type">
+				<FontString name="$parentType" inherits="GameFontDisableSmall" text="Type">
 					<Anchors>
 						<Anchor point="LEFT" relativeTo="$parent">
 							<Offset>
@@ -156,33 +156,23 @@
 		</Layers>
 
 		<Frames>
-			<!-- <Frame name="BulletinBoardTypeDropdown" inherits="UIDropDownMenuTemplate"> -->
-			<!-- 	<Anchors> -->
-			<!-- 		<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT"> -->
-			<!-- 			<Offset> -->
-			<!-- 				<AbsDimension x="70" y="-40"/> -->
-			<!-- 			</Offset> -->
-			<!-- 		</Anchor> -->
-			<!-- 	</Anchors> -->
-			<!-- </Frame> -->
-			<!-- <Frame name="BulletinBoardDungeonsDropdown" inherits="UIDropDownMenuTemplate"> -->
-			<!-- 	<Anchors> -->
-			<!-- 		<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT"> -->
-			<!-- 			<Offset> -->
-			<!-- 				<AbsDimension x="213" y="-40"/> -->
-			<!-- 			</Offset> -->
-			<!-- 		</Anchor> -->
-			<!-- 	</Anchors> -->
-			<!-- </Frame> -->
-			<!-- <Frame name="BulletinBoardRaidsDropdown" inherits="UIDropDownMenuTemplate"> -->
-			<!-- 	<Anchors> -->
-			<!-- 		<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT"> -->
-			<!-- 			<Offset> -->
-			<!-- 				<AbsDimension x="350" y="-40"/> -->
-			<!-- 			</Offset> -->
-			<!-- 		</Anchor> -->
-			<!-- 	</Anchors> -->
-			<!-- </Frame> -->
+			<Button name="BulletinBoardTopRefreshButton" inherits="UIPanelButtonTemplate" text="Refresh">
+				<Size>
+					<AbsDimension x="100" y="22"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="-32" y="-44"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						BulletinBoard_Refresh();
+					</OnClick>
+				</Scripts>
+			</Button>
 			<ScrollFrame name="BulletinBoardScrollFrame" inherits="UIPanelScrollFrameTemplate">
 				<Size>
 					<AbsDimension x="450" y="400"/>

@@ -64,6 +64,7 @@ local module = VE.registerModule({
 		trade = {},
 		lastUpdate = 0,
 		selectedInstances = {},
+		filterInstances = {},
 	},
 })
 
@@ -167,72 +168,87 @@ local function ProcessMessage(sender, message)
 end
 
 local function UpdateListings()
-	local numListings = VE.count(module.data.listings)
-	local numSelected = VE.count(module.data.selectedInstances)
+	-- local numListings = VE.count(module.data.listings)
 
-	-- VE.print(string.format("-- selected: %d", numSelected))
+
+	local elapsed
+	local elapsedFormatted
 
 	-- Show active ones.
-	for i, listing in pairs(module.data.listings) do
-		-- local filterPass = false
-		-- if numSelected == 0 then
-		-- 	filterPass = true
-		-- else
-		-- 	for instance, _ in pairs(module.data.selectedInstances) do
-		-- 		if instance == listing.instance then
-		-- 			filterPass = true
-		-- 		end
-		-- 	end
-		-- end
-		-- if not filterPass then break end
-
-		local elapsed = GetTime() - listing.time
-		local elapsedFormatted
-		if elapsed < 60 then
-			elapsedFormatted = string.format("%ds ago", math.floor(elapsed))
-		elseif elapsed < 3600 then
-			elapsedFormatted = string.format("%dm ago", math.floor(elapsed / 60))
-		else
-			elapsedFormatted = string.format("%dh ago", math.floor(elapsed / 3600))
+	local i = 1
+	for _, listing in pairs(module.data.listings) do
+		local numSelected = 0
+		for id, isSelected in pairs(module.data.selectedInstances) do
+			if isSelected then
+				numSelected = numSelected + 1
+			end
 		end
 
-		getglobal(string.format("BulletinBoardEntry%s", i)).meta = listing
-		getglobal(string.format("BulletinBoardEntry%sSender", i)):SetText(listing.sender)
-		getglobal(string.format("BulletinBoardEntry%sType", i)):SetText(listing.type)
-		getglobal(string.format("BulletinBoardEntry%sInstance", i)):SetText(GetInstanceName(listing.instance).name)
-		getglobal(string.format("BulletinBoardEntry%sElapsed", i)):SetText(elapsedFormatted)
-		getglobal(string.format("BulletinBoardEntry%s", i)):Show()
+		-- VE.print(numSelected)
 
-		if listing.dps then
-			getglobal(string.format("BulletinBoardEntry%sRoleDPS", i)):SetAlpha(1.0)
-			getglobal(string.format("BulletinBoardEntry%sRoleDPS", i)):SetDesaturated(0)
-		else
-			getglobal(string.format("BulletinBoardEntry%sRoleDPS", i)):SetAlpha(0.3)
-			getglobal(string.format("BulletinBoardEntry%sRoleDPS", i)):SetDesaturated(1)
+		local allowed = true
+		if numSelected > 0 then
+			allowed = false
+			for id, isSelected in pairs(module.data.selectedInstances) do
+				if isSelected and id == listing.instance then
+					allowed = true
+					-- VE.print(string.format("> YES > %s, %s > %s", id, listing.instance, listing.sender))
+				end
+			end
 		end
 
-		if listing.healer then
-			getglobal(string.format("BulletinBoardEntry%sRoleHealer", i)):SetAlpha(1.0)
-			getglobal(string.format("BulletinBoardEntry%sRoleHealer", i)):SetDesaturated(0)
-		else
-			getglobal(string.format("BulletinBoardEntry%sRoleHealer", i)):SetAlpha(0.3)
-			getglobal(string.format("BulletinBoardEntry%sRoleHealer", i)):SetDesaturated(1)
-		end
+		if allowed then
+			elapsed = GetTime() - listing.time
+			elapsedFormatted = ""
+			if elapsed < 60 then
+				elapsedFormatted = string.format("%ds ago", math.floor(elapsed))
+			elseif elapsed < 3600 then
+				elapsedFormatted = string.format("%dm ago", math.floor(elapsed / 60))
+			else
+				elapsedFormatted = string.format("%dh ago", math.floor(elapsed / 3600))
+			end
 
-		if listing.tank then
-			getglobal(string.format("BulletinBoardEntry%sRoleTank", i)):SetAlpha(1.0)
-			getglobal(string.format("BulletinBoardEntry%sRoleTank", i)):SetDesaturated(0)
-		else
-			getglobal(string.format("BulletinBoardEntry%sRoleTank", i)):SetAlpha(0.3)
-			getglobal(string.format("BulletinBoardEntry%sRoleTank", i)):SetDesaturated(1)
+			getglobal(string.format("BulletinBoardEntry%s", i)).meta = listing
+			getglobal(string.format("BulletinBoardEntry%sSender", i)):SetText(listing.sender)
+			getglobal(string.format("BulletinBoardEntry%sType", i)):SetText(listing.type)
+			getglobal(string.format("BulletinBoardEntry%sInstance", i)):SetText(GetInstanceName(listing.instance).name)
+			getglobal(string.format("BulletinBoardEntry%sElapsed", i)):SetText(elapsedFormatted)
+			getglobal(string.format("BulletinBoardEntry%s", i)):Show()
+
+			if listing.dps then
+				getglobal(string.format("BulletinBoardEntry%sRoleDPS", i)):SetAlpha(1.0)
+				getglobal(string.format("BulletinBoardEntry%sRoleDPS", i)):SetDesaturated(0)
+			else
+				getglobal(string.format("BulletinBoardEntry%sRoleDPS", i)):SetAlpha(0.3)
+				getglobal(string.format("BulletinBoardEntry%sRoleDPS", i)):SetDesaturated(1)
+			end
+
+			if listing.healer then
+				getglobal(string.format("BulletinBoardEntry%sRoleHealer", i)):SetAlpha(1.0)
+				getglobal(string.format("BulletinBoardEntry%sRoleHealer", i)):SetDesaturated(0)
+			else
+				getglobal(string.format("BulletinBoardEntry%sRoleHealer", i)):SetAlpha(0.3)
+				getglobal(string.format("BulletinBoardEntry%sRoleHealer", i)):SetDesaturated(1)
+			end
+
+			if listing.tank then
+				getglobal(string.format("BulletinBoardEntry%sRoleTank", i)):SetAlpha(1.0)
+				getglobal(string.format("BulletinBoardEntry%sRoleTank", i)):SetDesaturated(0)
+			else
+				getglobal(string.format("BulletinBoardEntry%sRoleTank", i)):SetAlpha(0.3)
+				getglobal(string.format("BulletinBoardEntry%sRoleTank", i)):SetDesaturated(1)
+			end
+
+			i = i + 1
 		end
 	end
 
 	-- This makes scrollbars work properly.
-	BulletinBoardScrollChild:SetHeight(module.config.rowHeight * numListings)
+	BulletinBoardScrollChild:SetHeight(module.config.rowHeight * i)
 	BulletinBoardScrollFrame:UpdateScrollChildRect()
 
-	numListings = nil
+	elapsed = nil
+	elapsedFormatted = nil
 end
 
 function BulletinBoardListing_OnClick()
@@ -271,6 +287,10 @@ function BulletinBoardListing_OnEnter()
 	info = nil
 	tokens = nil
 	line = nil
+end
+
+function BulletinBoard_Refresh()
+	UpdateListings()
 end
 
 local function CreateMultiSelectDropdown(name, parent, items, width)
@@ -362,24 +382,24 @@ local function CreateMultiSelectDropdown(name, parent, items, width)
 	UpdateText()
 
 	-- Public methods.
-	function frame:GetSelectedIds()
-		local selected = {}
-		for id, isSelected in pairs(module.data.selectedInstances) do
-			if isSelected then table.insert(selected, id) end
-		end
-		return selected
-	end
+	-- function frame:GetSelectedIds()
+	-- 	local selected = {}
+	-- 	for id, isSelected in pairs(module.data.selectedInstances) do
+	-- 		if isSelected then table.insert(selected, id) end
+	-- 	end
+	-- 	return selected
+	-- end
 
-	function frame:SetSelectedIds(ids)
-		for id, _ in pairs(module.data.selectedInstances) do
-			-- module.data.selectedInstances[id] = false
-			module.data.selectedInstances[id] = nil
-		end
-		for _, id in ipairs(ids) do
-			module.data.selectedInstances[id] = true
-		end
-		UpdateText()
-	end
+	-- function frame:SetSelectedIds(ids)
+	-- 	for id, _ in pairs(module.data.selectedInstances) do
+	-- 		-- module.data.selectedInstances[id] = false
+	-- 		module.data.selectedInstances[id] = nil
+	-- 	end
+	-- 	for _, id in ipairs(ids) do
+	-- 		module.data.selectedInstances[id] = true
+	-- 	end
+	-- 	UpdateText()
+	-- end
 
 	return frame
 end
