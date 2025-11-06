@@ -268,7 +268,7 @@ function BulletinBoardListing_OnEnter()
 
 	GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
 	GameTooltip:SetText(info.name)
-	GameTooltip:AddLine(this.meta.sender)
+	GameTooltip:AddLine(string.format("%s (%s)", this.meta.sender, this.meta.type))
 
 	local tokens = VE.split(this.meta.message, " ")
 	local line = ""
