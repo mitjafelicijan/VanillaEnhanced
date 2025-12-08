@@ -16,8 +16,16 @@ local module = VE.registerModule({
 			perRow = 4,
 
 		},
+		dismountPatterns = {
+			"^Increases speed by (.+)%%",
+			"speed based on",
+			"Slow and steady...",
+			"Riding",
+		},
 	},
-	data = {},
+	data = {
+		tooltip = nil,
+	},
 })
 
 -- Check for SuperWoW dependency.
@@ -113,6 +121,9 @@ module.plug:RegisterEvent("VARIABLES_LOADED")
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 
+	module.data.tooltip = CreateFrame("GameTooltip", "VETooltip", UIParent, "GameTooltipTemplate")
+	module.data.tooltip:SetOwner(UIParent, "ANCHOR_NONE")
+
 	SLASH_TweeksReload1 = "/reloadui"
 	SLASH_TweeksReload2 = "/reload"
 	SLASH_TweeksReload3 = "/rl"
@@ -169,26 +180,19 @@ module.plug:SetScript("OnEvent", function()
 
 	SLASH_DISMOUNT1 = "/dismount"
 	SlashCmdList["DISMOUNT"] = function()
-		for i = 0, 15 do
-			buffTexture = GetPlayerBuffTexture(i)
-			if buffTexture ~= nil then
-				local startPos, endPos = nil, nil
-				-- Normal mounts.
-				startPos, endPos = string.find(buffTexture, "Ability_Mount_")
-				if startPos ~= nil and endPos ~= nil then CancelPlayerBuff(i) end
-				-- Turtle mounts.
-				startPos, endPos = string.find(buffTexture, "inv_pet_speedy")
-				if startPos ~= nil and endPos ~= nil then CancelPlayerBuff(i) end
-				-- Warlock mounts.
-				startPos, endPos = string.find(buffTexture, "Spell_Nature_Swiftness")
-				if startPos ~= nil and endPos ~= nil then CancelPlayerBuff(i) end
-				-- Ghostwolf form.
-				startPos, endPos = string.find(buffTexture, "Spell_Nature_SpiritWolf")
-				if startPos ~= nil and endPos ~= nil then CancelPlayerBuff(i) end
-				-- Qiraji Battle tanks.
-				startPos, endPos = string.find(buffTexture, "inv_misc_qirajicrystal")
-				if startPos ~= nil and endPos ~= nil then CancelPlayerBuff(i) end
+		local buff = 0
+		while GetPlayerBuff(buff) >= 0 do
+			module.data.tooltip:SetPlayerBuff(GetPlayerBuff(buff))
+			local desc = VETooltipTextLeft2:GetText()
+			if desc then
+				for _, str in pairs(module.config.dismountPatterns) do
+					if string.find(desc, str) then
+						CancelPlayerBuff(buff)
+						return
+					end
+				end
 			end
+			buff = buff + 1
 		end
 	end
 
