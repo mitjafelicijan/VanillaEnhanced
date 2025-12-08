@@ -7,7 +7,7 @@ local module = VE.registerModule({
 	plug = nil,
 	superWoWRequired = false,
 	config = {
-		offsetPercentage = 42,
+		offsetPercentage = 44,
 		offset = 280,
 	},
 	data = {
