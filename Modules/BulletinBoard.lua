@@ -252,10 +252,17 @@ local function UpdateListings()
 end
 
 function BulletinBoardListing_OnClick()
-	if IsControlKeyDown() then
-		InviteUnit(this.meta.sender)
-	else
-		ChatFrame_SendTell(this.meta.sender)
+	if arg1 == "LeftButton" then
+		if IsControlKeyDown() then
+			InviteByName(this.meta.sender)
+		else
+			ChatFrame_SendTell(this.meta.sender)
+		end
+	end
+
+	if arg1 == "RightButton" then
+		-- NOTE: /who has a cooldown
+		SendWho(this.meta.sender)
 	end
 end
 
@@ -460,6 +467,8 @@ function BulletinBoard_OnEvent()
 			frame = CreateFrame("Button", string.format("BulletinBoardEntry%s", i), BulletinBoardScrollChild, "BulletinBoardListing")
 			frame:SetPoint("TOPLEFT", BulletinBoardScrollChild, "TOPLEFT", 0, -((i-1) * module.config.rowHeight))
 			frame:SetPoint("RIGHT", BulletinBoardScrollChild, "RIGHT")
+			frame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			frame:EnableMouse(true)
 			getglobal(string.format("BulletinBoardEntry%sBackground", i)):SetVertexColor(0, 0, 0, 0.3)
 		end
 
