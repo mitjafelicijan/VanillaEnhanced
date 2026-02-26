@@ -101,7 +101,7 @@ Introduces a replacement for Interface Options and adds additional tweaks:
 ## Game sounds alterations
 
 In directory `GameSounds` are overrides for some of the internal game sounds
-like Gun sound and Error sound. Copy `Sounds` directory to the root of WoW and
+like Gun sound and Error sound. Copy `Sound` directory to the root of WoW and
 it will replace the sounds.
 
 You can choose which ones you want to replace by choosing those folders.
@@ -111,7 +111,7 @@ The structure should look like this.
 ```
 WoW/
   WoW.exe
-  Sounds/
+  Sound/
     Item/
       Weapons/
         Gun/     -> Replaces gun sounds with more pleasent ones.
