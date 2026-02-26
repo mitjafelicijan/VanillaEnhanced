@@ -110,11 +110,17 @@ The structure should look like this.
 
 ```
 WoW/
+  WoW.exe
   Sounds/
     Item/
       Weapons/
         Gun/     -> Replaces gun sounds with more pleasent ones.
     Spells/
       Fizzle/    -> Mutes all the error sounds.
-  WoW.exe
 ```
+
+## Game MPQ
+
+In `GameAssets/Data` copy `patch-O.mpq` to Data folder in WoW directory.
+This patch adds circles around mobs when AOE etc.
+
