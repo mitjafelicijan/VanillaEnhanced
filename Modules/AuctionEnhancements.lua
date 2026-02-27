@@ -180,8 +180,8 @@ local function CreateAuctionHouseForm()
 	if frame.initialized then return end
 	
 	frame.itemIcon = frame:CreateTexture(nil, "ARTWORK")
-	frame.itemIcon:SetWidth(32)
-	frame.itemIcon:SetHeight(32)
+	frame.itemIcon:SetWidth(38)
+	frame.itemIcon:SetHeight(38)
 	frame.itemIcon:SetPoint("TOPLEFT", 10, -12)
 	
 	frame.itemName = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -222,7 +222,7 @@ local function CreateAuctionHouseForm()
 		{ key = 2, text = "8 Hours" },
 		{ key = 3, text = "24 Hours" },
 	}
-	frame.durationDropDown = VE.elements.DropDown(frame, 10, -65, 100, "Duration", 3, durations, function(key)
+	frame.durationDropDown = VE.elements.DropDown(frame, 10, -55, 100, "Duration", 3, durations, function(key)
 		module.data.duration = key
 	end)
 
@@ -236,7 +236,7 @@ local function CreateAuctionHouseForm()
 	frame.startPriceInput.label:SetText("Starting Price (per item)")
 
 	-- Buyout Price
-	frame.buyoutPriceInput = VE.elements.InputArea(frame, 450, -70, 150, 25, "Buyout Price (per item)", nil, nil, "0c", 20, function(text)
+	frame.buyoutPriceInput = VE.elements.InputArea(frame, 450, -76, 150, 25, "Buyout Price (per item)", nil, nil, "0c", 20, function(text)
 		module.data.buyoutPrice = MoneyStringToCopper(text)
 		if frame.UpdateTotal then frame.UpdateTotal() end
 	end)
