@@ -146,7 +146,7 @@ local function StopPosting(message)
 	end
 	UpdateUIState()
 	if message then
-		VE.print("|cffff3333[Post]|r " .. message)
+		-- VE.print("|cffff3333[Post]|r " .. message)
 	end
 end
 
@@ -312,7 +312,7 @@ end
 local function StartScan()
 	if not module.data.selectedRecord then return end
 	
-	VE.dprint("Starting scan for " .. module.data.selectedRecord.name)
+	-- VE.dprint("Starting scan for " .. module.data.selectedRecord.name)
 
 	if AuctionEnhancementsActionsFrameScan then
 		AuctionEnhancementsActionsFrameScan:SetText("Scanning...")
@@ -1138,7 +1138,7 @@ function AuctionEnhancements_OnEvent()
 		local batchCount, totalCount = GetNumAuctionItems("list")
 		local record = module.data.selectedRecord
 		
-		VE.dprint(string.format("Scan update: batch=%d, total=%d, page=%d", batchCount, totalCount, module.data.scanPage))
+		-- VE.dprint(string.format("Scan update: batch=%d, total=%d, page=%d", batchCount, totalCount, module.data.scanPage))
 
 		-- Update progress bar
 		if AuctionEnhancementsActionsFrameStatusBar then
@@ -1207,7 +1207,7 @@ function AuctionEnhancements_OnEvent()
 			VE.executeWithDelay(0.1, FetchNext)
 		else
 			-- Scan complete
-			VE.print(string.format("[Scan] Finished scanning %s.", record.name))
+			-- VE.print(string.format("[Scan] Finished scanning %s.", record.name))
 			
 			local sortedKeys = {}
 			local minPrice = 0
@@ -1249,7 +1249,7 @@ function AuctionEnhancements_OnEvent()
 						countStr = countStr .. "x"
 					end
 					
-					VE.print(string.format("[Scan] %s %s @ %s each (%s, %.1f%%)", countStr, record.itemLink, CopperToMoneyString(res.price), DURATION_LABELS[res.duration] or "-", percentage))
+					-- VE.print(string.format("[Scan] %s %s @ %s each (%s, %.1f%%)", countStr, record.itemLink, CopperToMoneyString(res.price), DURATION_LABELS[res.duration] or "-", percentage))
 				end
 			end
 			
