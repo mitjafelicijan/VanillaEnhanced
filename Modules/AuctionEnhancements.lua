@@ -807,7 +807,7 @@ local function CreateListingsList()
 	-- Initialize Status Bar
 	if AuctionEnhancementsListingsFrameStatusBar then
 		AuctionEnhancementsListingsFrameStatusBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-		AuctionEnhancementsListingsFrameStatusBar:SetStatusBarColor(0.6, 0.6, 0.6)
+		AuctionEnhancementsListingsFrameStatusBar:SetStatusBarColor(1, 1, 0)
 		AuctionEnhancementsListingsFrameStatusBar:SetMinMaxValues(0, 1)
 		AuctionEnhancementsListingsFrameStatusBar:SetValue(0)
 	end
