@@ -39,18 +39,18 @@ local function MoneyStringToCopper(text)
 	local _, _, gold = string.find(text, "(%d+)g")
 	local _, _, silver = string.find(text, "(%d+)s")
 	local _, _, copper = string.find(text, "(%d+)c")
-	
+
 	gold = tonumber(gold) or 0
 	silver = tonumber(silver) or 0
 	copper = tonumber(copper) or 0
-	
+
 	-- If it's just a number, assume it's copper? Or gold? 
 	-- Let's try to match "1g 2s 3c" or just "12345"
 	if gold == 0 and silver == 0 and copper == 0 then
 		local num = tonumber(text)
 		if num then return num end
 	end
-	
+
 	return (gold * 100 * 100) + (silver * 100) + copper
 end
 
@@ -58,24 +58,28 @@ local function CopperToMoneyString(money)
 	local gold = floor(money / 10000)
 	local silver = floor(mod(money, 10000) / 100)
 	local copper = mod(money, 100)
-	
-	local text = ""
-	if gold > 0 then text = text .. gold .. "g " end
-	if silver > 0 then text = text .. silver .. "s " end
-	if copper > 0 or text == "" then text = text .. copper .. "c" end
-	return VE.trim(text)
+
+	if gold > 0 then
+		return string.format("%dg %02ds %02dc", gold, silver, copper)
+	elseif silver > 0 then
+		return string.format("%ds %02dc", silver, copper)
+	else
+		return string.format("%dc", copper)
+	end
 end
 
 local function CopperToColoredMoneyString(money)
 	local gold = floor(money / 10000)
 	local silver = floor(mod(money, 10000) / 100)
 	local copper = mod(money, 100)
-	
-	local text = ""
-	if gold > 0 then text = text .. gold .. "|cffffd700g|r " end
-	if silver > 0 then text = text .. silver .. "|cffc7c7cfs|r " end
-	if copper > 0 or text == "" then text = text .. copper .. "|cffeda55fc|r" end
-	return VE.trim(text)
+
+	if gold > 0 then
+		return string.format("%d|cffffd700g|r %02d|cffc7c7cfs|r %02d|cffeda55fc|r", gold, silver, copper)
+	elseif silver > 0 then
+		return string.format("%d|cffc7c7cfs|r %02d|cffeda55fc|r", silver, copper)
+	else
+		return string.format("%d|cffeda55fc|r", copper)
+	end
 end
 
 local function ParseItemLink(itemLink)
@@ -125,7 +129,7 @@ local function UpdateUIState()
 
 	local isPosting = module.data.isPosting
 	local hasSelection = module.data.selectedRecord ~= nil
-	
+
 	if isPosting then
 		if AuctionEnhancementsActionsFrameScan then AuctionEnhancementsActionsFrameScan:Disable() end
 		-- Post button remains enabled to allow "Stop"
@@ -157,9 +161,6 @@ local function StopPosting(message)
 		AuctionEnhancementsActionsFramePost:Enable()
 	end
 	UpdateUIState()
-	if message then
-		-- VE.print("|cffff3333[Post]|r " .. message)
-	end
 end
 
 local function FindEmptySlot()
@@ -229,19 +230,19 @@ local function PostNext()
 
 	-- 1. Try to find an exact stack
 	local bag, slot = FindExactStack(record.ID, record.suffixID, stackSize)
-	
+
 	if bag and slot then
 		module.data.isWaitingForBag = false
 		PickupContainerItem(bag, slot)
 		ClickAuctionSellItemButton()
-		
+
 		-- Start the auction. Note: StartAuction prices are TOTAL prices, not per-item.
 		-- duration mapping: 1=6h, 2=24h, 3=72h
 		StartAuction(startPrice * stackSize, buyoutPrice * stackSize, duration)
-		
+
 		module.data.remainingStacks = module.data.remainingStacks - 1
 		module.data.postedCount = module.data.postedCount + 1
-		
+
 		if AuctionEnhancementsActionsFramePost then
 			AuctionEnhancementsActionsFramePost:SetText(string.format("Stop (%d)", module.data.remainingStacks))
 		end
@@ -276,15 +277,15 @@ local function PostAuction()
 	if not record then return end
 
 	if module.data.stackSize <= 0 or module.data.stackCount <= 0 then return end
-	
+
 	module.data.isPosting = true
 	module.data.remainingStacks = module.data.stackCount
 	module.data.postedCount = 0
-	
+
 	if AuctionEnhancementsActionsFramePost then
 		AuctionEnhancementsActionsFramePost:SetText(string.format("Stop (%d)", module.data.remainingStacks))
 	end
-	
+
 	UpdateUIState()
 	PostNext()
 end
@@ -324,8 +325,6 @@ end
 
 local function StartScan()
 	if not module.data.selectedRecord then return end
-	
-	-- VE.dprint("Starting scan for " .. module.data.selectedRecord.name)
 
 	if AuctionEnhancementsActionsFrameScan then
 		AuctionEnhancementsActionsFrameScan:SetText("Scanning...")
@@ -340,20 +339,20 @@ local function StartScan()
 	module.data.isScanning = true
 	module.data.scanPage = 0
 	module.data.scanResults = {}
-	
+
 	-- Add vendor and historical prices to results right away so they stay in the table
 	local record = module.data.selectedRecord
 	local itemSellPrice = VanillaEnhancedData.vendorPrices and VanillaEnhancedData.vendorPrices[tostring(record.ID)] or 0
 	if itemSellPrice > 0 then
 		module.data.scanResults["vendor:0"] = { from = "Vendor", price = itemSellPrice, count = "-", duration = 0 }
 	end
-	
+
 	local ahPriceKey = string.format("%s:%s", tostring(record.ID), tostring(record.suffixID or 0))
 	local ahPrice = VanillaEnhancedData.auctionPrices and VanillaEnhancedData.auctionPrices[ahPriceKey] or 0
 	if ahPrice > 0 then
 		module.data.scanResults["hist:0"] = { from = "Auction", price = ahPrice, count = "Hist.", duration = 0 }
 	end
-	
+
 	if AuctionEnhancementsActionsFrameStatusBar then
 		AuctionEnhancementsActionsFrameStatusBar:SetMinMaxValues(0, 1)
 		AuctionEnhancementsActionsFrameStatusBar:SetValue(0)
@@ -381,13 +380,13 @@ local function SelectItem(record)
 	if not record then
 		module.data.selectedRecord = nil
 		module.data.selectionInitDone = false
-		
+
 		if frame.itemIcon then frame.itemIcon:SetTexture(nil) end
 		if frame.itemName then 
 			frame.itemName:SetText("No item selected")
 			frame.itemName:SetTextColor(0.5, 0.5, 0.5)
 		end
-		
+
 		UpdateUIState()
 		return
 	end
@@ -396,7 +395,7 @@ local function SelectItem(record)
 	frame:Show()
 	if AuctionEnhancementsListingsFrame then AuctionEnhancementsListingsFrame:Show() end
 	if AuctionEnhancementsActionsFrame then AuctionEnhancementsActionsFrame:Show() end
-	
+
 	UpdateUIState()
 
 	if isDifferent then
@@ -434,18 +433,18 @@ local function SelectItem(record)
 
 	local totalOwned = tonumber(record.count) or 1
 	itemMaxStack = tonumber(itemMaxStack) or 1
-	
+
 	if not module.data.selectionInitDone then
 		module.data.selectionInitDone = true
 		module.data.stackSize = math.min(itemMaxStack, totalOwned)
 		module.data.stackCount = math.max(1, math.floor(totalOwned / module.data.stackSize))
-		
+
 		-- Prices
 		local initialRecords = {}
 		local itemSellPrice = VanillaEnhancedData.vendorPrices and VanillaEnhancedData.vendorPrices[tostring(record.ID)] or 0
 		local ahPriceKey = string.format("%s:%s", tostring(record.ID), tostring(record.suffixID or 0))
 		local ahPrice = VanillaEnhancedData.auctionPrices and VanillaEnhancedData.auctionPrices[ahPriceKey] or 0
-		
+
 		if itemSellPrice > 0 then
 			table.insert(initialRecords, { from = "Vendor", price = itemSellPrice, count = "-", duration = 0 })
 		end
@@ -485,7 +484,7 @@ local function SelectItem(record)
 		if frame.stackSizeSlider.high then frame.stackSizeSlider.high:SetText(max) end
 		if frame.stackSizeSlider.text then frame.stackSizeSlider.text:SetText(module.data.stackSize) end
 	end
-	
+
 	if frame.stackCountSlider and frame.stackCountSlider.slider then
 		local min, max = 1, math.max(1, math.floor(totalOwned / module.data.stackSize))
 		frame.stackCountSlider.slider:SetMinMaxValues(min, max)
@@ -494,14 +493,14 @@ local function SelectItem(record)
 		if frame.stackCountSlider.high then frame.stackCountSlider.high:SetText(max) end
 		if frame.stackCountSlider.text then frame.stackCountSlider.text:SetText(module.data.stackCount) end
 	end
-	
+
 	if frame.startPriceInput and frame.startPriceInput.editbox then
 		frame.startPriceInput.editbox:SetText(CopperToMoneyString(module.data.startPrice))
 	end
 	if frame.buyoutPriceInput and frame.buyoutPriceInput.editbox then
 		frame.buyoutPriceInput.editbox:SetText(CopperToMoneyString(module.data.buyoutPrice))
 	end
-	
+
 	if frame.UpdateTotal then
 		frame.UpdateTotal()
 	end
@@ -510,12 +509,12 @@ end
 local function CreateAuctionHouseForm()
 	local frame = AuctionEnhancementsFormFrame
 	if frame.initialized then return end
-	
+
 	frame.itemIcon = frame:CreateTexture(nil, "ARTWORK")
 	frame.itemIcon:SetWidth(38)
 	frame.itemIcon:SetHeight(38)
 	frame.itemIcon:SetPoint("TOPLEFT", 10, -12)
-	
+
 	frame.itemName = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	frame.itemName:SetPoint("LEFT", frame.itemIcon, "RIGHT", 10, 0)
 	frame.itemName:SetText("No item selected")
@@ -526,17 +525,17 @@ local function CreateAuctionHouseForm()
 		if module.data.selectedRecord and frame.stackCountSlider and frame.stackCountSlider.slider then
 			local totalOwned = tonumber(module.data.selectedRecord.count) or 0
 			local maxStacks = math.max(1, math.floor(totalOwned / module.data.stackSize))
-			
+
 			-- Only reset to 1 if current count is now invalid
 			local currentStackCount = module.data.stackCount or 1
 			if currentStackCount > maxStacks then
 				currentStackCount = 1
 			end
-			
+
 			frame.stackCountSlider.slider:SetMinMaxValues(1, maxStacks)
 			frame.stackCountSlider.slider:SetValue(currentStackCount)
 			module.data.stackCount = currentStackCount
-			
+
 			if frame.stackCountSlider.low then frame.stackCountSlider.low:SetText(1) end
 			if frame.stackCountSlider.high then frame.stackCountSlider.high:SetText(maxStacks) end
 		end
@@ -708,7 +707,7 @@ local function CreateListingsList()
 	local content = CreateFrame("Frame", nil, frame)
 	content:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -6)
 	content:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -12, 0)
-	
+
 	-- Add a subtle background to the content area
 	content.bg = content:CreateTexture(nil, "BACKGROUND")
 	content.bg:SetAllPoints(content)
@@ -768,7 +767,7 @@ local function CreateListingsList()
 		row:SetPoint("TOPLEFT", content, "TOPLEFT", 0, -(i * LISTINGS_ROW_HEIGHT))
 		row:SetPoint("TOPRIGHT", content, "TOPRIGHT", -15, -(i * LISTINGS_ROW_HEIGHT))
 		row:SetFrameLevel(content:GetFrameLevel() + 1)
-		
+
 		row.from = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 		row.from:SetPoint("LEFT", 10, 0)
 		row.from:SetJustifyH("LEFT")
@@ -843,7 +842,7 @@ local function CreateListingsList()
 		Render = function(self)
 			FauxScrollFrame_Update(self.scrollFrame, table.getn(self.records), LISTINGS_VISIBLE_ROWS, LISTINGS_ROW_HEIGHT)
 			local offset = FauxScrollFrame_GetOffset(self.scrollFrame)
-			
+
 			local minPrice = 0
 			for _, rec in ipairs(self.records) do
 				if rec.from == "Auction" and (minPrice == 0 or rec.price < minPrice) then
@@ -859,7 +858,7 @@ local function CreateListingsList()
 					row.count:SetText(record.count)
 					row.dur:SetText(DURATION_LABELS[record.duration] or "-")
 					row.price:SetText(CopperToColoredMoneyString(record.price))
-					
+
 					local profit = record.price * (module.data.stackSize or 1) * (module.data.stackCount or 1)
 					row.profit:SetText(CopperToColoredMoneyString(profit))
 
@@ -1122,7 +1121,7 @@ function AuctionEnhancements_OnEvent()
 
 					-- Adds needed background to progress bar.
 					VE.dframe(AuctionEnhancementsActionsFrameStatusBar, 0, 0, 0, 1) 
-					
+
 					OpenAllBags(true)
 					RefreshBagItemsList()
 					UpdateUIState()
@@ -1159,8 +1158,6 @@ function AuctionEnhancements_OnEvent()
 
 		local batchCount, totalCount = GetNumAuctionItems("list")
 		local record = module.data.selectedRecord
-		
-		-- VE.dprint(string.format("Scan update: batch=%d, total=%d, page=%d", batchCount, totalCount, module.data.scanPage))
 
 		-- Update progress bar
 		if AuctionEnhancementsActionsFrameStatusBar then
@@ -1178,7 +1175,7 @@ function AuctionEnhancements_OnEvent()
 		for i = 1, batchCount do
 			local name, texture, count, quality, canUse, level, minBid, minIncrement, buyoutPrice, bidAmount, highBidder, owner = GetAuctionItemInfo("list", i)
 			local itemLink = GetAuctionItemLink("list", i)
-			
+
 			if itemLink then
 				local itemID, suffixID = ParseItemLink(itemLink)
 				if itemID == record.ID and suffixID == record.suffixID then
@@ -1207,7 +1204,7 @@ function AuctionEnhancements_OnEvent()
 				end
 				return ra.duration < rb.duration
 			end)
-			
+
 			local records = {}
 			for _, key in ipairs(sortedKeys) do
 				table.insert(records, module.data.scanResults[key])
@@ -1220,7 +1217,7 @@ function AuctionEnhancements_OnEvent()
 		if (module.data.scanPage + 1) * 50 < totalCount then
 			local nextPage = module.data.scanPage + 1
 			module.data.scanPage = nextPage
-			
+
 			local function FetchNext()
 				if not module.data.isScanning then return end
 				if CanSendAuctionQuery() then
@@ -1232,8 +1229,7 @@ function AuctionEnhancements_OnEvent()
 			VE.executeWithDelay(0.1, FetchNext)
 		else
 			-- Scan complete
-			-- VE.print(string.format("[Scan] Finished scanning %s.", record.name))
-			
+
 			local sortedKeys = {}
 			local minPrice = 0
 			for key in pairs(module.data.scanResults) do
@@ -1246,7 +1242,7 @@ function AuctionEnhancements_OnEvent()
 				end
 				return ra.duration < rb.duration
 			end)
-			
+
 			for _, key in ipairs(sortedKeys) do
 				local res = module.data.scanResults[key]
 				if res.from == "Auction" and (minPrice == 0 or res.price < minPrice) then
@@ -1268,16 +1264,14 @@ function AuctionEnhancements_OnEvent()
 					if minPrice > 0 then
 						percentage = (res.price / minPrice) * 100
 					end
-					
+
 					local countStr = tostring(res.count)
 					if type(res.count) == "number" then
 						countStr = countStr .. "x"
 					end
-					
-					-- VE.print(string.format("[Scan] %s %s @ %s each (%s, %.1f%%)", countStr, record.itemLink, CopperToColoredMoneyString(res.price), DURATION_LABELS[res.duration] or "-", percentage))
 				end
 			end
-			
+
 			CancelScan()
 		end
 	end
