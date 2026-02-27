@@ -56,6 +56,10 @@
 		</Frames>
 	</Frame>
 
+	<Frame name="AuctionEnhancementsFormFrame" frameStrata="HIGH" hidden="true">
+		<Size x="610" y="100"/>
+	</Frame>
+
 	<Frame name="AuctionEnhancementsListingsFrame" frameStrata="HIGH" hidden="true">
 		<Size x="610" y="250"/>
 		<Layers>

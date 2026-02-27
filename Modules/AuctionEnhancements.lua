@@ -144,6 +144,13 @@ local function AddAuctionHouseListingsFrame()
 	-- VE.dframe(AuctionEnhancementsListingsFrame, 0, 1, 0, 0.1)
 end
 
+local function AddAuctionHouseFormFrame()
+	AuctionEnhancementsFormFrame:ClearAllPoints()
+	AuctionEnhancementsFormFrame:SetParent(AuctionFrame)
+	AuctionEnhancementsFormFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 210, -50)
+	-- VE.dframe(AuctionEnhancementsFormFrame, 1, 0, 1, 1)
+end
+
 function AuctionEnhancements_OnLoad()
 	this:RegisterEvent("ADDON_LOADED")
 	this:RegisterEvent("AUCTION_HOUSE_SHOW")
@@ -281,6 +288,7 @@ function AuctionEnhancements_OnEvent()
 			AddAuctionHousePostButton()
 			AddAuctionHouseBagItemsFrame()
 			AddAuctionHouseListingsFrame()
+			AddAuctionHouseFormFrame()
 			CreateBagItemsList()
 
 			AuctionFrame:SetMovable(true)
@@ -309,10 +317,12 @@ function AuctionEnhancements_OnEvent()
 
 					AuctionEnhancementsBagItemsFrame:Show()
 					AuctionEnhancementsListingsFrame:Show()
+					AuctionEnhancementsFormFrame:Show()
 					OpenAllBags(true)
 					RefreshBagItemsList()
 
-					-- VE.dframe(AuctionEnhancementsBagItemsFrameButton1, 1, 1, 0, 1)
+					VE.dframe(AuctionEnhancementsListingsFrame, 1, 1, 0, 0.4)
+					VE.dframe(AuctionEnhancementsFormFrame, 1, 0, 1, 0.4)
 
 					VE.dframe(AuctionEnhancementsListingsFrameStatusBar, 0, 0, 0, 1)
 					AuctionEnhancementsListingsFrameStatusBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
