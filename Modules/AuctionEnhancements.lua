@@ -6,7 +6,10 @@ local module = VE.registerModule({
 	},
 	plug = nil,
 	superWoWRequired = false,
-	config = {},
+	config = {
+		BidMultiplier = 1.5,
+		BuyoutMultiplier = 2.5,
+	},
 	data = {
 		AuctionFrameTab_OnClick = nil,
 		sniffTooltip = nil,
@@ -22,6 +25,23 @@ local module = VE.registerModule({
 })
 
 local print = VE.print
+
+local function InitializePriceSniffer()
+	if not VanillaEnhancedData.vendorPrices then
+		VanillaEnhancedData.vendorPrices = {}
+	end
+
+	-- Create a hidden tooltip for price sniffing if not exists
+	if not module.data.priceSniffer then
+		module.data.priceSniffer = CreateFrame("GameTooltip", "VEPriceSnifferTooltip", UIParent, "GameTooltipTemplate")
+		module.data.priceSniffer:SetOwner(UIParent, "ANCHOR_NONE")
+		module.data.priceSniffer:SetScript("OnTooltipAddMoney", function()
+			if module.data.lastSniffedID and VanillaEnhancedData and VanillaEnhancedData.vendorPrices then
+				VanillaEnhancedData.vendorPrices[tostring(module.data.lastSniffedID)] = arg1
+			end
+		end)
+	end
+end
 
 -- Check for SuperWoW dependency.
 if not VE.superWoWCheck(module) then
@@ -59,6 +79,21 @@ local function CopperToMoneyString(money)
 	if silver > 0 then text = text .. silver .. "s " end
 	if copper > 0 or text == "" then text = text .. copper .. "c" end
 	return VE.trim(text)
+end
+
+local function ParseItemLink(itemLink)
+	local _, _, itemString = string.find(itemLink, "(item:[^|]+)")
+	if not itemString then
+		return nil, 0
+	end
+
+	local parts = VE.split(itemString, ":")
+
+	local itemID = tonumber(parts[2])
+	-- 1.12 item link: item:itemID:enchantID:suffixID:uniqueID
+	-- parts: 1:item, 2:itemID, 3:enchantID, 4:suffixID, 5:uniqueID
+	local suffixID = tonumber(parts[4]) or 0
+	return itemID, suffixID
 end
 
 local function PostAuction()
@@ -102,6 +137,22 @@ local function PostAuction()
 	end
 end
 
+local function ScanBagPrices()
+	for bag = 0, 4 do
+		for slot = 1, GetContainerNumSlots(bag) do
+			local itemLink = GetContainerItemLink(bag, slot)
+			if itemLink then
+				local itemID = ParseItemLink(itemLink)
+				if itemID then
+					module.data.lastSniffedID = itemID
+					module.data.priceSniffer:ClearLines()
+					module.data.priceSniffer:SetBagItem(bag, slot)
+				end
+			end
+		end
+	end
+end
+
 local function SelectItem(record)
 	module.data.selectedRecord = record
 	local frame = AuctionEnhancementsFormFrame
@@ -122,14 +173,23 @@ local function SelectItem(record)
 	end
 
 	local totalOwned = tonumber(record.count) or 0
-	local itemName, _, _, _, _, _, itemMaxStack = GetItemInfo(record.itemLink or record.ID)
+	
+	-- Indices for 1.12: 
+	-- 1:name, 2:link, 3:rarity, 4:level, 5:minLevel, 6:type, 7:subtype, 8:stackCount, 9:equipLoc, 10:texture, 11:sellPrice
+	local itemName, _, _, _, _, _, _, itemMaxStack, _, _, itemSellPrice = GetItemInfo(record.itemLink or record.ID)
 	
 	if not itemName then
-		itemName, _, _, _, _, _, itemMaxStack = GetItemInfo(record.ID)
+		itemName, _, _, _, _, _, _, itemMaxStack, _, _, itemSellPrice = GetItemInfo(record.ID)
+	end
+
+	-- If the game doesn't give us a price (common in 1.12), check our history
+	if (not itemSellPrice or itemSellPrice == 0) and VanillaEnhancedData and VanillaEnhancedData.vendorPrices then
+		itemSellPrice = VanillaEnhancedData.vendorPrices[tostring(record.ID)] or 0
 	end
 	
 	if not itemName then
 		itemMaxStack = 1
+		itemSellPrice = 0
 		if record.itemLink then
 			module.data.sniffTooltip:SetHyperlink(record.itemLink)
 		elseif record.ID then
@@ -137,16 +197,27 @@ local function SelectItem(record)
 		end
 	else
 		itemMaxStack = tonumber(itemMaxStack) or 1
+		itemSellPrice = tonumber(itemSellPrice) or 0
 	end
 	
 	if itemMaxStack < 1 then itemMaxStack = 1 end
 	
 	local defaultStackSize = math.min(itemMaxStack, totalOwned)
-	local defaultStackCount = math.max(1, floor(totalOwned / defaultStackSize))
 	
 	module.data.stackSize = defaultStackSize
-	module.data.stackCount = defaultStackCount
+	module.data.stackCount = math.max(1, floor(totalOwned / defaultStackSize))
 	
+	-- Vendor-based heuristic
+	if itemSellPrice > 0 then
+		module.data.startPrice = math.floor(itemSellPrice * module.config.BidMultiplier)
+		module.data.buyoutPrice = math.floor(itemSellPrice * module.config.BuyoutMultiplier)
+	else
+
+		module.data.startPrice = 0
+		module.data.buyoutPrice = 0
+	end
+	
+	-- Update sliders
 	if frame.stackSizeSlider and frame.stackSizeSlider.slider then
 		local min, max = 1, math.max(1, itemMaxStack)
 		frame.stackSizeSlider.slider:SetMinMaxValues(min, max)
@@ -163,11 +234,12 @@ local function SelectItem(record)
 		if frame.stackCountSlider.high then frame.stackCountSlider.high:SetText(max) end
 	end
 	
+	-- Default prices
 	if frame.startPriceInput and frame.startPriceInput.editbox then
-		frame.startPriceInput.editbox:SetText(CopperToMoneyString(module.data.startPrice or 0))
+		frame.startPriceInput.editbox:SetText(CopperToMoneyString(module.data.startPrice))
 	end
 	if frame.buyoutPriceInput and frame.buyoutPriceInput.editbox then
-		frame.buyoutPriceInput.editbox:SetText(CopperToMoneyString(module.data.buyoutPrice or 0))
+		frame.buyoutPriceInput.editbox:SetText(CopperToMoneyString(module.data.buyoutPrice))
 	end
 	
 	if frame.UpdateTotal then
@@ -195,6 +267,7 @@ local function CreateAuctionHouseForm()
 			local totalOwned = tonumber(module.data.selectedRecord.count) or 0
 			local maxStacks = math.max(1, floor(totalOwned / module.data.stackSize))
 			
+			-- Ensure current stackCount is still valid and update slider range
 			local currentStackCount = module.data.stackCount
 			if currentStackCount > maxStacks then
 				currentStackCount = maxStacks
@@ -244,6 +317,7 @@ local function CreateAuctionHouseForm()
 	frame.buyoutPriceInput.label:SetPoint("BOTTOMLEFT", frame.buyoutPriceInput, "TOPLEFT", 5, 2)
 	frame.buyoutPriceInput.label:SetText("Buyout Price (per item)")
 
+
 	-- Show current total bid/buyout
 	frame.totalBidText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	frame.totalBidText:SetPoint("LEFT", frame.durationDropDown, "RIGHT", 5, 10)
@@ -292,19 +366,6 @@ local function CheckIfItemIsSellable(bag, slot)
 	end
 
 	return isSoulbound, isQuestItem, isUnique
-end
-
-local function ParseItemLink(itemLink)
-	local _, _, itemString = string.find(itemLink, "(item:[^|]+)")
-	if not itemString then
-		return nil, 0
-	end
-
-	local parts = VE.split(itemString, ":")
-
-	local itemID = tonumber(parts[2])
-	local suffixID = tonumber(parts[4]) or 0
-	return itemID, suffixID
 end
 
 local function GetBagItemsGrouped()
@@ -403,6 +464,7 @@ function AuctionEnhancements_OnLoad()
 	this:RegisterEvent("BAG_UPDATE")
 	this:RegisterEvent("BAG_UPDATE_DELAYED")
 	this:RegisterEvent("GET_ITEM_INFO_RECEIVED")
+	this:RegisterEvent("MERCHANT_SHOW")
 end
 
 local BAG_ITEMS_ROW_HEIGHT = 36
@@ -538,6 +600,10 @@ function AuctionEnhancements_OnEvent()
 	VE.iprint(string.format("AuctionEnhancements_OnEvent(%s)", event))
 
 	if event == "ADDON_LOADED" then
+		if string.lower(arg1) == "vanillaenhanced" then
+			InitializePriceSniffer()
+		end
+
 		if (string.lower(arg1) == "blizzard_auctionui") then
 			AddAuctionHousePostButton()
 			AddAuctionHouseBagItemsFrame()
@@ -599,6 +665,10 @@ function AuctionEnhancements_OnEvent()
 		if module.data.selectedRecord and tonumber(module.data.selectedRecord.ID) == tonumber(arg1) then
 			SelectItem(module.data.selectedRecord)
 		end
+	end
+
+	if event == "MERCHANT_SHOW" then
+		ScanBagPrices()
 	end
 
 	if event == "AUCTION_HOUSE_SHOW" then
