@@ -18,41 +18,21 @@ local module = VE.registerModule({
 		selectedRecord = nil,
 		stackSize = 1,
 		stackCount = 1,
-		duration = 3, -- 24 hours
+		duration = 3, -- Default to 72 hours
 		startPrice = 0,
 		buyoutPrice = 0,
 		isScanning = false,
 		scanPage = 0,
+		-- Posting state
+		isPosting = false,
+		postedCount = 0,
+		remainingStacks = 0,
+		isWaitingForBag = false,
+		lastBagUpdate = 0,
 	},
 })
 
 local print = VE.print
-
-local function InitializePriceSniffer()
-	if not VanillaEnhancedData.vendorPrices then
-		VanillaEnhancedData.vendorPrices = {}
-	end
-	if not VanillaEnhancedData.auctionPrices then
-		VanillaEnhancedData.auctionPrices = {}
-	end
-
-	-- Create a hidden tooltip for price sniffing if not exists
-	if not module.data.priceSniffer then
-		module.data.priceSniffer = CreateFrame("GameTooltip", "VEPriceSnifferTooltip", UIParent, "GameTooltipTemplate")
-		module.data.priceSniffer:SetOwner(UIParent, "ANCHOR_NONE")
-		module.data.priceSniffer:SetScript("OnTooltipAddMoney", function()
-			if module.data.lastSniffedID and VanillaEnhancedData and VanillaEnhancedData.vendorPrices then
-				VanillaEnhancedData.vendorPrices[tostring(module.data.lastSniffedID)] = arg1
-			end
-		end)
-	end
-end
-
--- Check for SuperWoW dependency.
-if not VE.superWoWCheck(module) then
-	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
-	return
-end
 
 local function MoneyStringToCopper(text)
 	if not text or text == "" then return 0 end
@@ -101,45 +81,200 @@ local function ParseItemLink(itemLink)
 	return itemID, suffixID
 end
 
-local function PostAuction()
-	local record = module.data.selectedRecord
-	if not record then return end
+local function InitializePriceSniffer()
+	if not VanillaEnhancedData.vendorPrices then
+		VanillaEnhancedData.vendorPrices = {}
+	end
+	if not VanillaEnhancedData.auctionPrices then
+		VanillaEnhancedData.auctionPrices = {}
+	end
 
-	local stackSize = module.data.stackSize
-	local stackCount = module.data.stackCount
-	local duration = module.data.duration
-	local startPrice = module.data.startPrice
-	local buyoutPrice = module.data.buyoutPrice
+	-- Create a hidden tooltip for price sniffing if not exists
+	if not module.data.priceSniffer then
+		module.data.priceSniffer = CreateFrame("GameTooltip", "VEPriceSnifferTooltip", UIParent, "GameTooltipTemplate")
+		module.data.priceSniffer:SetOwner(UIParent, "ANCHOR_NONE")
+		module.data.priceSniffer:SetScript("OnTooltipAddMoney", function()
+			if module.data.lastSniffedID and VanillaEnhancedData and VanillaEnhancedData.vendorPrices then
+				VanillaEnhancedData.vendorPrices[tostring(module.data.lastSniffedID)] = arg1
+			end
+		end)
+	end
+end
 
-	if stackSize <= 0 or stackCount <= 0 then return end
+-- Check for SuperWoW dependency.
+if not VE.superWoWCheck(module) then
+	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
+	return
+end
 
-	local function DoPost()
-		for bag = 0, 4 do
-			for slot = 1, GetContainerNumSlots(bag) do
-				local itemLink = GetContainerItemLink(bag, slot)
-				if itemLink then
-					local itemID, suffixID = ParseItemLink(itemLink)
-					if itemID == record.ID and suffixID == record.suffixID then
-						local _, count = GetContainerItemInfo(bag, slot)
-						if count >= stackSize then
-							PickupContainerItem(bag, slot)
-							ClickAuctionSellItemButton()
-							StartAuction(startPrice * stackSize, buyoutPrice * stackSize, duration, stackSize)
-							return true
-						end
+local function UpdateUIState()
+	local frame = AuctionEnhancementsFormFrame
+	if not frame or not frame.initialized then return end
+
+	local isPosting = module.data.isPosting
+	local hasSelection = module.data.selectedRecord ~= nil
+	
+	if isPosting then
+		if AuctionEnhancementsListingsFrameScan then AuctionEnhancementsListingsFrameScan:Disable() end
+		-- Post button remains enabled to allow "Stop"
+		if AuctionEnhancementsListingsFramePost then AuctionEnhancementsListingsFramePost:Enable() end
+	else
+		if AuctionEnhancementsListingsFrameScan then 
+			if hasSelection then 
+				AuctionEnhancementsListingsFrameScan:Enable() 
+			else
+				AuctionEnhancementsListingsFrameScan:Disable()
+			end
+		end
+		if AuctionEnhancementsListingsFramePost then
+			if hasSelection then
+				AuctionEnhancementsListingsFramePost:Enable()
+			else
+				AuctionEnhancementsListingsFramePost:Disable()
+			end
+		end
+	end
+end
+
+local function StopPosting(message)
+	module.data.isPosting = false
+	module.data.remainingStacks = 0
+	module.data.isWaitingForBag = false
+	if AuctionEnhancementsListingsFramePost then
+		AuctionEnhancementsListingsFramePost:SetText("Post")
+		AuctionEnhancementsListingsFramePost:Enable()
+	end
+	UpdateUIState()
+	if message then
+		VE.print("|cffff3333[Post]|r " .. message)
+	end
+end
+
+local function FindEmptySlot()
+	for bag = 0, 4 do
+		for slot = 1, GetContainerNumSlots(bag) do
+			if not GetContainerItemLink(bag, slot) then
+				return bag, slot
+			end
+		end
+	end
+	return nil
+end
+
+local function FindExactStack(itemID, suffixID, count)
+	for bag = 0, 4 do
+		for slot = 1, GetContainerNumSlots(bag) do
+			local itemLink = GetContainerItemLink(bag, slot)
+			if itemLink then
+				local id, sfx = ParseItemLink(itemLink)
+				if id == itemID and sfx == suffixID then
+					local _, stackSize, locked = GetContainerItemInfo(bag, slot)
+					if stackSize == count and not locked then
+						return bag, slot
 					end
 				end
 			end
 		end
-		return false
 	end
+	return nil
+end
 
-	for i = 1, stackCount do
-		if not DoPost() then
-			VE.eprint("Failed to post auction " .. i .. " of " .. stackCount)
-			break
+local function FindLargerStack(itemID, suffixID, minCount)
+	for bag = 0, 4 do
+		for slot = 1, GetContainerNumSlots(bag) do
+			local itemLink = GetContainerItemLink(bag, slot)
+			if itemLink then
+				local id, sfx = ParseItemLink(itemLink)
+				if id == itemID and sfx == suffixID then
+					local _, stackSize, locked = GetContainerItemInfo(bag, slot)
+					if stackSize > minCount and not locked then
+						return bag, slot
+					end
+				end
+			end
 		end
 	end
+	return nil
+end
+
+local function PostNext()
+	if not module.data.isPosting then return end
+	if module.data.remainingStacks <= 0 then
+		StopPosting("Finished posting all auctions.")
+		return
+	end
+
+	local record = module.data.selectedRecord
+	if not record then 
+		StopPosting("No item selected.")
+		return 
+	end
+
+	local stackSize = module.data.stackSize
+	local startPrice = module.data.startPrice
+	local buyoutPrice = module.data.buyoutPrice
+	local duration = module.data.duration
+
+	-- 1. Try to find an exact stack
+	local bag, slot = FindExactStack(record.ID, record.suffixID, stackSize)
+	
+	if bag and slot then
+		module.data.isWaitingForBag = false
+		PickupContainerItem(bag, slot)
+		ClickAuctionSellItemButton()
+		
+		-- Start the auction. Note: StartAuction prices are TOTAL prices, not per-item.
+		-- duration mapping: 1=6h, 2=24h, 3=72h
+		StartAuction(startPrice * stackSize, buyoutPrice * stackSize, duration)
+		
+		module.data.remainingStacks = module.data.remainingStacks - 1
+		module.data.postedCount = module.data.postedCount + 1
+		
+		if AuctionEnhancementsListingsFramePost then
+			AuctionEnhancementsListingsFramePost:SetText(string.format("Stop (%d)", module.data.remainingStacks))
+		end
+		return
+	end
+
+	-- 2. No exact stack, try to split a larger one
+	local largeBag, largeSlot = FindLargerStack(record.ID, record.suffixID, stackSize)
+	if largeBag and largeSlot then
+		local emptyBag, emptySlot = FindEmptySlot()
+		if emptyBag and emptySlot then
+			module.data.isWaitingForBag = true
+			SplitContainerItem(largeBag, largeSlot, stackSize)
+			PickupContainerItem(emptyBag, emptySlot)
+			return -- Wait for BAG_UPDATE
+		else
+			StopPosting("No empty bag slots to split stacks.")
+			return
+		end
+	end
+
+	StopPosting("Could not find any more items to post.")
+end
+
+local function PostAuction()
+	if module.data.isPosting then
+		StopPosting("Posting cancelled.")
+		return
+	end
+
+	local record = module.data.selectedRecord
+	if not record then return end
+
+	if module.data.stackSize <= 0 or module.data.stackCount <= 0 then return end
+	
+	module.data.isPosting = true
+	module.data.remainingStacks = module.data.stackCount
+	module.data.postedCount = 0
+	
+	if AuctionEnhancementsListingsFramePost then
+		AuctionEnhancementsListingsFramePost:SetText(string.format("Stop (%d)", module.data.remainingStacks))
+	end
+	
+	UpdateUIState()
+	PostNext()
 end
 
 local function ScanBagPrices()
@@ -231,26 +366,26 @@ local function SelectItem(record)
 	end
 
 	if not record then
-		frame:Hide()
-		if AuctionEnhancementsListingsFrame then AuctionEnhancementsListingsFrame:Hide() end
 		module.data.selectedRecord = nil
 		module.data.selectionInitDone = false
-		if AuctionEnhancementsListingsFrameScan then
-			AuctionEnhancementsListingsFrameScan:Disable()
+		
+		if frame.itemIcon then frame.itemIcon:SetTexture(nil) end
+		if frame.itemName then 
+			frame.itemName:SetText("No item selected")
+			frame.itemName:SetTextColor(0.5, 0.5, 0.5)
 		end
+		
+		UpdateUIState()
 		return
 	end
 
-	if AuctionEnhancementsListingsFrameScan then
-		AuctionEnhancementsListingsFrameScan:Enable()
-	end
-
-	local isNewItem = not module.data.selectedRecord or record.ID ~= module.data.selectedRecord.ID or record.suffixID ~= module.data.selectedRecord.suffixID
 	module.data.selectedRecord = record
 	frame:Show()
 	if AuctionEnhancementsListingsFrame then AuctionEnhancementsListingsFrame:Show() end
+	
+	UpdateUIState()
 
-	if isNewItem then
+	if isDifferent then
 		module.data.selectionInitDone = false
 	end
 
@@ -404,9 +539,9 @@ local function CreateAuctionHouseForm()
 
 	-- Duration
 	local durations = {
-		{ key = 1, text = "2 Hours" },
-		{ key = 2, text = "8 Hours" },
-		{ key = 3, text = "24 Hours" },
+		{ key = 1, text = "6 Hours" },
+		{ key = 2, text = "24 Hours" },
+		{ key = 3, text = "72 Hours" },
 	}
 	frame.durationDropDown = VE.elements.DropDown(frame, 10, -55, 100, "Duration", 3, durations, function(key)
 		module.data.duration = key
@@ -669,6 +804,14 @@ local function CreateListingsList()
 		rows[i] = row
 	end
 
+	-- Initialize Status Bar
+	if AuctionEnhancementsListingsFrameStatusBar then
+		AuctionEnhancementsListingsFrameStatusBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+		AuctionEnhancementsListingsFrameStatusBar:SetStatusBarColor(0.6, 0.6, 0.6)
+		AuctionEnhancementsListingsFrameStatusBar:SetMinMaxValues(0, 1)
+		AuctionEnhancementsListingsFrameStatusBar:SetValue(0)
+	end
+
 	frame.list = {
 		content = content,
 		scrollFrame = scrollFrame,
@@ -877,6 +1020,8 @@ function AuctionEnhancements_OnLoad()
 	this:RegisterEvent("GET_ITEM_INFO_RECEIVED")
 	this:RegisterEvent("MERCHANT_SHOW")
 	this:RegisterEvent("AUCTION_ITEM_LIST_UPDATE")
+	this:RegisterEvent("CHAT_MSG_SYSTEM")
+	this:RegisterEvent("UI_ERROR_MESSAGE")
 end
 
 local function RefreshBagItemsList()
@@ -943,26 +1088,15 @@ function AuctionEnhancements_OnEvent()
 					AuctionFrameBotRight:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\AuctionEnhancements-BotRight")
 
 					AuctionEnhancementsBagItemsFrame:Show()
-					if module.data.selectedRecord then
-						AuctionEnhancementsListingsFrame:Show()
-						AuctionEnhancementsFormFrame:Show()
-					else
-						AuctionEnhancementsListingsFrame:Hide()
-						AuctionEnhancementsFormFrame:Hide()
-					end
+					-- AuctionEnhancementsListingsFrame:Show()
+					-- AuctionEnhancementsFormFrame:Show()
+
+					-- Adds needed background to progress bar.
+					VE.dframe(AuctionEnhancementsListingsFrameStatusBar, 0, 0, 0, 1) 
+					
 					OpenAllBags(true)
 					RefreshBagItemsList()
-
-					VE.dframe(AuctionEnhancementsListingsFrameStatusBar, 0, 0, 0, 1)
-					AuctionEnhancementsListingsFrameStatusBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-					AuctionEnhancementsListingsFrameStatusBar:SetStatusBarColor(0.6, 0.6, 0.6)
-					AuctionEnhancementsListingsFrameStatusBar:SetMinMaxValues(0, 1)
-					AuctionEnhancementsListingsFrameStatusBar:SetValue(0)
-					if module.data.selectedRecord then
-						AuctionEnhancementsListingsFrameScan:Enable()
-					else
-						AuctionEnhancementsListingsFrameScan:Disable()
-					end
+					UpdateUIState()
 				else
 					AuctionEnhancementsBagItemsFrame:Hide()
 					AuctionEnhancementsListingsFrame:Hide()
@@ -975,6 +1109,18 @@ function AuctionEnhancements_OnEvent()
 		if not module.data.sniffTooltip then
 			module.data.sniffTooltip = CreateFrame("GameTooltip", "AuctionSniffTooltip", UIParent, "GameTooltipTemplate")
 			module.data.sniffTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+		end
+	end
+
+	if event == "CHAT_MSG_SYSTEM" then
+		if arg1 == ERR_AUCTION_STARTED and module.data.isPosting then
+			PostNext()
+		end
+	end
+
+	if event == "UI_ERROR_MESSAGE" then
+		if module.data.isPosting then
+			StopPosting("Error: " .. arg1)
 		end
 	end
 
@@ -1120,6 +1266,14 @@ function AuctionEnhancements_OnEvent()
 	end
 
 	if event == "BAG_UPDATE" or event == "BAG_UPDATE_DELAYED" then
+		if module.data.isPosting and module.data.isWaitingForBag then
+			local now = GetTime()
+			if now - module.data.lastBagUpdate > 0.1 then
+				module.data.lastBagUpdate = now
+				PostNext()
+			end
+		end
+
 		if AuctionEnhancementsBagItemsFrame and AuctionEnhancementsBagItemsFrame:IsShown() then
 			RefreshBagItemsList()
 		end
@@ -1127,5 +1281,8 @@ function AuctionEnhancements_OnEvent()
 
 	if event == "AUCTION_HOUSE_CLOSED" then
 		SelectItem(nil)
+		if module.data.isPosting then
+			StopPosting()
+		end
 	end
 end
