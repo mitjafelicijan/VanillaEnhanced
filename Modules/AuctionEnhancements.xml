@@ -75,15 +75,6 @@
 				</FontString>
 			</Layer>
 			<Layer level="ARTWORK">
-				<FontString name="$parentLabel" inherits="GameFontHighlightSmall" text="Listings">
-					<Anchors>
-						<Anchor point="TOP" relativePoint="TOPLEFT" relativeTo="$parent">
-							<Offset>
-								<AbsDimension x="40" y="-20"/>
-							</Offset>
-						</Anchor>
-					</Anchors>
-				</FontString>
 			</Layer>
 		</Layers>
 		<Frames>

@@ -161,7 +161,14 @@ local function SelectItem(record)
 		frame:Hide()
 		module.data.selectedRecord = nil
 		module.data.selectionInitDone = false
+		if AuctionEnhancementsListingsFrameScan then
+			AuctionEnhancementsListingsFrameScan:Disable()
+		end
 		return
+	end
+
+	if AuctionEnhancementsListingsFrameScan then
+		AuctionEnhancementsListingsFrameScan:Enable()
 	end
 
 	local isNewItem = not module.data.selectedRecord or record.ID ~= module.data.selectedRecord.ID or record.suffixID ~= module.data.selectedRecord.suffixID
@@ -666,8 +673,8 @@ function AuctionEnhancements_OnEvent()
 					VE.dframe(AuctionEnhancementsListingsFrameStatusBar, 0, 0, 0, 1)
 					AuctionEnhancementsListingsFrameStatusBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 					AuctionEnhancementsListingsFrameStatusBar:SetStatusBarColor(0.6, 0.6, 0.6)
-					AuctionEnhancementsListingsFrameStatusBar:SetMinMaxValues(1, 8)
-					AuctionEnhancementsListingsFrameStatusBar:SetValue(5)
+					AuctionEnhancementsListingsFrameStatusBar:SetMinMaxValues(1, 1)
+					AuctionEnhancementsListingsFrameStatusBar:SetValue(0)
 					AuctionEnhancementsListingsFrameScan:Disable()
 				else
 					AuctionEnhancementsBagItemsFrame:Hide()
