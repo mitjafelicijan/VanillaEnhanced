@@ -154,87 +154,99 @@ local function ScanBagPrices()
 end
 
 local function SelectItem(record)
-	module.data.selectedRecord = record
 	local frame = AuctionEnhancementsFormFrame
 	if not frame or not frame.initialized then return end
 
 	if not record then
 		frame:Hide()
+		module.data.selectedRecord = nil
+		module.data.selectionInitDone = false
 		return
 	end
 
+	local isNewItem = not module.data.selectedRecord or record.ID ~= module.data.selectedRecord.ID or record.suffixID ~= module.data.selectedRecord.suffixID
+	module.data.selectedRecord = record
 	frame:Show()
 
-	if frame.itemIcon then frame.itemIcon:SetTexture(record.texture) end
+	if isNewItem then
+		module.data.selectionInitDone = false
+	end
+
+	-- Get all item info into a table to handle index shifts (minLevel presence)
+	local info = { GetItemInfo(record.itemLink or record.ID) }
+	if not info[1] then
+		info = { GetItemInfo(record.ID) }
+	end
+
+	local itemName = info[1]
+	if not itemName then return end -- Wait for GET_ITEM_INFO_RECEIVED
+
+	-- Detect stack size index. 
+	-- If index 8 is a number, it's the stackCount (minLevel is present).
+	-- If index 8 is a string/nil and index 7 is a number, index 7 is the stackCount (minLevel is absent).
+	local itemMaxStack = 1
+	if type(info[8]) == "number" then
+		itemMaxStack = info[8]
+	elseif type(info[7]) == "number" then
+		itemMaxStack = info[7]
+	end
+
+	local itemQuality = info[3]
+	local itemTexture = info[10] or info[9] -- Texture is usually 10 or 9
+
+	if frame.itemIcon then frame.itemIcon:SetTexture(record.texture or itemTexture) end
 	if frame.itemName then 
-		frame.itemName:SetText(record.name)
-		local color = ITEM_QUALITY_COLORS[record.quality or 1]
+		frame.itemName:SetText(record.name or itemName)
+		local color = ITEM_QUALITY_COLORS[record.quality or itemQuality or 1]
 		frame.itemName:SetTextColor(color.r, color.g, color.b)
 	end
 
-	local totalOwned = tonumber(record.count) or 0
+	local totalOwned = tonumber(record.count) or 1
+	itemMaxStack = tonumber(itemMaxStack) or 1
 	
-	-- Indices for 1.12: 
-	-- 1:name, 2:link, 3:rarity, 4:level, 5:minLevel, 6:type, 7:subtype, 8:stackCount, 9:equipLoc, 10:texture, 11:sellPrice
-	local itemName, _, _, _, _, _, _, itemMaxStack, _, _, itemSellPrice = GetItemInfo(record.itemLink or record.ID)
-	
-	if not itemName then
-		itemName, _, _, _, _, _, _, itemMaxStack, _, _, itemSellPrice = GetItemInfo(record.ID)
-	end
-
-	-- If the game doesn't give us a price (common in 1.12), check our history
-	if (not itemSellPrice or itemSellPrice == 0) and VanillaEnhancedData and VanillaEnhancedData.vendorPrices then
-		itemSellPrice = VanillaEnhancedData.vendorPrices[tostring(record.ID)] or 0
-	end
-	
-	if not itemName then
-		itemMaxStack = 1
-		itemSellPrice = 0
-		if record.itemLink then
-			module.data.sniffTooltip:SetHyperlink(record.itemLink)
-		elseif record.ID then
-			module.data.sniffTooltip:SetHyperlink("item:" .. record.ID .. ":0:0:0:0:0:0:0")
+	if not module.data.selectionInitDone then
+		module.data.selectionInitDone = true
+		module.data.stackSize = math.min(itemMaxStack, totalOwned)
+		module.data.stackCount = math.max(1, math.floor(totalOwned / module.data.stackSize))
+		
+		-- Prices
+		local itemSellPrice = 0
+		if VanillaEnhancedData and VanillaEnhancedData.vendorPrices then
+			itemSellPrice = VanillaEnhancedData.vendorPrices[tostring(record.ID)] or 0
+		end
+		
+		if itemSellPrice > 0 then
+			module.data.startPrice = math.floor(itemSellPrice * module.config.BidMultiplier)
+			module.data.buyoutPrice = math.floor(itemSellPrice * module.config.BuyoutMultiplier)
+		else
+			module.data.startPrice = 0
+			module.data.buyoutPrice = 0
 		end
 	else
-		itemMaxStack = tonumber(itemMaxStack) or 1
-		itemSellPrice = tonumber(itemSellPrice) or 0
+		-- Refresh limits for existing selection
+		module.data.stackSize = math.max(1, math.min(module.data.stackSize, totalOwned, itemMaxStack))
+		module.data.stackCount = math.max(1, math.min(module.data.stackCount, math.floor(totalOwned / module.data.stackSize)))
 	end
-	
-	if itemMaxStack < 1 then itemMaxStack = 1 end
-	
-	local defaultStackSize = math.min(itemMaxStack, totalOwned)
-	
-	module.data.stackSize = defaultStackSize
-	module.data.stackCount = math.max(1, floor(totalOwned / defaultStackSize))
-	
-	-- Vendor-based heuristic
-	if itemSellPrice > 0 then
-		module.data.startPrice = math.floor(itemSellPrice * module.config.BidMultiplier)
-		module.data.buyoutPrice = math.floor(itemSellPrice * module.config.BuyoutMultiplier)
-	else
 
-		module.data.startPrice = 0
-		module.data.buyoutPrice = 0
-	end
-	
-	-- Update sliders
+	-- Update UI components
 	if frame.stackSizeSlider and frame.stackSizeSlider.slider then
-		local min, max = 1, math.max(1, itemMaxStack)
+		local min, max = 1, math.max(1, math.min(itemMaxStack, totalOwned))
 		frame.stackSizeSlider.slider:SetMinMaxValues(min, max)
 		frame.stackSizeSlider.slider:SetValue(module.data.stackSize)
 		if frame.stackSizeSlider.low then frame.stackSizeSlider.low:SetText(min) end
 		if frame.stackSizeSlider.high then frame.stackSizeSlider.high:SetText(max) end
+		if frame.stackSizeSlider.text then frame.stackSizeSlider.text:SetText(module.data.stackSize) end
 	end
 	
 	if frame.stackCountSlider and frame.stackCountSlider.slider then
-		local min, max = 1, math.max(1, floor(totalOwned / module.data.stackSize))
+		local min, max = 1, math.max(1, math.floor(totalOwned / module.data.stackSize))
 		frame.stackCountSlider.slider:SetMinMaxValues(min, max)
 		frame.stackCountSlider.slider:SetValue(module.data.stackCount)
 		if frame.stackCountSlider.low then frame.stackCountSlider.low:SetText(1) end
 		if frame.stackCountSlider.high then frame.stackCountSlider.high:SetText(max) end
+		if frame.stackCountSlider.text then frame.stackCountSlider.text:SetText(module.data.stackCount) end
 	end
 	
-	-- Default prices
 	if frame.startPriceInput and frame.startPriceInput.editbox then
 		frame.startPriceInput.editbox:SetText(CopperToMoneyString(module.data.startPrice))
 	end
@@ -262,16 +274,13 @@ local function CreateAuctionHouseForm()
 
 	-- Stack Size
 	frame.stackSizeSlider = VE.elements.Slider(frame, 270, -12, 160, "Stack Size", nil, nil, 1, 20, 1, 1, function(val)
-		module.data.stackSize = math.max(1, floor(val))
+		module.data.stackSize = math.max(1, math.floor(val))
 		if module.data.selectedRecord and frame.stackCountSlider and frame.stackCountSlider.slider then
 			local totalOwned = tonumber(module.data.selectedRecord.count) or 0
-			local maxStacks = math.max(1, floor(totalOwned / module.data.stackSize))
+			local maxStacks = math.max(1, math.floor(totalOwned / module.data.stackSize))
 			
-			-- Ensure current stackCount is still valid and update slider range
-			local currentStackCount = module.data.stackCount
-			if currentStackCount > maxStacks then
-				currentStackCount = maxStacks
-			end
+			-- Default to maximum possible stacks when size changes
+			local currentStackCount = maxStacks
 			
 			frame.stackCountSlider.slider:SetMinMaxValues(1, maxStacks)
 			frame.stackCountSlider.slider:SetValue(currentStackCount)
@@ -384,7 +393,7 @@ local function GetBagItemsGrouped()
 				local itemID, suffixID = ParseItemLink(itemLink)
 				local isSoulbound, isQuestItem, isUnique = CheckIfItemIsSellable(bag, slot)
 
-				if itemID and not isSoulbound and not isQuestItem and not isUnique then
+				if itemID and not isSoulbound and not isQuestItem then
 					local key = string.format("%s:%s", tostring(itemID), tostring(suffixID or 0))
 					local record = recordMap[key]
 					if not record then
@@ -589,6 +598,21 @@ local function RefreshBagItemsList()
 	local records = GetBagItemsGrouped()
 	AuctionEnhancementsBagItemsFrame.list.records = records
 	AuctionEnhancementsBagItemsFrame.list:Render()
+
+	-- Check if we need to update the selected record's count
+	if module.data.selectedRecord then
+		local found = false
+		for _, record in ipairs(records) do
+			if record.ID == module.data.selectedRecord.ID and record.suffixID == module.data.selectedRecord.suffixID then
+				SelectItem(record)
+				found = true
+				break
+			end
+		end
+		if not found then
+			SelectItem(nil)
+		end
+	end
 end
 
 function AuctionEnhancements_OnEvent()
@@ -596,8 +620,6 @@ function AuctionEnhancements_OnEvent()
 		this:UnregisterAllEvents()
 		return
 	end
-
-	VE.iprint(string.format("AuctionEnhancements_OnEvent(%s)", event))
 
 	if event == "ADDON_LOADED" then
 		if string.lower(arg1) == "vanillaenhanced" then
