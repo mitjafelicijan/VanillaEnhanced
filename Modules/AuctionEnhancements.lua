@@ -570,7 +570,7 @@ local function CreateListingsList()
 	-- Header Background Row
 	content.headerBg = content:CreateTexture(nil, "BACKGROUND", nil, 1)
 	content.headerBg:SetPoint("TOPLEFT", content, "TOPLEFT", 0, 0)
-	content.headerBg:SetPoint("TOPRIGHT", content, "TOPRIGHT", -25, 0)
+	content.headerBg:SetPoint("TOPRIGHT", content, "TOPRIGHT", -15, 0)
 	content.headerBg:SetHeight(LISTINGS_ROW_HEIGHT)
 	content.headerBg:SetTexture(1, 1, 1, 0.1)
 
@@ -588,7 +588,7 @@ local function CreateListingsList()
 		local row = CreateFrame("Button", nil, content)
 		row:SetHeight(LISTINGS_ROW_HEIGHT)
 		row:SetPoint("TOPLEFT", content, "TOPLEFT", 0, -(i * LISTINGS_ROW_HEIGHT))
-		row:SetPoint("TOPRIGHT", content, "TOPRIGHT", -25, -(i * LISTINGS_ROW_HEIGHT))
+		row:SetPoint("TOPRIGHT", content, "TOPRIGHT", -15, -(i * LISTINGS_ROW_HEIGHT))
 		row:SetFrameLevel(content:GetFrameLevel() + 1)
 		
 		row.count = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
