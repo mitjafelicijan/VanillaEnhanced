@@ -32,6 +32,9 @@ local function InitializePriceSniffer()
 	if not VanillaEnhancedData.vendorPrices then
 		VanillaEnhancedData.vendorPrices = {}
 	end
+	if not VanillaEnhancedData.auctionPrices then
+		VanillaEnhancedData.auctionPrices = {}
+	end
 
 	-- Create a hidden tooltip for price sniffing if not exists
 	if not module.data.priceSniffer then
@@ -269,16 +272,26 @@ local function SelectItem(record)
 		
 		-- Prices
 		local itemSellPrice = 0
-		if VanillaEnhancedData and VanillaEnhancedData.vendorPrices then
-			itemSellPrice = VanillaEnhancedData.vendorPrices[tostring(record.ID)] or 0
-		end
+		local ahPriceKey = string.format("%s:%s", tostring(record.ID), tostring(record.suffixID or 0))
+		local ahPrice = VanillaEnhancedData.auctionPrices and VanillaEnhancedData.auctionPrices[ahPriceKey] or 0
 		
-		if itemSellPrice > 0 then
-			module.data.startPrice = math.floor(itemSellPrice * module.config.BidMultiplier)
-			module.data.buyoutPrice = math.floor(itemSellPrice * module.config.BuyoutMultiplier)
+		if ahPrice > 0 then
+			-- If we have scan results, use the lowest price found as both start and buyout, with no multiplier
+			module.data.startPrice = ahPrice
+			module.data.buyoutPrice = ahPrice
 		else
-			module.data.startPrice = 0
-			module.data.buyoutPrice = 0
+			-- Fallback to vendor prices with multipliers
+			if VanillaEnhancedData and VanillaEnhancedData.vendorPrices then
+				itemSellPrice = VanillaEnhancedData.vendorPrices[tostring(record.ID)] or 0
+			end
+			
+			if itemSellPrice > 0 then
+				module.data.startPrice = math.floor(itemSellPrice * module.config.BidMultiplier)
+				module.data.buyoutPrice = math.floor(itemSellPrice * module.config.BuyoutMultiplier)
+			else
+				module.data.startPrice = 0
+				module.data.buyoutPrice = 0
+			end
 		end
 	else
 		-- Refresh limits for existing selection
@@ -802,11 +815,20 @@ function AuctionEnhancements_OnEvent()
 			VE.print(string.format("[Scan] Finished scanning %s.", record.name))
 			
 			local prices = {}
+			local minPrice = 0
 			for price in pairs(module.data.scanResults) do
 				table.insert(prices, price)
 			end
 			table.sort(prices)
-			local minPrice = prices[1] or 0
+			minPrice = prices[1] or 0
+
+			-- Store the lowest price found in persistent data
+			if minPrice > 0 then
+				local key = string.format("%s:%s", tostring(record.ID), tostring(record.suffixID or 0))
+				if not VanillaEnhancedData.auctionPrices then VanillaEnhancedData.auctionPrices = {} end
+				VanillaEnhancedData.auctionPrices[key] = minPrice
+			end
+
 			for _, price in ipairs(prices) do
 				local count = module.data.scanResults[price]
 				local percentage = 0
