@@ -202,8 +202,11 @@ local function SelectItem(record)
 	local frame = AuctionEnhancementsFormFrame
 	if not frame or not frame.initialized then return end
 
-	-- Stop any scan in progress
-	CancelScan()
+	-- Only cancel scan if we are clearing selection or switching to a different item
+	local isDifferent = not record or not module.data.selectedRecord or record.ID ~= module.data.selectedRecord.ID or record.suffixID ~= module.data.selectedRecord.suffixID
+	if isDifferent then
+		CancelScan()
+	end
 
 	if not record then
 		frame:Hide()
@@ -782,19 +785,18 @@ function AuctionEnhancements_OnEvent()
 
 		-- Check if we need to fetch more pages
 		if (module.data.scanPage + 1) * 50 < totalCount then
-			module.data.scanPage = module.data.scanPage + 1
-			VE.executeWithDelay(0.1, function()
-				if module.data.isScanning and CanSendAuctionQuery() then
-					QueryAuctionItems(record.name, nil, nil, 0, 0, 0, module.data.scanPage, 0, 0)
-				elseif module.data.isScanning then
-					-- Retry if on cooldown
-					VE.executeWithDelay(0.5, function()
-						if module.data.isScanning then
-							QueryAuctionItems(record.name, nil, nil, 0, 0, 0, module.data.scanPage, 0, 0)
-						end
-					end)
+			local nextPage = module.data.scanPage + 1
+			module.data.scanPage = nextPage
+			
+			local function FetchNext()
+				if not module.data.isScanning then return end
+				if CanSendAuctionQuery() then
+					QueryAuctionItems(record.name, nil, nil, 0, 0, 0, nextPage, 0, 0)
+				else
+					VE.executeWithDelay(0.2, FetchNext)
 				end
-			end)
+			end
+			VE.executeWithDelay(0.1, FetchNext)
 		else
 			-- Scan complete
 			VE.print(string.format("[Scan] Finished scanning %s.", record.name))
