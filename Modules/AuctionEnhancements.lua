@@ -320,7 +320,7 @@ local function CreateAuctionHouseForm()
 
 	-- Show current total bid/buyout
 	frame.totalBidText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	frame.totalBidText:SetPoint("LEFT", frame.durationDropDown, "RIGHT", 5, 10)
+	frame.totalBidText:SetPoint("LEFT", frame.durationDropDown, "RIGHT", -5, 10)
 	frame.totalBidText:SetText("Total Bid: 0c")
 
 	frame.totalBuyoutText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -650,6 +650,7 @@ function AuctionEnhancements_OnEvent()
 				else
 					AuctionEnhancementsBagItemsFrame:Hide()
 					AuctionEnhancementsListingsFrame:Hide()
+					AuctionEnhancementsFormFrame:Hide()
 				end
 			end
 		end
