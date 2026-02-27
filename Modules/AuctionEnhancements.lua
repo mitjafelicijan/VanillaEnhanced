@@ -18,7 +18,7 @@ local module = VE.registerModule({
 		selectedRecord = nil,
 		stackSize = 1,
 		stackCount = 1,
-		duration = 3, -- Default to 72 hours
+		duration = 1440, -- Default to 72 hours (1440 minutes)
 		startPrice = 0,
 		buyoutPrice = 0,
 		isScanning = false,
@@ -153,9 +153,13 @@ local function UpdateUIState()
 end
 
 local function StopPosting(message)
+	if message then
+		VE.print("|cffff0000[Auction] " .. message .. "|r")
+	end
 	module.data.isPosting = false
 	module.data.remainingStacks = 0
 	module.data.isWaitingForBag = false
+	module.data.isWaitingForAuctionSlot = false
 	if AuctionEnhancementsActionsFramePost then
 		AuctionEnhancementsActionsFramePost:SetText("Post")
 		AuctionEnhancementsActionsFramePost:Enable()
@@ -210,6 +214,15 @@ local function FindLargerStack(itemID, suffixID, minCount)
 	return nil
 end
 
+local function EnsureAuctionSlotEmpty()
+	local name = GetAuctionSellItemInfo()
+	if name then
+		ClearCursor()
+		ClickAuctionSellItemButton()
+		ClearCursor()
+	end
+end
+
 local function PostNext()
 	if not module.data.isPosting then return end
 	if module.data.remainingStacks <= 0 then
@@ -228,16 +241,76 @@ local function PostNext()
 	local buyoutPrice = module.data.buyoutPrice
 	local duration = module.data.duration
 
-	-- 1. Try to find an exact stack
+	if (startPrice * stackSize) <= 0 then
+		StopPosting("Error: Start price must be greater than 0.")
+		return
+	end
+
+	if buyoutPrice > 0 and buyoutPrice < startPrice then
+		StopPosting("Error: Buyout price cannot be less than starting price.")
+		return
+	end
+
+	-- Ensure cursor is empty before doing anything
+	if CursorHasItem() then
+		ClearCursor()
+		VE.executeWithDelay(0.1, PostNext)
+		return
+	end
+
+	-- 1. Check if we have items that are currently locked (waiting for split/post)
+	for b = 0, 4 do
+		for s = 1, GetContainerNumSlots(b) do
+			local itemLink = GetContainerItemLink(b, s)
+			if itemLink then
+				local id, sfx = ParseItemLink(itemLink)
+				if id == record.ID and sfx == record.suffixID then
+					local _, _, locked = GetContainerItemInfo(b, s)
+					if locked then
+						-- Wait until items are unlocked
+						VE.executeWithDelay(0.1, PostNext)
+						return
+					end
+				end
+			end
+		end
+	end
+
+	-- 2. Try to find an exact stack
 	local bag, slot = FindExactStack(record.ID, record.suffixID, stackSize)
 
 	if bag and slot then
 		module.data.isWaitingForBag = false
+
+		-- Exact sequence used by standard addons (Aux) to ensure item is placed correctly
+		ClearCursor()
+		ClickAuctionSellItemButton()
+		ClearCursor()
 		PickupContainerItem(bag, slot)
 		ClickAuctionSellItemButton()
+		ClearCursor()
 
-		-- Start the auction. Note: StartAuction prices are TOTAL prices, not per-item.
-		-- duration mapping: 1=6h, 2=24h, 3=72h
+		-- Determine native duration code (1=2h/6h, 2=8h/24h, 3=24h/72h depending on patch)
+		local durationCode = 3
+		if duration == 120 then durationCode = 1 end
+		if duration == 480 then durationCode = 2 end
+		if duration == 1440 then durationCode = 3 end
+
+		-- Sync native UI variables just in case the client reads them instead of our StartAuction arguments
+		if AuctionFrameAuctions then
+			AuctionFrameAuctions.duration = durationCode
+			if not AuctionFrameAuctions.page then
+				AuctionFrameAuctions.page = 0
+			end
+		end
+		if StartPrice then
+			MoneyInputFrame_SetCopper(StartPrice, startPrice * stackSize)
+		end
+		if BuyoutPrice then
+			MoneyInputFrame_SetCopper(BuyoutPrice, buyoutPrice * stackSize)
+		end
+
+		-- Create the auction immediately!
 		StartAuction(startPrice * stackSize, buyoutPrice * stackSize, duration)
 
 		module.data.remainingStacks = module.data.remainingStacks - 1
@@ -246,10 +319,12 @@ local function PostNext()
 		if AuctionEnhancementsActionsFramePost then
 			AuctionEnhancementsActionsFramePost:SetText(string.format("Stop (%d)", module.data.remainingStacks))
 		end
+		
+		-- The CHAT_MSG_SYSTEM event (ERR_AUCTION_STARTED) will trigger the next PostNext() call.
 		return
 	end
 
-	-- 2. No exact stack, try to split a larger one
+	-- 3. No exact stack, try to split a larger one
 	local largeBag, largeSlot = FindLargerStack(record.ID, record.suffixID, stackSize)
 	if largeBag and largeSlot then
 		local emptyBag, emptySlot = FindEmptySlot()
@@ -257,14 +332,17 @@ local function PostNext()
 			module.data.isWaitingForBag = true
 			SplitContainerItem(largeBag, largeSlot, stackSize)
 			PickupContainerItem(emptyBag, emptySlot)
-			return -- Wait for BAG_UPDATE
+			
+			-- Wait for the split to complete (the items will become locked, then unlocked)
+			-- BAG_UPDATE will trigger PostNext once they unlock.
+			return
 		else
 			StopPosting("No empty bag slots to split stacks.")
 			return
 		end
 	end
 
-	StopPosting("Could not find any more items to post.")
+	StopPosting("Could not find any more items to post. Note: Auto-stacking is not currently supported.")
 end
 
 local function PostAuction()
@@ -272,6 +350,9 @@ local function PostAuction()
 		StopPosting("Posting cancelled.")
 		return
 	end
+	ClearCursor()
+	ClickAuctionSellItemButton()
+	ClearCursor()
 
 	local record = module.data.selectedRecord
 	if not record then return end
@@ -552,11 +633,11 @@ local function CreateAuctionHouseForm()
 
 	-- Duration
 	local durations = {
-		{ key = 1, text = "6 Hours" },
-		{ key = 2, text = "24 Hours" },
-		{ key = 3, text = "72 Hours" },
+		{ key = 120, text = "6 Hours" },
+		{ key = 480, text = "24 Hours" },
+		{ key = 1440, text = "72 Hours" },
 	}
-	frame.durationDropDown = VE.elements.DropDown(frame, 10, -55, 100, "Duration", 3, durations, function(key)
+	frame.durationDropDown = VE.elements.DropDown(frame, 10, -55, 100, "Duration", 1440, durations, function(key)
 		module.data.duration = key
 	end)
 
@@ -1294,11 +1375,7 @@ function AuctionEnhancements_OnEvent()
 
 	if event == "BAG_UPDATE" or event == "BAG_UPDATE_DELAYED" then
 		if module.data.isPosting and module.data.isWaitingForBag then
-			local now = GetTime()
-			if now - module.data.lastBagUpdate > 0.1 then
-				module.data.lastBagUpdate = now
-				PostNext()
-			end
+			VE.executeWithDelay(0.2, PostNext)
 		end
 
 		if AuctionEnhancementsBagItemsFrame and AuctionEnhancementsBagItemsFrame:IsShown() then
