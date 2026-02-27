@@ -219,6 +219,7 @@ local function SelectItem(record)
 
 	if not record then
 		frame:Hide()
+		if AuctionEnhancementsListingsFrame then AuctionEnhancementsListingsFrame:Hide() end
 		module.data.selectedRecord = nil
 		module.data.selectionInitDone = false
 		if AuctionEnhancementsListingsFrameScan then
@@ -234,6 +235,7 @@ local function SelectItem(record)
 	local isNewItem = not module.data.selectedRecord or record.ID ~= module.data.selectedRecord.ID or record.suffixID ~= module.data.selectedRecord.suffixID
 	module.data.selectedRecord = record
 	frame:Show()
+	if AuctionEnhancementsListingsFrame then AuctionEnhancementsListingsFrame:Show() end
 
 	if isNewItem then
 		module.data.selectionInitDone = false
@@ -894,10 +896,11 @@ function AuctionEnhancements_OnEvent()
 					AuctionFrameBotRight:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\AuctionEnhancements-BotRight")
 
 					AuctionEnhancementsBagItemsFrame:Show()
-					AuctionEnhancementsListingsFrame:Show()
 					if module.data.selectedRecord then
+						AuctionEnhancementsListingsFrame:Show()
 						AuctionEnhancementsFormFrame:Show()
 					else
+						AuctionEnhancementsListingsFrame:Hide()
 						AuctionEnhancementsFormFrame:Hide()
 					end
 					OpenAllBags(true)
