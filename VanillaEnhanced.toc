@@ -78,7 +78,7 @@ Modules\ConsumablesPanel.lua
 Modules\BulletinBoard.xml
 
 # Work in progress
-# Modules\AuctionEnhancements.xml
+Modules\AuctionEnhancements.xml
 # Modules\TargetChangeStopAttack.lua
 # Modules\NearbyTargets.xml
 

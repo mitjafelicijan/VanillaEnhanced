@@ -20,7 +20,7 @@
 	</Frame>
 
 	<Frame name="AuctionEnhancementsBagItemsFrame" frameStrata="HIGH" hidden="true">
-		<Size x="185" y="355"/>
+		<Size x="185" y="455"/>
 		<Layers>
 			<Layer level="ARTWORK">
 				<FontString name="$parentLabel" inherits="GameFontHighlightSmall" text="Bag Items">
