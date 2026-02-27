@@ -364,8 +364,11 @@ local function CreateAuctionHouseForm()
 			local totalOwned = tonumber(module.data.selectedRecord.count) or 0
 			local maxStacks = math.max(1, math.floor(totalOwned / module.data.stackSize))
 			
-			-- Default to maximum possible stacks when size changes
-			local currentStackCount = maxStacks
+			-- Only reset to 1 if current count is now invalid
+			local currentStackCount = module.data.stackCount or 1
+			if currentStackCount > maxStacks then
+				currentStackCount = 1
+			end
 			
 			frame.stackCountSlider.slider:SetMinMaxValues(1, maxStacks)
 			frame.stackCountSlider.slider:SetValue(currentStackCount)
