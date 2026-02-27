@@ -21,6 +21,8 @@ local module = VE.registerModule({
 		duration = 3, -- 24 hours
 		startPrice = 0,
 		buyoutPrice = 0,
+		isScanning = false,
+		scanPage = 0,
 	},
 })
 
@@ -153,9 +155,55 @@ local function ScanBagPrices()
 	end
 end
 
+local function CancelScan()
+	module.data.isScanning = false
+	module.data.scanPage = 0
+	module.data.scanResults = nil
+	if AuctionEnhancementsListingsFrameScan then
+		AuctionEnhancementsListingsFrameScan:SetText("Scan")
+		if module.data.selectedRecord then
+			AuctionEnhancementsListingsFrameScan:Enable()
+		else
+			AuctionEnhancementsListingsFrameScan:Disable()
+		end
+	end
+	if AuctionEnhancementsListingsFrameStatusBar then
+		AuctionEnhancementsListingsFrameStatusBar:SetValue(0)
+	end
+end
+
+local function StartScan()
+	if not module.data.selectedRecord then return end
+	
+	if AuctionEnhancementsListingsFrameScan then
+		AuctionEnhancementsListingsFrameScan:SetText("Scanning...")
+		AuctionEnhancementsListingsFrameScan:Disable()
+	end
+
+	if not CanSendAuctionQuery() then
+		VE.executeWithDelay(0.1, StartScan)
+		return
+	end
+
+	module.data.isScanning = true
+	module.data.scanPage = 0
+	module.data.scanResults = {}
+	
+	if AuctionEnhancementsListingsFrameStatusBar then
+		AuctionEnhancementsListingsFrameStatusBar:SetMinMaxValues(0, 1)
+		AuctionEnhancementsListingsFrameStatusBar:SetValue(0)
+	end
+
+	-- Query by name. We'll filter by ID and suffixID in the update event.
+	QueryAuctionItems(module.data.selectedRecord.name, nil, nil, 0, 0, 0, module.data.scanPage, 0, 0)
+end
+
 local function SelectItem(record)
 	local frame = AuctionEnhancementsFormFrame
 	if not frame or not frame.initialized then return end
+
+	-- Stop any scan in progress
+	CancelScan()
 
 	if not record then
 		frame:Hide()
@@ -350,6 +398,12 @@ local function CreateAuctionHouseForm()
 		frame.totalBuyoutText:SetText(string.format("Total Buyout: %s", CopperToMoneyString(totalBuyout)))
 	end
 
+	if AuctionEnhancementsListingsFrameScan then
+		AuctionEnhancementsListingsFrameScan:SetScript("OnClick", function()
+			StartScan()
+		end)
+	end
+
 	-- Use the Post button from the Listings frame (from XML)
 	if AuctionEnhancementsListingsFramePost then
 		AuctionEnhancementsListingsFramePost:SetScript("OnClick", function()
@@ -481,6 +535,7 @@ function AuctionEnhancements_OnLoad()
 	this:RegisterEvent("BAG_UPDATE_DELAYED")
 	this:RegisterEvent("GET_ITEM_INFO_RECEIVED")
 	this:RegisterEvent("MERCHANT_SHOW")
+	this:RegisterEvent("AUCTION_ITEM_LIST_UPDATE")
 end
 
 local BAG_ITEMS_ROW_HEIGHT = 36
@@ -673,9 +728,13 @@ function AuctionEnhancements_OnEvent()
 					VE.dframe(AuctionEnhancementsListingsFrameStatusBar, 0, 0, 0, 1)
 					AuctionEnhancementsListingsFrameStatusBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 					AuctionEnhancementsListingsFrameStatusBar:SetStatusBarColor(0.6, 0.6, 0.6)
-					AuctionEnhancementsListingsFrameStatusBar:SetMinMaxValues(1, 1)
+					AuctionEnhancementsListingsFrameStatusBar:SetMinMaxValues(0, 1)
 					AuctionEnhancementsListingsFrameStatusBar:SetValue(0)
-					AuctionEnhancementsListingsFrameScan:Disable()
+					if module.data.selectedRecord then
+						AuctionEnhancementsListingsFrameScan:Enable()
+					else
+						AuctionEnhancementsListingsFrameScan:Disable()
+					end
 				else
 					AuctionEnhancementsBagItemsFrame:Hide()
 					AuctionEnhancementsListingsFrame:Hide()
@@ -688,6 +747,74 @@ function AuctionEnhancements_OnEvent()
 		if not module.data.sniffTooltip then
 			module.data.sniffTooltip = CreateFrame("GameTooltip", "AuctionSniffTooltip", UIParent, "GameTooltipTemplate")
 			module.data.sniffTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+		end
+	end
+
+	if event == "AUCTION_ITEM_LIST_UPDATE" then
+		if not module.data.isScanning or not module.data.selectedRecord then return end
+
+		local batchCount, totalCount = GetNumAuctionItems("list")
+		local record = module.data.selectedRecord
+
+		-- Update progress bar
+		if AuctionEnhancementsListingsFrameStatusBar then
+			if totalCount > 0 then
+				local progress = ((module.data.scanPage * 50) + batchCount) / totalCount
+				AuctionEnhancementsListingsFrameStatusBar:SetValue(progress)
+			else
+				AuctionEnhancementsListingsFrameStatusBar:SetValue(1)
+			end
+		end
+
+		-- Process results and print for debugging
+		for i = 1, batchCount do
+			local name, texture, count, quality, canUse, level, minBid, minIncrement, buyoutPrice, bidAmount, highBidder, owner = GetAuctionItemInfo("list", i)
+			local itemLink = GetAuctionItemLink("list", i)
+			
+			if itemLink then
+				local itemID, suffixID = ParseItemLink(itemLink)
+				if itemID == record.ID and suffixID == record.suffixID then
+					local pricePerItem = math.floor(buyoutPrice > 0 and (buyoutPrice / count) or (bidAmount / count))
+					module.data.scanResults[pricePerItem] = (module.data.scanResults[pricePerItem] or 0) + count
+				end
+			end
+		end
+
+		-- Check if we need to fetch more pages
+		if (module.data.scanPage + 1) * 50 < totalCount then
+			module.data.scanPage = module.data.scanPage + 1
+			VE.executeWithDelay(0.1, function()
+				if module.data.isScanning and CanSendAuctionQuery() then
+					QueryAuctionItems(record.name, nil, nil, 0, 0, 0, module.data.scanPage, 0, 0)
+				elseif module.data.isScanning then
+					-- Retry if on cooldown
+					VE.executeWithDelay(0.5, function()
+						if module.data.isScanning then
+							QueryAuctionItems(record.name, nil, nil, 0, 0, 0, module.data.scanPage, 0, 0)
+						end
+					end)
+				end
+			end)
+		else
+			-- Scan complete
+			VE.print(string.format("[Scan] Finished scanning %s.", record.name))
+			
+			local prices = {}
+			for price in pairs(module.data.scanResults) do
+				table.insert(prices, price)
+			end
+			table.sort(prices)
+			local minPrice = prices[1] or 0
+			for _, price in ipairs(prices) do
+				local count = module.data.scanResults[price]
+				local percentage = 0
+				if minPrice > 0 then
+					percentage = (price / minPrice) * 100
+				end
+				VE.print(string.format("[Scan] %dx %s @ %s each (%.1f%%)", count, record.itemLink, CopperToMoneyString(price), percentage))
+			end
+			
+			CancelScan()
 		end
 	end
 
