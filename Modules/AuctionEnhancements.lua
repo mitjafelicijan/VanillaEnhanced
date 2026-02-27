@@ -548,33 +548,33 @@ local function CreateListingsList()
 	content.bg:SetAllPoints(content)
 	content.bg:SetTexture(0, 0, 0, 0.3)
 
-	-- Headers
-	frame.countHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	frame.countHeader:SetPoint("TOPLEFT", 10, -2)
-	frame.countHeader:SetText("Available")
-
-	frame.durHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	frame.durHeader:SetPoint("TOPLEFT", 85, -2)
-	frame.durHeader:SetText("Duration")
-
-	frame.priceHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	frame.priceHeader:SetPoint("TOPLEFT", 175, -2)
-	frame.priceHeader:SetText("Unit Price")
-
-	frame.profitHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	frame.profitHeader:SetPoint("TOPLEFT", 330, -2)
-	frame.profitHeader:SetText("Profit")
-
-	frame.pctHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	frame.pctHeader:SetPoint("TOPLEFT", 510, -2)
-	frame.pctHeader:SetText("Market %")
-
 	-- Header Background Row
 	content.headerBg = content:CreateTexture(nil, "BACKGROUND", nil, 1)
 	content.headerBg:SetPoint("TOPLEFT", content, "TOPLEFT", 0, 0)
 	content.headerBg:SetPoint("TOPRIGHT", content, "TOPRIGHT", -15, 0)
 	content.headerBg:SetHeight(LISTINGS_ROW_HEIGHT)
 	content.headerBg:SetTexture(1, 1, 1, 0.1)
+
+	-- Headers
+	frame.countHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	frame.countHeader:SetPoint("LEFT", content.headerBg, "LEFT", 10, 0)
+	frame.countHeader:SetText("Available")
+
+	frame.durHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	frame.durHeader:SetPoint("LEFT", content.headerBg, "LEFT", 85, 0)
+	frame.durHeader:SetText("Duration")
+
+	frame.priceHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	frame.priceHeader:SetPoint("LEFT", content.headerBg, "LEFT", 175, 0)
+	frame.priceHeader:SetText("Unit Price")
+
+	frame.profitHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	frame.profitHeader:SetPoint("LEFT", content.headerBg, "LEFT", 330, 0)
+	frame.profitHeader:SetText("Profit")
+
+	frame.pctHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	frame.pctHeader:SetPoint("LEFT", content.headerBg, "LEFT", 510, 0)
+	frame.pctHeader:SetText("Market %")
 
 	local scrollFrame = CreateFrame("ScrollFrame", "AuctionEnhancementsListingsScrollFrame", frame, "FauxScrollFrameTemplate")
 	scrollFrame:SetPoint("TOPLEFT", content, "TOPLEFT", 0, 0)
