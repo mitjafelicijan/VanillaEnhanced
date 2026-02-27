@@ -217,12 +217,14 @@ VE.elements.InputArea = function(parent, x, y, width, height, labelText, tooltip
 	frame.border = CreateFrame("Frame", nil, frame)
 	frame.border:SetAllPoints(frame)
 	frame.border:SetBackdrop({
-		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+		bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 		tile = true,
-		tileSize = 32,
-		edgeSize = 32,
-		insets = { left = 12, right = 12, top = 12, bottom = 12 }
+		tileSize = 16,
+		edgeSize = 16,
+		insets = { left = 4, right = 4, top = 4, bottom = 4 }
 	})
+	frame.border:SetBackdropColor(0, 0, 0, 0.5)
 
 	frame.editbox:SetScript("OnEscapePressed", function()
 		frame.editbox:ClearFocus()
@@ -233,6 +235,8 @@ VE.elements.InputArea = function(parent, x, y, width, height, labelText, tooltip
 			callback(frame.editbox:GetText())
 		end
 	end)
+
+	frame.editbox:SetTextInsets(8, 8, 0, 0)
 
 	return frame
 end

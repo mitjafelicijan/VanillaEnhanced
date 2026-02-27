@@ -23,6 +23,12 @@ local module = VE.registerModule({
 
 local print = VE.print
 
+-- Check for SuperWoW dependency.
+if not VE.superWoWCheck(module) then
+	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
+	return
+end
+
 local function MoneyStringToCopper(text)
 	if not text or text == "" then return 0 end
 	local _, _, gold = string.find(text, "(%d+)g")
@@ -67,12 +73,7 @@ local function PostAuction()
 
 	if stackSize <= 0 or stackCount <= 0 then return end
 
-	-- 1.12 StartAuction(minBid, buyoutPrice, runTime, [stackSize], [numStacks])
-	-- Note: numStacks might not be supported in all 1.12 clients without SuperWoW or similar.
-	-- But standard client supports one at a time.
-	
 	local function DoPost()
-		-- We need to find the item in bags again to be sure.
 		for bag = 0, 4 do
 			for slot = 1, GetContainerNumSlots(bag) do
 				local itemLink = GetContainerItemLink(bag, slot)
@@ -107,10 +108,11 @@ local function SelectItem(record)
 	if not frame or not frame.initialized then return end
 
 	if not record then
-		if frame.itemIcon then frame.itemIcon:SetTexture(nil) end
-		if frame.itemName then frame.itemName:SetText("No item selected") end
+		frame:Hide()
 		return
 	end
+
+	frame:Show()
 
 	if frame.itemIcon then frame.itemIcon:SetTexture(record.texture) end
 	if frame.itemName then 
@@ -120,8 +122,24 @@ local function SelectItem(record)
 	end
 
 	local totalOwned = tonumber(record.count) or 0
-	local _, _, _, _, _, _, _, itemMaxStack = GetItemInfo(record.ID)
-	itemMaxStack = tonumber(itemMaxStack) or 1
+	local itemName, _, _, _, _, _, itemMaxStack = GetItemInfo(record.itemLink or record.ID)
+	
+	if not itemName then
+		itemName, _, _, _, _, _, itemMaxStack = GetItemInfo(record.ID)
+	end
+	
+	if not itemName then
+		itemMaxStack = 1
+		if record.itemLink then
+			module.data.sniffTooltip:SetHyperlink(record.itemLink)
+		elseif record.ID then
+			module.data.sniffTooltip:SetHyperlink("item:" .. record.ID .. ":0:0:0:0:0:0:0")
+		end
+	else
+		itemMaxStack = tonumber(itemMaxStack) or 1
+	end
+	
+	if itemMaxStack < 1 then itemMaxStack = 1 end
 	
 	local defaultStackSize = math.min(itemMaxStack, totalOwned)
 	local defaultStackCount = math.max(1, floor(totalOwned / defaultStackSize))
@@ -129,11 +147,10 @@ local function SelectItem(record)
 	module.data.stackSize = defaultStackSize
 	module.data.stackCount = defaultStackCount
 	
-	-- Update sliders
 	if frame.stackSizeSlider and frame.stackSizeSlider.slider then
-		local min, max = 1, math.max(1, math.min(itemMaxStack, totalOwned))
+		local min, max = 1, math.max(1, itemMaxStack)
 		frame.stackSizeSlider.slider:SetMinMaxValues(min, max)
-		frame.stackSizeSlider.slider:SetValue(defaultStackSize)
+		frame.stackSizeSlider.slider:SetValue(module.data.stackSize)
 		if frame.stackSizeSlider.low then frame.stackSizeSlider.low:SetText(min) end
 		if frame.stackSizeSlider.high then frame.stackSizeSlider.high:SetText(max) end
 	end
@@ -141,12 +158,11 @@ local function SelectItem(record)
 	if frame.stackCountSlider and frame.stackCountSlider.slider then
 		local min, max = 1, math.max(1, floor(totalOwned / module.data.stackSize))
 		frame.stackCountSlider.slider:SetMinMaxValues(min, max)
-		frame.stackCountSlider.slider:SetValue(defaultStackCount)
+		frame.stackCountSlider.slider:SetValue(module.data.stackCount)
 		if frame.stackCountSlider.low then frame.stackCountSlider.low:SetText(1) end
 		if frame.stackCountSlider.high then frame.stackCountSlider.high:SetText(max) end
 	end
 	
-	-- Default prices
 	if frame.startPriceInput and frame.startPriceInput.editbox then
 		frame.startPriceInput.editbox:SetText(CopperToMoneyString(module.data.startPrice or 0))
 	end
@@ -166,20 +182,19 @@ local function CreateAuctionHouseForm()
 	frame.itemIcon = frame:CreateTexture(nil, "ARTWORK")
 	frame.itemIcon:SetWidth(32)
 	frame.itemIcon:SetHeight(32)
-	frame.itemIcon:SetPoint("TOPLEFT", 10, -10)
+	frame.itemIcon:SetPoint("TOPLEFT", 10, -12)
 	
 	frame.itemName = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	frame.itemName:SetPoint("LEFT", frame.itemIcon, "RIGHT", 10, 0)
 	frame.itemName:SetText("No item selected")
 
 	-- Stack Size
-	frame.stackSizeSlider = VE.elements.Slider(frame, 10, -40, 120, "Stack Size", nil, nil, 1, 20, 1, 1, function(val)
+	frame.stackSizeSlider = VE.elements.Slider(frame, 270, -12, 160, "Stack Size", nil, nil, 1, 20, 1, 1, function(val)
 		module.data.stackSize = math.max(1, floor(val))
 		if module.data.selectedRecord and frame.stackCountSlider and frame.stackCountSlider.slider then
 			local totalOwned = tonumber(module.data.selectedRecord.count) or 0
 			local maxStacks = math.max(1, floor(totalOwned / module.data.stackSize))
 			
-			-- Ensure current stackCount is still valid and update slider range
 			local currentStackCount = module.data.stackCount
 			if currentStackCount > maxStacks then
 				currentStackCount = maxStacks
@@ -196,7 +211,7 @@ local function CreateAuctionHouseForm()
 	end)
 
 	-- Stack Count
-	frame.stackCountSlider = VE.elements.Slider(frame, 140, -40, 120, "Stack Count", nil, nil, 1, 1, 1, 1, function(val)
+	frame.stackCountSlider = VE.elements.Slider(frame, 270, -65, 160, "Stack Count", nil, nil, 1, 1, 1, 1, function(val)
 		module.data.stackCount = floor(val)
 		if frame.UpdateTotal then frame.UpdateTotal() end
 	end)
@@ -207,58 +222,52 @@ local function CreateAuctionHouseForm()
 		{ key = 2, text = "8 Hours" },
 		{ key = 3, text = "24 Hours" },
 	}
-	frame.durationDropDown = VE.elements.DropDown(frame, 270, -44, 100, "Duration", 3, durations, function(key)
+	frame.durationDropDown = VE.elements.DropDown(frame, 10, -65, 100, "Duration", 3, durations, function(key)
 		module.data.duration = key
 	end)
 
 	-- Starting Price
-	frame.startPriceInput = VE.elements.InputArea(frame, 400, -15, 150, 25, "Starting Price (per item)", nil, nil, "0c", 20, function(text)
+	frame.startPriceInput = VE.elements.InputArea(frame, 450, -22, 150, 25, "Starting Price (per item)", nil, nil, "0c", 20, function(text)
 		module.data.startPrice = MoneyStringToCopper(text)
 		if frame.UpdateTotal then frame.UpdateTotal() end
 	end)
 	frame.startPriceInput.label = frame.startPriceInput:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	frame.startPriceInput.label:SetPoint("BOTTOMLEFT", frame.startPriceInput, "TOPLEFT", 18, 0)
+	frame.startPriceInput.label:SetPoint("BOTTOMLEFT", frame.startPriceInput, "TOPLEFT", 5, 2)
 	frame.startPriceInput.label:SetText("Starting Price (per item)")
 
 	-- Buyout Price
-	frame.buyoutPriceInput = VE.elements.InputArea(frame, 400, -50, 150, 25, "Buyout Price (per item)", nil, nil, "0c", 20, function(text)
+	frame.buyoutPriceInput = VE.elements.InputArea(frame, 450, -70, 150, 25, "Buyout Price (per item)", nil, nil, "0c", 20, function(text)
 		module.data.buyoutPrice = MoneyStringToCopper(text)
 		if frame.UpdateTotal then frame.UpdateTotal() end
 	end)
 	frame.buyoutPriceInput.label = frame.buyoutPriceInput:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	frame.buyoutPriceInput.label:SetPoint("BOTTOMLEFT", frame.buyoutPriceInput, "TOPLEFT", 18, 0)
+	frame.buyoutPriceInput.label:SetPoint("BOTTOMLEFT", frame.buyoutPriceInput, "TOPLEFT", 5, 2)
 	frame.buyoutPriceInput.label:SetText("Buyout Price (per item)")
 
-	-- Post Button
-	frame.postButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-	frame.postButton:SetWidth(80)
-	frame.postButton:SetHeight(22)
-	frame.postButton:SetPoint("BOTTOMRIGHT", -10, 2)
-	frame.postButton:SetText("Post")
-	frame.postButton:SetScript("OnClick", function()
-		PostAuction()
-	end)
-
 	-- Show current total bid/buyout
-	frame.totalText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	frame.totalText:SetPoint("BOTTOMLEFT", 10, 2)
-	frame.totalText:SetText("Total: 0c")
+	frame.totalBidText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	frame.totalBidText:SetPoint("LEFT", frame.durationDropDown, "RIGHT", 5, 10)
+	frame.totalBidText:SetText("Total Bid: 0c")
+
+	frame.totalBuyoutText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	frame.totalBuyoutText:SetPoint("TOPLEFT", frame.totalBidText, "BOTTOMLEFT", 0, -2)
+	frame.totalBuyoutText:SetText("Total Buyout: 0c")
 
 	frame.UpdateTotal = function()
 		local totalStart = (module.data.startPrice or 0) * (module.data.stackSize or 1) * (module.data.stackCount or 1)
 		local totalBuyout = (module.data.buyoutPrice or 0) * (module.data.stackSize or 1) * (module.data.stackCount or 1)
-		frame.totalText:SetText(string.format("Total Bid: %s | Total Buyout: %s", CopperToMoneyString(totalStart), CopperToMoneyString(totalBuyout)))
+		frame.totalBidText:SetText(string.format("Total Bid: %s", CopperToMoneyString(totalStart)))
+		frame.totalBuyoutText:SetText(string.format("Total Buyout: %s", CopperToMoneyString(totalBuyout)))
 	end
 
-	-- I'll just wrap the update in the callbacks instead.
-	
-	frame.initialized = true
-end
+	-- Use the Post button from the Listings frame (from XML)
+	if AuctionEnhancementsListingsFramePost then
+		AuctionEnhancementsListingsFramePost:SetScript("OnClick", function()
+			PostAuction()
+		end)
+	end
 
--- Check for SuperWoW dependency.
-if not VE.superWoWCheck(module) then
-	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
-	return
+	frame.initialized = true
 end
 
 local function CheckIfItemIsSellable(bag, slot)
@@ -294,7 +303,7 @@ local function ParseItemLink(itemLink)
 	local parts = VE.split(itemString, ":")
 
 	local itemID = tonumber(parts[2])
-	local suffixID = tonumber(parts[8]) or 0
+	local suffixID = tonumber(parts[4]) or 0
 	return itemID, suffixID
 end
 
@@ -372,20 +381,18 @@ local function AddAuctionHouseBagItemsFrame()
 	AuctionEnhancementsBagItemsFrame:ClearAllPoints()
 	AuctionEnhancementsBagItemsFrame:SetParent(AuctionFrame)
 	AuctionEnhancementsBagItemsFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 20, -50)
-	-- VE.dframe(AuctionEnhancementsBagItemsFrame, 0, 1, 0, 0.1)
 end
 
 local function AddAuctionHouseListingsFrame()
 	AuctionEnhancementsListingsFrame:ClearAllPoints()
 	AuctionEnhancementsListingsFrame:SetParent(AuctionFrame)
 	AuctionEnhancementsListingsFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 210, -160)
-	-- VE.dframe(AuctionEnhancementsListingsFrame, 0, 1, 0, 0.1)
 end
 
 local function AddAuctionHouseFormFrame()
 	AuctionEnhancementsFormFrame:ClearAllPoints()
 	AuctionEnhancementsFormFrame:SetParent(AuctionFrame)
-	AuctionEnhancementsFormFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 210, -50)
+	AuctionEnhancementsFormFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 210, -45)
 	CreateAuctionHouseForm()
 end
 
@@ -395,6 +402,7 @@ function AuctionEnhancements_OnLoad()
 	this:RegisterEvent("AUCTION_HOUSE_CLOSED")
 	this:RegisterEvent("BAG_UPDATE")
 	this:RegisterEvent("BAG_UPDATE_DELAYED")
+	this:RegisterEvent("GET_ITEM_INFO_RECEIVED")
 end
 
 local BAG_ITEMS_ROW_HEIGHT = 36
@@ -537,10 +545,6 @@ function AuctionEnhancements_OnEvent()
 			AddAuctionHouseFormFrame()
 			CreateBagItemsList()
 
-			AuctionFrame:SetMovable(true)
-			AuctionFrame:SetScript("OnMouseDown", function() this:StartMoving() end)
-			AuctionFrame:SetScript("OnMouseUp", function() this:StopMovingOrSizing() end)
-
 			-- Hijack native tab onclick event.
 			module.data.AuctionFrameTab_OnClick = AuctionFrameTab_OnClick
 			function AuctionFrameTab_OnClick(index)
@@ -563,7 +567,11 @@ function AuctionEnhancements_OnEvent()
 
 					AuctionEnhancementsBagItemsFrame:Show()
 					AuctionEnhancementsListingsFrame:Show()
-					AuctionEnhancementsFormFrame:Show()
+					if module.data.selectedRecord then
+						AuctionEnhancementsFormFrame:Show()
+					else
+						AuctionEnhancementsFormFrame:Hide()
+					end
 					OpenAllBags(true)
 					RefreshBagItemsList()
 
@@ -573,8 +581,6 @@ function AuctionEnhancements_OnEvent()
 					AuctionEnhancementsListingsFrameStatusBar:SetMinMaxValues(1, 8)
 					AuctionEnhancementsListingsFrameStatusBar:SetValue(5)
 					AuctionEnhancementsListingsFrameScan:Disable()
-
-					-- GetItemsInBags()
 				else
 					AuctionEnhancementsBagItemsFrame:Hide()
 					AuctionEnhancementsListingsFrame:Hide()
@@ -587,7 +593,12 @@ function AuctionEnhancements_OnEvent()
 			module.data.sniffTooltip = CreateFrame("GameTooltip", "AuctionSniffTooltip", UIParent, "GameTooltipTemplate")
 			module.data.sniffTooltip:SetOwner(UIParent, "ANCHOR_NONE")
 		end
+	end
 
+	if event == "GET_ITEM_INFO_RECEIVED" then
+		if module.data.selectedRecord and tonumber(module.data.selectedRecord.ID) == tonumber(arg1) then
+			SelectItem(module.data.selectedRecord)
+		end
 	end
 
 	if event == "AUCTION_HOUSE_SHOW" then
@@ -603,5 +614,6 @@ function AuctionEnhancements_OnEvent()
 	end
 
 	if event == "AUCTION_HOUSE_CLOSED" then
+		SelectItem(nil)
 	end
 end
