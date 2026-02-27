@@ -69,21 +69,40 @@ VE.elements.Slider = function(parent, x, y, componentWidth, labelText, tooltipTi
 	frame:SetHeight(44)
 
 	frame.label = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	frame.label:SetPoint("TopLeft", 0, 0)
+	frame.label:SetPoint("TOP", 0, 0)
 	frame.label:SetWidth(componentWidth)
-	frame.label:SetJustifyH("Center")
+	frame.label:SetJustifyH("CENTER")
 	frame.label:SetText(labelText)
 
-	frame.slider = CreateFrame("Slider", nil, frame, "OptionsSliderTemplate")
-	frame.slider:SetPoint("TopLeft", 0, -16)
+	frame.slider = CreateFrame("Slider", name .. "Slider", frame, "OptionsSliderTemplate")
+	frame.slider:SetPoint("TOP", frame.label, "BOTTOM", 0, -2)
 	frame.slider:SetWidth(componentWidth)
 	frame.slider:SetHeight(18)
 	frame.slider:SetMinMaxValues(minValue, maxValue)
 	frame.slider:SetValueStep(stepValue)
 	frame.slider:SetValue(initialValue)
 
+	frame.low = getglobal(frame.slider:GetName() .. "Low")
+	frame.high = getglobal(frame.slider:GetName() .. "High")
+	frame.text = getglobal(frame.slider:GetName() .. "Text")
+
+	-- The template's Text is usually anchored to the TOP of the slider.
+	-- Since we have our own label there, we should move the template's Text 
+	-- to show the value somewhere else or just hide it.
+	-- Standard Blizzard style often puts the value in the High label or a separate one.
+	-- Let's put the value in the template's Text but move it to the bottom.
+	if frame.text then
+		frame.text:ClearAllPoints()
+		frame.text:SetPoint("TOP", frame.slider, "BOTTOM", 0, 2)
+		frame.text:SetText(initialValue)
+	end
+
+	if frame.low then frame.low:SetText(minValue) end
+	if frame.high then frame.high:SetText(maxValue) end
+
 	frame.slider:SetScript("OnValueChanged", function(self)
-		callback(frame.slider:GetValue())
+		if frame.text then frame.text:SetText(this:GetValue()) end
+		callback(this:GetValue())
 	end)
 
 	frame.slider:SetScript("OnEnter", function(self)
