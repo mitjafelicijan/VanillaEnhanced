@@ -373,12 +373,14 @@ local function CreateAuctionHouseForm()
 			if frame.stackCountSlider.high then frame.stackCountSlider.high:SetText(maxStacks) end
 		end
 		if frame.UpdateTotal then frame.UpdateTotal() end
+		if AuctionEnhancementsListingsFrame.list then AuctionEnhancementsListingsFrame.list:Render() end
 	end)
 
 	-- Stack Count
 	frame.stackCountSlider = VE.elements.Slider(frame, 270, -65, 160, "Stack Count", nil, nil, 1, 1, 1, 1, function(val)
 		module.data.stackCount = floor(val)
 		if frame.UpdateTotal then frame.UpdateTotal() end
+		if AuctionEnhancementsListingsFrame.list then AuctionEnhancementsListingsFrame.list:Render() end
 	end)
 
 	-- Duration
@@ -522,7 +524,14 @@ end
 local BAG_ITEMS_ROW_HEIGHT = 36
 local BAG_ITEMS_VISIBLE_ROWS = 9
 local LISTINGS_ROW_HEIGHT = 20
-local LISTINGS_VISIBLE_ROWS = 12
+local LISTINGS_VISIBLE_ROWS = 11
+
+local DURATION_LABELS = {
+	[1] = "< 30m",
+	[2] = "30m-2h",
+	[3] = "2h-12h",
+	[4] = "> 12h",
+}
 
 local function CreateListingsList()
 	local frame = AuctionEnhancementsListingsFrame
@@ -538,17 +547,32 @@ local function CreateListingsList()
 	content.bg:SetTexture(0, 0, 0, 0.3)
 
 	-- Headers
-	frame.priceHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	frame.priceHeader:SetPoint("TOPLEFT", 10, 15)
-	frame.priceHeader:SetText("Unit Price")
-
-	frame.countHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	frame.countHeader:SetPoint("TOPLEFT", 260, 15)
+	frame.countHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	frame.countHeader:SetPoint("TOPLEFT", 10, -2)
 	frame.countHeader:SetText("Available")
 
-	frame.pctHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	frame.pctHeader:SetPoint("TOPLEFT", 420, 15)
+	frame.durHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	frame.durHeader:SetPoint("TOPLEFT", 85, -2)
+	frame.durHeader:SetText("Duration")
+
+	frame.priceHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	frame.priceHeader:SetPoint("TOPLEFT", 175, -2)
+	frame.priceHeader:SetText("Unit Price")
+
+	frame.profitHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	frame.profitHeader:SetPoint("TOPLEFT", 330, -2)
+	frame.profitHeader:SetText("Profit")
+
+	frame.pctHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	frame.pctHeader:SetPoint("TOPLEFT", 510, -2)
 	frame.pctHeader:SetText("Market %")
+
+	-- Header Background Row
+	content.headerBg = content:CreateTexture(nil, "BACKGROUND", nil, 1)
+	content.headerBg:SetPoint("TOPLEFT", content, "TOPLEFT", 0, 0)
+	content.headerBg:SetPoint("TOPRIGHT", content, "TOPRIGHT", -25, 0)
+	content.headerBg:SetHeight(LISTINGS_ROW_HEIGHT)
+	content.headerBg:SetTexture(1, 1, 1, 0.1)
 
 	local scrollFrame = CreateFrame("ScrollFrame", "AuctionEnhancementsListingsScrollFrame", frame, "FauxScrollFrameTemplate")
 	scrollFrame:SetPoint("TOPLEFT", content, "TOPLEFT", 0, 0)
@@ -563,20 +587,28 @@ local function CreateListingsList()
 	for i = 1, LISTINGS_VISIBLE_ROWS do
 		local row = CreateFrame("Button", nil, content)
 		row:SetHeight(LISTINGS_ROW_HEIGHT)
-		row:SetPoint("TOPLEFT", content, "TOPLEFT", 0, -((i - 1) * LISTINGS_ROW_HEIGHT))
-		row:SetPoint("TOPRIGHT", content, "TOPRIGHT", -25, -((i - 1) * LISTINGS_ROW_HEIGHT))
+		row:SetPoint("TOPLEFT", content, "TOPLEFT", 0, -(i * LISTINGS_ROW_HEIGHT))
+		row:SetPoint("TOPRIGHT", content, "TOPRIGHT", -25, -(i * LISTINGS_ROW_HEIGHT))
 		row:SetFrameLevel(content:GetFrameLevel() + 1)
 		
-		row.price = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row.price:SetPoint("LEFT", 10, 0)
-		row.price:SetJustifyH("LEFT")
-
 		row.count = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row.count:SetPoint("LEFT", 260, 0)
+		row.count:SetPoint("LEFT", 10, 0)
 		row.count:SetJustifyH("LEFT")
 
+		row.dur = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		row.dur:SetPoint("LEFT", 85, 0)
+		row.dur:SetJustifyH("LEFT")
+
+		row.price = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		row.price:SetPoint("LEFT", 175, 0)
+		row.price:SetJustifyH("LEFT")
+
+		row.profit = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		row.profit:SetPoint("LEFT", 330, 0)
+		row.profit:SetJustifyH("LEFT")
+
 		row.pct = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row.pct:SetPoint("LEFT", 420, 0)
+		row.pct:SetPoint("LEFT", 510, 0)
 		row.pct:SetJustifyH("LEFT")
 
 		row.highlight = row:CreateTexture(nil, "BACKGROUND")
@@ -620,8 +652,13 @@ local function CreateListingsList()
 				local row = self.rows[i]
 				local record = self.records[i + offset]
 				if record then
-					row.price:SetText(CopperToMoneyString(record.price))
 					row.count:SetText(record.count)
+					row.dur:SetText(DURATION_LABELS[record.duration] or "")
+					row.price:SetText(CopperToMoneyString(record.price))
+					
+					local profit = record.price * (module.data.stackSize or 1) * (module.data.stackCount or 1)
+					row.profit:SetText(CopperToMoneyString(profit))
+
 					local pct = minPrice > 0 and (record.price / minPrice * 100) or 100
 					row.pct:SetText(string.format("%.1f%%", pct))
 					row.priceValue = record.price
@@ -918,22 +955,33 @@ function AuctionEnhancements_OnEvent()
 				local itemID, suffixID = ParseItemLink(itemLink)
 				if itemID == record.ID and suffixID == record.suffixID then
 					local pricePerItem = math.floor(buyoutPrice > 0 and (buyoutPrice / count) or (bidAmount / count))
-					module.data.scanResults[pricePerItem] = (module.data.scanResults[pricePerItem] or 0) + count
+					local duration = GetAuctionItemTimeLeft("list", i)
+					local key = pricePerItem .. ":" .. duration
+					if not module.data.scanResults[key] then
+						module.data.scanResults[key] = { price = pricePerItem, duration = duration, count = 0 }
+					end
+					module.data.scanResults[key].count = module.data.scanResults[key].count + count
 				end
 			end
 		end
 
 		-- Update the listings table with current data
 		if AuctionEnhancementsListingsFrame.list then
-			local prices = {}
-			for price in pairs(module.data.scanResults) do
-				table.insert(prices, price)
+			local sortedKeys = {}
+			for key in pairs(module.data.scanResults) do
+				table.insert(sortedKeys, key)
 			end
-			table.sort(prices)
+			table.sort(sortedKeys, function(a, b)
+				local ra, rb = module.data.scanResults[a], module.data.scanResults[b]
+				if ra.price ~= rb.price then
+					return ra.price < rb.price
+				end
+				return ra.duration < rb.duration
+			end)
 			
 			local records = {}
-			for _, price in ipairs(prices) do
-				table.insert(records, { price = price, count = module.data.scanResults[price] })
+			for _, key in ipairs(sortedKeys) do
+				table.insert(records, module.data.scanResults[key])
 			end
 			AuctionEnhancementsListingsFrame.list.records = records
 			AuctionEnhancementsListingsFrame.list:Render()
@@ -957,13 +1005,22 @@ function AuctionEnhancements_OnEvent()
 			-- Scan complete
 			VE.print(string.format("[Scan] Finished scanning %s.", record.name))
 			
-			local prices = {}
+			local sortedKeys = {}
 			local minPrice = 0
-			for price in pairs(module.data.scanResults) do
-				table.insert(prices, price)
+			for key in pairs(module.data.scanResults) do
+				table.insert(sortedKeys, key)
 			end
-			table.sort(prices)
-			minPrice = prices[1] or 0
+			table.sort(sortedKeys, function(a, b)
+				local ra, rb = module.data.scanResults[a], module.data.scanResults[b]
+				if ra.price ~= rb.price then
+					return ra.price < rb.price
+				end
+				return ra.duration < rb.duration
+			end)
+			
+			if sortedKeys[1] then
+				minPrice = module.data.scanResults[sortedKeys[1]].price
+			end
 
 			-- Store the lowest price found in persistent data
 			if minPrice > 0 then
@@ -972,13 +1029,13 @@ function AuctionEnhancements_OnEvent()
 				VanillaEnhancedData.auctionPrices[key] = minPrice
 			end
 
-			for _, price in ipairs(prices) do
-				local count = module.data.scanResults[price]
+			for _, key in ipairs(sortedKeys) do
+				local res = module.data.scanResults[key]
 				local percentage = 0
 				if minPrice > 0 then
-					percentage = (price / minPrice) * 100
+					percentage = (res.price / minPrice) * 100
 				end
-				VE.print(string.format("[Scan] %dx %s @ %s each (%.1f%%)", count, record.itemLink, CopperToMoneyString(price), percentage))
+				VE.print(string.format("[Scan] %dx %s @ %s each (%s, %.1f%%)", res.count, record.itemLink, CopperToMoneyString(res.price), DURATION_LABELS[res.duration] or "", percentage))
 			end
 			
 			CancelScan()
