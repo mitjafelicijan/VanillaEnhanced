@@ -161,7 +161,6 @@ end
 local function CancelScan()
 	module.data.isScanning = false
 	module.data.scanPage = 0
-	module.data.scanResults = nil
 	if AuctionEnhancementsListingsFrameScan then
 		AuctionEnhancementsListingsFrameScan:SetText("Scan")
 		if module.data.selectedRecord then
@@ -178,6 +177,8 @@ end
 local function StartScan()
 	if not module.data.selectedRecord then return end
 	
+	VE.dprint("Starting scan for " .. module.data.selectedRecord.name)
+
 	if AuctionEnhancementsListingsFrameScan then
 		AuctionEnhancementsListingsFrameScan:SetText("Scanning...")
 		AuctionEnhancementsListingsFrameScan:Disable()
@@ -198,7 +199,7 @@ local function StartScan()
 	end
 
 	-- Query by name. We'll filter by ID and suffixID in the update event.
-	QueryAuctionItems(module.data.selectedRecord.name, nil, nil, 0, 0, 0, module.data.scanPage, 0, 0)
+	QueryAuctionItems(module.data.selectedRecord.name, 0, 0, 0, 0, 0, module.data.scanPage, 0, 0)
 end
 
 local function SelectItem(record)
@@ -209,6 +210,11 @@ local function SelectItem(record)
 	local isDifferent = not record or not module.data.selectedRecord or record.ID ~= module.data.selectedRecord.ID or record.suffixID ~= module.data.selectedRecord.suffixID
 	if isDifferent then
 		CancelScan()
+		module.data.scanResults = nil
+		if AuctionEnhancementsListingsFrame.list then
+			AuctionEnhancementsListingsFrame.list.records = {}
+			AuctionEnhancementsListingsFrame.list:Render()
+		end
 	end
 
 	if not record then
@@ -279,6 +285,12 @@ local function SelectItem(record)
 			-- If we have scan results, use the lowest price found as both start and buyout, with no multiplier
 			module.data.startPrice = ahPrice
 			module.data.buyoutPrice = ahPrice
+			
+			-- Populate table with at least the known historical lowest price
+			if AuctionEnhancementsListingsFrame.list and not module.data.isScanning then
+				AuctionEnhancementsListingsFrame.list.records = { { price = ahPrice, count = "Hist." } }
+				AuctionEnhancementsListingsFrame.list:Render()
+			end
 		else
 			-- Fallback to vendor prices with multipliers
 			if VanillaEnhancedData and VanillaEnhancedData.vendorPrices then
@@ -507,55 +519,120 @@ local function GetBagItemsGrouped()
 	return records
 end
 
-local function AddAuctionHousePostButton()
-	module.data.tabIndex = AuctionFrame.numTabs + 1
-	local nextFrameName = "AuctionFrameTab" .. module.data.tabIndex
-	local prevFrameName = "AuctionFrameTab" .. AuctionFrame.numTabs
-
-	local frame = CreateFrame("Button", nextFrameName, AuctionFrame, "AuctionTabTemplate");
-	frame:SetID(module.data.tabIndex);
-	frame:SetText("Post");
-	frame:SetPoint("LEFT", getglobal(prevFrameName), "RIGHT", -8, 0);
-	frame:Show();
-
-	setglobal(nextFrameName, frame);
-
-	PanelTemplates_SetNumTabs(AuctionFrame, module.data.tabIndex);
-	PanelTemplates_EnableTab(AuctionFrame, module.data.tabIndex);
-end
-
-local function AddAuctionHouseBagItemsFrame()
-	AuctionEnhancementsBagItemsFrame:ClearAllPoints()
-	AuctionEnhancementsBagItemsFrame:SetParent(AuctionFrame)
-	AuctionEnhancementsBagItemsFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 20, -50)
-end
-
-local function AddAuctionHouseListingsFrame()
-	AuctionEnhancementsListingsFrame:ClearAllPoints()
-	AuctionEnhancementsListingsFrame:SetParent(AuctionFrame)
-	AuctionEnhancementsListingsFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 210, -160)
-end
-
-local function AddAuctionHouseFormFrame()
-	AuctionEnhancementsFormFrame:ClearAllPoints()
-	AuctionEnhancementsFormFrame:SetParent(AuctionFrame)
-	AuctionEnhancementsFormFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 210, -45)
-	CreateAuctionHouseForm()
-end
-
-function AuctionEnhancements_OnLoad()
-	this:RegisterEvent("ADDON_LOADED")
-	this:RegisterEvent("AUCTION_HOUSE_SHOW")
-	this:RegisterEvent("AUCTION_HOUSE_CLOSED")
-	this:RegisterEvent("BAG_UPDATE")
-	this:RegisterEvent("BAG_UPDATE_DELAYED")
-	this:RegisterEvent("GET_ITEM_INFO_RECEIVED")
-	this:RegisterEvent("MERCHANT_SHOW")
-	this:RegisterEvent("AUCTION_ITEM_LIST_UPDATE")
-end
-
 local BAG_ITEMS_ROW_HEIGHT = 36
 local BAG_ITEMS_VISIBLE_ROWS = 9
+local LISTINGS_ROW_HEIGHT = 20
+local LISTINGS_VISIBLE_ROWS = 8
+
+local function CreateListingsList()
+	local frame = AuctionEnhancementsListingsFrame
+	if frame.list then return end
+
+	local content = CreateFrame("Frame", nil, frame)
+	content:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -30)
+	content:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -25, 35)
+	
+	-- Add a subtle background to the content area
+	content.bg = content:CreateTexture(nil, "BACKGROUND")
+	content.bg:SetAllPoints(content)
+	content.bg:SetTexture(0, 0, 0, 0.3)
+
+	-- Headers
+	frame.priceHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	frame.priceHeader:SetPoint("TOPLEFT", 5, 15)
+	frame.priceHeader:SetText("Unit Price")
+
+	frame.countHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	frame.countHeader:SetPoint("TOPLEFT", 180, 15)
+	frame.countHeader:SetText("Available")
+
+	frame.pctHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	frame.pctHeader:SetPoint("TOPLEFT", 280, 15)
+	frame.pctHeader:SetText("Market %")
+
+	local scrollFrame = CreateFrame("ScrollFrame", "AuctionEnhancementsListingsScrollFrame", frame, "FauxScrollFrameTemplate")
+	scrollFrame:SetPoint("TOPLEFT", content, "TOPLEFT", 0, 0)
+	scrollFrame:SetPoint("BOTTOMRIGHT", content, "BOTTOMRIGHT", 20, 0)
+	scrollFrame:SetScript("OnVerticalScroll", function()
+		FauxScrollFrame_OnVerticalScroll(LISTINGS_ROW_HEIGHT, function()
+			if frame.list then frame.list:Render() end
+		end)
+	end)
+
+	local rows = {}
+	for i = 1, LISTINGS_VISIBLE_ROWS do
+		local row = CreateFrame("Button", nil, content)
+		row:SetHeight(LISTINGS_ROW_HEIGHT)
+		row:SetPoint("TOPLEFT", content, "TOPLEFT", 0, -((i - 1) * LISTINGS_ROW_HEIGHT))
+		row:SetPoint("TOPRIGHT", content, "TOPRIGHT", 0, -((i - 1) * LISTINGS_ROW_HEIGHT))
+		row:SetFrameLevel(content:GetFrameLevel() + 1)
+		
+		row.price = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		row.price:SetPoint("LEFT", 5, 0)
+		row.price:SetJustifyH("LEFT")
+
+		row.count = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		row.count:SetPoint("LEFT", 180, 0)
+		row.count:SetJustifyH("LEFT")
+
+		row.pct = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		row.pct:SetPoint("LEFT", 280, 0)
+		row.pct:SetJustifyH("LEFT")
+
+		row.highlight = row:CreateTexture(nil, "BACKGROUND")
+		row.highlight:SetAllPoints(row)
+		row.highlight:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+		row.highlight:SetTexCoord(0.1, 0.8, 0, 1)
+		row.highlight:Hide()
+
+		row:SetScript("OnEnter", function() row.highlight:Show() end)
+		row:SetScript("OnLeave", function() row.highlight:Hide() end)
+		row:SetScript("OnClick", function()
+			if row.priceValue then
+				module.data.startPrice = row.priceValue
+				module.data.buyoutPrice = row.priceValue
+				if AuctionEnhancementsFormFrame.startPriceInput and AuctionEnhancementsFormFrame.startPriceInput.editbox then
+					AuctionEnhancementsFormFrame.startPriceInput.editbox:SetText(CopperToMoneyString(module.data.startPrice))
+				end
+				if AuctionEnhancementsFormFrame.buyoutPriceInput and AuctionEnhancementsFormFrame.buyoutPriceInput.editbox then
+					AuctionEnhancementsFormFrame.buyoutPriceInput.editbox:SetText(CopperToMoneyString(module.data.buyoutPrice))
+				end
+				if AuctionEnhancementsFormFrame.UpdateTotal then
+					AuctionEnhancementsFormFrame.UpdateTotal()
+				end
+			end
+		end)
+
+		rows[i] = row
+	end
+
+	frame.list = {
+		content = content,
+		scrollFrame = scrollFrame,
+		rows = rows,
+		records = {},
+		Render = function(self)
+			FauxScrollFrame_Update(self.scrollFrame, table.getn(self.records), LISTINGS_VISIBLE_ROWS, LISTINGS_ROW_HEIGHT)
+			local offset = FauxScrollFrame_GetOffset(self.scrollFrame)
+			local minPrice = self.records[1] and self.records[1].price or 0
+
+			for i = 1, LISTINGS_VISIBLE_ROWS do
+				local row = self.rows[i]
+				local record = self.records[i + offset]
+				if record then
+					row.price:SetText(CopperToMoneyString(record.price))
+					row.count:SetText(record.count)
+					local pct = minPrice > 0 and (record.price / minPrice * 100) or 100
+					row.pct:SetText(string.format("%.1f%%", pct))
+					row.priceValue = record.price
+					row:Show()
+				else
+					row:Hide()
+				end
+			end
+		end,
+	}
+end
 
 local function CreateBagItemsList()
 	local frame = AuctionEnhancementsBagItemsFrame
@@ -668,6 +745,54 @@ local function CreateBagItemsList()
 	}
 end
 
+local function AddAuctionHousePostButton()
+	module.data.tabIndex = AuctionFrame.numTabs + 1
+	local nextFrameName = "AuctionFrameTab" .. module.data.tabIndex
+	local prevFrameName = "AuctionFrameTab" .. AuctionFrame.numTabs
+
+	local frame = CreateFrame("Button", nextFrameName, AuctionFrame, "AuctionTabTemplate");
+	frame:SetID(module.data.tabIndex);
+	frame:SetText("Post");
+	frame:SetPoint("LEFT", getglobal(prevFrameName), "RIGHT", -8, 0);
+	frame:Show();
+
+	setglobal(nextFrameName, frame);
+
+	PanelTemplates_SetNumTabs(AuctionFrame, module.data.tabIndex);
+	PanelTemplates_EnableTab(AuctionFrame, module.data.tabIndex);
+end
+
+local function AddAuctionHouseBagItemsFrame()
+	AuctionEnhancementsBagItemsFrame:ClearAllPoints()
+	AuctionEnhancementsBagItemsFrame:SetParent(AuctionFrame)
+	AuctionEnhancementsBagItemsFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 20, -50)
+end
+
+local function AddAuctionHouseListingsFrame()
+	AuctionEnhancementsListingsFrame:ClearAllPoints()
+	AuctionEnhancementsListingsFrame:SetParent(AuctionFrame)
+	AuctionEnhancementsListingsFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 210, -160)
+	CreateListingsList()
+end
+
+local function AddAuctionHouseFormFrame()
+	AuctionEnhancementsFormFrame:ClearAllPoints()
+	AuctionEnhancementsFormFrame:SetParent(AuctionFrame)
+	AuctionEnhancementsFormFrame:SetPoint("TopLeft", AuctionFrame, "TopLeft", 210, -45)
+	CreateAuctionHouseForm()
+end
+
+function AuctionEnhancements_OnLoad()
+	this:RegisterEvent("ADDON_LOADED")
+	this:RegisterEvent("AUCTION_HOUSE_SHOW")
+	this:RegisterEvent("AUCTION_HOUSE_CLOSED")
+	this:RegisterEvent("BAG_UPDATE")
+	this:RegisterEvent("BAG_UPDATE_DELAYED")
+	this:RegisterEvent("GET_ITEM_INFO_RECEIVED")
+	this:RegisterEvent("MERCHANT_SHOW")
+	this:RegisterEvent("AUCTION_ITEM_LIST_UPDATE")
+end
+
 local function RefreshBagItemsList()
 	if not AuctionEnhancementsBagItemsFrame or not AuctionEnhancementsBagItemsFrame.list then
 		return
@@ -771,6 +896,8 @@ function AuctionEnhancements_OnEvent()
 
 		local batchCount, totalCount = GetNumAuctionItems("list")
 		local record = module.data.selectedRecord
+		
+		VE.dprint(string.format("Scan update: batch=%d, total=%d, page=%d", batchCount, totalCount, module.data.scanPage))
 
 		-- Update progress bar
 		if AuctionEnhancementsListingsFrameStatusBar then
@@ -782,7 +909,7 @@ function AuctionEnhancements_OnEvent()
 			end
 		end
 
-		-- Process results and print for debugging
+		-- Process results
 		for i = 1, batchCount do
 			local name, texture, count, quality, canUse, level, minBid, minIncrement, buyoutPrice, bidAmount, highBidder, owner = GetAuctionItemInfo("list", i)
 			local itemLink = GetAuctionItemLink("list", i)
@@ -796,6 +923,22 @@ function AuctionEnhancements_OnEvent()
 			end
 		end
 
+		-- Update the listings table with current data
+		if AuctionEnhancementsListingsFrame.list then
+			local prices = {}
+			for price in pairs(module.data.scanResults) do
+				table.insert(prices, price)
+			end
+			table.sort(prices)
+			
+			local records = {}
+			for _, price in ipairs(prices) do
+				table.insert(records, { price = price, count = module.data.scanResults[price] })
+			end
+			AuctionEnhancementsListingsFrame.list.records = records
+			AuctionEnhancementsListingsFrame.list:Render()
+		end
+
 		-- Check if we need to fetch more pages
 		if (module.data.scanPage + 1) * 50 < totalCount then
 			local nextPage = module.data.scanPage + 1
@@ -804,7 +947,7 @@ function AuctionEnhancements_OnEvent()
 			local function FetchNext()
 				if not module.data.isScanning then return end
 				if CanSendAuctionQuery() then
-					QueryAuctionItems(record.name, nil, nil, 0, 0, 0, nextPage, 0, 0)
+					QueryAuctionItems(record.name, 0, 0, 0, 0, 0, nextPage, 0, 0)
 				else
 					VE.executeWithDelay(0.2, FetchNext)
 				end
