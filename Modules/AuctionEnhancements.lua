@@ -594,7 +594,7 @@ local function CreateListingsList()
 	frame.profitHeader:SetText("Profit")
 
 	frame.pctHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	frame.pctHeader:SetPoint("LEFT", content.headerBg, "LEFT", 520, 0)
+	frame.pctHeader:SetPoint("LEFT", content.headerBg, "LEFT", 500, 0)
 	frame.pctHeader:SetText("Market %")
 
 	local scrollFrame = CreateFrame("ScrollFrame", "AuctionEnhancementsListingsScrollFrame", frame, "FauxScrollFrameTemplate")
@@ -635,7 +635,7 @@ local function CreateListingsList()
 		row.profit:SetJustifyH("LEFT")
 
 		row.pct = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row.pct:SetPoint("LEFT", 520, 0)
+		row.pct:SetPoint("LEFT", 500, 0)
 		row.pct:SetJustifyH("LEFT")
 
 		row.bg = row:CreateTexture(nil, "BACKGROUND")
