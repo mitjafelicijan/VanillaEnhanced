@@ -74,9 +74,11 @@
 					</Anchors>
 				</FontString>
 			</Layer>
-			<Layer level="ARTWORK">
-			</Layer>
 		</Layers>
+	</Frame>
+
+	<Frame name="AuctionEnhancementsActionsFrame" frameStrata="HIGH" hidden="true">
+		<Size x="610" y="20"/>
 		<Frames>
 			<StatusBar name="$parentStatusBar" inherits="TextStatusBar" frameLevel="1" alpha="1.0">
 				<Size x="72" y="12"/>

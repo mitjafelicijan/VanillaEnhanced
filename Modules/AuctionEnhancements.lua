@@ -115,22 +115,22 @@ local function UpdateUIState()
 	local hasSelection = module.data.selectedRecord ~= nil
 	
 	if isPosting then
-		if AuctionEnhancementsListingsFrameScan then AuctionEnhancementsListingsFrameScan:Disable() end
+		if AuctionEnhancementsActionsFrameScan then AuctionEnhancementsActionsFrameScan:Disable() end
 		-- Post button remains enabled to allow "Stop"
-		if AuctionEnhancementsListingsFramePost then AuctionEnhancementsListingsFramePost:Enable() end
+		if AuctionEnhancementsActionsFramePost then AuctionEnhancementsActionsFramePost:Enable() end
 	else
-		if AuctionEnhancementsListingsFrameScan then 
+		if AuctionEnhancementsActionsFrameScan then 
 			if hasSelection then 
-				AuctionEnhancementsListingsFrameScan:Enable() 
+				AuctionEnhancementsActionsFrameScan:Enable() 
 			else
-				AuctionEnhancementsListingsFrameScan:Disable()
+				AuctionEnhancementsActionsFrameScan:Disable()
 			end
 		end
-		if AuctionEnhancementsListingsFramePost then
+		if AuctionEnhancementsActionsFramePost then
 			if hasSelection then
-				AuctionEnhancementsListingsFramePost:Enable()
+				AuctionEnhancementsActionsFramePost:Enable()
 			else
-				AuctionEnhancementsListingsFramePost:Disable()
+				AuctionEnhancementsActionsFramePost:Disable()
 			end
 		end
 	end
@@ -140,9 +140,9 @@ local function StopPosting(message)
 	module.data.isPosting = false
 	module.data.remainingStacks = 0
 	module.data.isWaitingForBag = false
-	if AuctionEnhancementsListingsFramePost then
-		AuctionEnhancementsListingsFramePost:SetText("Post")
-		AuctionEnhancementsListingsFramePost:Enable()
+	if AuctionEnhancementsActionsFramePost then
+		AuctionEnhancementsActionsFramePost:SetText("Post")
+		AuctionEnhancementsActionsFramePost:Enable()
 	end
 	UpdateUIState()
 	if message then
@@ -230,8 +230,8 @@ local function PostNext()
 		module.data.remainingStacks = module.data.remainingStacks - 1
 		module.data.postedCount = module.data.postedCount + 1
 		
-		if AuctionEnhancementsListingsFramePost then
-			AuctionEnhancementsListingsFramePost:SetText(string.format("Stop (%d)", module.data.remainingStacks))
+		if AuctionEnhancementsActionsFramePost then
+			AuctionEnhancementsActionsFramePost:SetText(string.format("Stop (%d)", module.data.remainingStacks))
 		end
 		return
 	end
@@ -269,8 +269,8 @@ local function PostAuction()
 	module.data.remainingStacks = module.data.stackCount
 	module.data.postedCount = 0
 	
-	if AuctionEnhancementsListingsFramePost then
-		AuctionEnhancementsListingsFramePost:SetText(string.format("Stop (%d)", module.data.remainingStacks))
+	if AuctionEnhancementsActionsFramePost then
+		AuctionEnhancementsActionsFramePost:SetText(string.format("Stop (%d)", module.data.remainingStacks))
 	end
 	
 	UpdateUIState()
@@ -296,16 +296,16 @@ end
 local function CancelScan()
 	module.data.isScanning = false
 	module.data.scanPage = 0
-	if AuctionEnhancementsListingsFrameScan then
-		AuctionEnhancementsListingsFrameScan:SetText("Scan")
+	if AuctionEnhancementsActionsFrameScan then
+		AuctionEnhancementsActionsFrameScan:SetText("Scan")
 		if module.data.selectedRecord then
-			AuctionEnhancementsListingsFrameScan:Enable()
+			AuctionEnhancementsActionsFrameScan:Enable()
 		else
-			AuctionEnhancementsListingsFrameScan:Disable()
+			AuctionEnhancementsActionsFrameScan:Disable()
 		end
 	end
-	if AuctionEnhancementsListingsFrameStatusBar then
-		AuctionEnhancementsListingsFrameStatusBar:SetValue(0)
+	if AuctionEnhancementsActionsFrameStatusBar then
+		AuctionEnhancementsActionsFrameStatusBar:SetValue(0)
 	end
 end
 
@@ -314,9 +314,9 @@ local function StartScan()
 	
 	VE.dprint("Starting scan for " .. module.data.selectedRecord.name)
 
-	if AuctionEnhancementsListingsFrameScan then
-		AuctionEnhancementsListingsFrameScan:SetText("Scanning...")
-		AuctionEnhancementsListingsFrameScan:Disable()
+	if AuctionEnhancementsActionsFrameScan then
+		AuctionEnhancementsActionsFrameScan:SetText("Scanning...")
+		AuctionEnhancementsActionsFrameScan:Disable()
 	end
 
 	if not CanSendAuctionQuery() then
@@ -341,9 +341,9 @@ local function StartScan()
 		module.data.scanResults["hist:0"] = { from = "Auction", price = ahPrice, count = "Hist.", duration = 0 }
 	end
 	
-	if AuctionEnhancementsListingsFrameStatusBar then
-		AuctionEnhancementsListingsFrameStatusBar:SetMinMaxValues(0, 1)
-		AuctionEnhancementsListingsFrameStatusBar:SetValue(0)
+	if AuctionEnhancementsActionsFrameStatusBar then
+		AuctionEnhancementsActionsFrameStatusBar:SetMinMaxValues(0, 1)
+		AuctionEnhancementsActionsFrameStatusBar:SetValue(0)
 	end
 
 	-- Query by name. We'll filter by ID and suffixID in the update event.
@@ -382,6 +382,7 @@ local function SelectItem(record)
 	module.data.selectedRecord = record
 	frame:Show()
 	if AuctionEnhancementsListingsFrame then AuctionEnhancementsListingsFrame:Show() end
+	if AuctionEnhancementsActionsFrame then AuctionEnhancementsActionsFrame:Show() end
 	
 	UpdateUIState()
 
@@ -582,15 +583,15 @@ local function CreateAuctionHouseForm()
 		frame.totalBuyoutText:SetText(string.format("Total Buyout: %s", CopperToMoneyString(totalBuyout)))
 	end
 
-	if AuctionEnhancementsListingsFrameScan then
-		AuctionEnhancementsListingsFrameScan:SetScript("OnClick", function()
+	if AuctionEnhancementsActionsFrameScan then
+		AuctionEnhancementsActionsFrameScan:SetScript("OnClick", function()
 			StartScan()
 		end)
 	end
 
 	-- Use the Post button from the Listings frame (from XML)
-	if AuctionEnhancementsListingsFramePost then
-		AuctionEnhancementsListingsFramePost:SetScript("OnClick", function()
+	if AuctionEnhancementsActionsFramePost then
+		AuctionEnhancementsActionsFramePost:SetScript("OnClick", function()
 			PostAuction()
 		end)
 	end
@@ -805,11 +806,11 @@ local function CreateListingsList()
 	end
 
 	-- Initialize Status Bar
-	if AuctionEnhancementsListingsFrameStatusBar then
-		AuctionEnhancementsListingsFrameStatusBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-		AuctionEnhancementsListingsFrameStatusBar:SetStatusBarColor(1, 1, 0)
-		AuctionEnhancementsListingsFrameStatusBar:SetMinMaxValues(0, 1)
-		AuctionEnhancementsListingsFrameStatusBar:SetValue(0)
+	if AuctionEnhancementsActionsFrameStatusBar then
+		AuctionEnhancementsActionsFrameStatusBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+		AuctionEnhancementsActionsFrameStatusBar:SetStatusBarColor(1, 1, 0)
+		AuctionEnhancementsActionsFrameStatusBar:SetMinMaxValues(0, 1)
+		AuctionEnhancementsActionsFrameStatusBar:SetValue(0)
 	end
 
 	frame.list = {
@@ -1004,6 +1005,12 @@ local function AddAuctionHouseListingsFrame()
 	CreateListingsList()
 end
 
+local function AddAuctionHouseActionsFrame()
+	AuctionEnhancementsActionsFrame:ClearAllPoints()
+	AuctionEnhancementsActionsFrame:SetParent(AuctionFrame)
+	AuctionEnhancementsActionsFrame:SetPoint("BottomRight", AuctionFrame, "BottomRight", -11, 37)
+end
+
 local function AddAuctionHouseFormFrame()
 	AuctionEnhancementsFormFrame:ClearAllPoints()
 	AuctionEnhancementsFormFrame:SetParent(AuctionFrame)
@@ -1064,6 +1071,7 @@ function AuctionEnhancements_OnEvent()
 			AddAuctionHousePostButton()
 			AddAuctionHouseBagItemsFrame()
 			AddAuctionHouseListingsFrame()
+			AddAuctionHouseActionsFrame()
 			AddAuctionHouseFormFrame()
 			CreateBagItemsList()
 
@@ -1089,10 +1097,11 @@ function AuctionEnhancements_OnEvent()
 
 					AuctionEnhancementsBagItemsFrame:Show()
 					-- AuctionEnhancementsListingsFrame:Show()
+					AuctionEnhancementsActionsFrame:Show()
 					-- AuctionEnhancementsFormFrame:Show()
 
 					-- Adds needed background to progress bar.
-					VE.dframe(AuctionEnhancementsListingsFrameStatusBar, 0, 0, 0, 1) 
+					VE.dframe(AuctionEnhancementsActionsFrameStatusBar, 0, 0, 0, 1) 
 					
 					OpenAllBags(true)
 					RefreshBagItemsList()
@@ -1100,6 +1109,7 @@ function AuctionEnhancements_OnEvent()
 				else
 					AuctionEnhancementsBagItemsFrame:Hide()
 					AuctionEnhancementsListingsFrame:Hide()
+					AuctionEnhancementsActionsFrame:Hide()
 					AuctionEnhancementsFormFrame:Hide()
 				end
 			end
@@ -1133,12 +1143,12 @@ function AuctionEnhancements_OnEvent()
 		VE.dprint(string.format("Scan update: batch=%d, total=%d, page=%d", batchCount, totalCount, module.data.scanPage))
 
 		-- Update progress bar
-		if AuctionEnhancementsListingsFrameStatusBar then
+		if AuctionEnhancementsActionsFrameStatusBar then
 			if totalCount > 0 then
 				local progress = ((module.data.scanPage * 50) + batchCount) / totalCount
-				AuctionEnhancementsListingsFrameStatusBar:SetValue(progress)
+				AuctionEnhancementsActionsFrameStatusBar:SetValue(progress)
 			else
-				AuctionEnhancementsListingsFrameStatusBar:SetValue(1)
+				AuctionEnhancementsActionsFrameStatusBar:SetValue(1)
 			end
 		end
 
