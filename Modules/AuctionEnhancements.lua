@@ -727,11 +727,11 @@ local function CreateListingsList()
 	frame.fromHeader:SetText("From")
 
 	frame.countHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	frame.countHeader:SetPoint("LEFT", content.headerBg, "LEFT", 70, 0)
+	frame.countHeader:SetPoint("LEFT", content.headerBg, "LEFT", 85, 0)
 	frame.countHeader:SetText("Available")
 
 	frame.durHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	frame.durHeader:SetPoint("LEFT", content.headerBg, "LEFT", 140, 0)
+	frame.durHeader:SetPoint("LEFT", content.headerBg, "LEFT", 175, 0)
 	frame.durHeader:SetText("Duration")
 
 	frame.priceHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -774,11 +774,11 @@ local function CreateListingsList()
 		row.from:SetJustifyH("LEFT")
 
 		row.count = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row.count:SetPoint("LEFT", 70, 0)
+		row.count:SetPoint("LEFT", 85, 0)
 		row.count:SetJustifyH("LEFT")
 
 		row.dur = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row.dur:SetPoint("LEFT", 140, 0)
+		row.dur:SetPoint("LEFT", 175, 0)
 		row.dur:SetJustifyH("LEFT")
 
 		row.price = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -1030,7 +1030,7 @@ end
 local function AddAuctionHouseActionsFrame()
 	AuctionEnhancementsActionsFrame:ClearAllPoints()
 	AuctionEnhancementsActionsFrame:SetParent(AuctionFrame)
-	AuctionEnhancementsActionsFrame:SetPoint("BottomRight", AuctionFrame, "BottomRight", -11, 36)
+	AuctionEnhancementsActionsFrame:SetPoint("BottomRight", AuctionFrame, "BottomRight", -12, 37)
 end
 
 local function AddAuctionHouseFormFrame()
@@ -1182,7 +1182,8 @@ function AuctionEnhancements_OnEvent()
 			if itemLink then
 				local itemID, suffixID = ParseItemLink(itemLink)
 				if itemID == record.ID and suffixID == record.suffixID then
-					local pricePerItem = math.floor(buyoutPrice > 0 and (buyoutPrice / count) or (bidAmount / count))
+					local price = buyoutPrice > 0 and buyoutPrice or (bidAmount > 0 and bidAmount or minBid)
+					local pricePerItem = math.ceil(price / count)
 					local duration = GetAuctionItemTimeLeft("list", i)
 					local key = pricePerItem .. ":" .. duration
 					if not module.data.scanResults[key] then
@@ -1273,7 +1274,7 @@ function AuctionEnhancements_OnEvent()
 						countStr = countStr .. "x"
 					end
 					
-					VE.print(string.format("[Scan] %s %s @ %s each (%s, %.1f%%)", countStr, record.itemLink, CopperToColoredMoneyString(res.price), DURATION_LABELS[res.duration] or "-", percentage))
+					-- VE.print(string.format("[Scan] %s %s @ %s each (%s, %.1f%%)", countStr, record.itemLink, CopperToColoredMoneyString(res.price), DURATION_LABELS[res.duration] or "-", percentage))
 				end
 			end
 			
