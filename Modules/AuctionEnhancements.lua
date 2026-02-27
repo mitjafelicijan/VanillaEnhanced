@@ -1008,7 +1008,7 @@ end
 local function AddAuctionHouseActionsFrame()
 	AuctionEnhancementsActionsFrame:ClearAllPoints()
 	AuctionEnhancementsActionsFrame:SetParent(AuctionFrame)
-	AuctionEnhancementsActionsFrame:SetPoint("BottomRight", AuctionFrame, "BottomRight", -11, 37)
+	AuctionEnhancementsActionsFrame:SetPoint("BottomRight", AuctionFrame, "BottomRight", -11, 36)
 end
 
 local function AddAuctionHouseFormFrame()
@@ -1096,9 +1096,7 @@ function AuctionEnhancements_OnEvent()
 					AuctionFrameBotRight:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\AuctionEnhancements-BotRight")
 
 					AuctionEnhancementsBagItemsFrame:Show()
-					-- AuctionEnhancementsListingsFrame:Show()
 					AuctionEnhancementsActionsFrame:Show()
-					-- AuctionEnhancementsFormFrame:Show()
 
 					-- Adds needed background to progress bar.
 					VE.dframe(AuctionEnhancementsActionsFrameStatusBar, 0, 0, 0, 1) 
