@@ -193,6 +193,19 @@ local function StartScan()
 	module.data.scanPage = 0
 	module.data.scanResults = {}
 	
+	-- Add vendor and historical prices to results right away so they stay in the table
+	local record = module.data.selectedRecord
+	local itemSellPrice = VanillaEnhancedData.vendorPrices and VanillaEnhancedData.vendorPrices[tostring(record.ID)] or 0
+	if itemSellPrice > 0 then
+		module.data.scanResults["vendor:0"] = { from = "Vendor", price = itemSellPrice, count = "-", duration = 0 }
+	end
+	
+	local ahPriceKey = string.format("%s:%s", tostring(record.ID), tostring(record.suffixID or 0))
+	local ahPrice = VanillaEnhancedData.auctionPrices and VanillaEnhancedData.auctionPrices[ahPriceKey] or 0
+	if ahPrice > 0 then
+		module.data.scanResults["hist:0"] = { from = "Auction", price = ahPrice, count = "Hist.", duration = 0 }
+	end
+	
 	if AuctionEnhancementsListingsFrameStatusBar then
 		AuctionEnhancementsListingsFrameStatusBar:SetMinMaxValues(0, 1)
 		AuctionEnhancementsListingsFrameStatusBar:SetValue(0)
@@ -279,33 +292,34 @@ local function SelectItem(record)
 		module.data.stackCount = math.max(1, math.floor(totalOwned / module.data.stackSize))
 		
 		-- Prices
-		local itemSellPrice = 0
+		local initialRecords = {}
+		local itemSellPrice = VanillaEnhancedData.vendorPrices and VanillaEnhancedData.vendorPrices[tostring(record.ID)] or 0
 		local ahPriceKey = string.format("%s:%s", tostring(record.ID), tostring(record.suffixID or 0))
 		local ahPrice = VanillaEnhancedData.auctionPrices and VanillaEnhancedData.auctionPrices[ahPriceKey] or 0
 		
+		if itemSellPrice > 0 then
+			table.insert(initialRecords, { from = "Vendor", price = itemSellPrice, count = "-", duration = 0 })
+		end
+		if ahPrice > 0 then
+			table.insert(initialRecords, { from = "Auction", price = ahPrice, count = "Hist.", duration = 0 })
+		end
+
 		if ahPrice > 0 then
 			-- If we have scan results, use the lowest price found as both start and buyout, with no multiplier
 			module.data.startPrice = ahPrice
 			module.data.buyoutPrice = ahPrice
-			
-			-- Populate table with at least the known historical lowest price
-			if AuctionEnhancementsListingsFrame.list and not module.data.isScanning then
-				AuctionEnhancementsListingsFrame.list.records = { { price = ahPrice, count = "Hist." } }
-				AuctionEnhancementsListingsFrame.list:Render()
-			end
-		else
+		elseif itemSellPrice > 0 then
 			-- Fallback to vendor prices with multipliers
-			if VanillaEnhancedData and VanillaEnhancedData.vendorPrices then
-				itemSellPrice = VanillaEnhancedData.vendorPrices[tostring(record.ID)] or 0
-			end
-			
-			if itemSellPrice > 0 then
-				module.data.startPrice = math.floor(itemSellPrice * module.config.BidMultiplier)
-				module.data.buyoutPrice = math.floor(itemSellPrice * module.config.BuyoutMultiplier)
-			else
-				module.data.startPrice = 0
-				module.data.buyoutPrice = 0
-			end
+			module.data.startPrice = math.floor(itemSellPrice * module.config.BidMultiplier)
+			module.data.buyoutPrice = math.floor(itemSellPrice * module.config.BuyoutMultiplier)
+		else
+			module.data.startPrice = 0
+			module.data.buyoutPrice = 0
+		end
+
+		if AuctionEnhancementsListingsFrame.list and not module.data.isScanning then
+			AuctionEnhancementsListingsFrame.list.records = initialRecords
+			AuctionEnhancementsListingsFrame.list:Render()
 		end
 	else
 		-- Refresh limits for existing selection
@@ -559,24 +573,28 @@ local function CreateListingsList()
 	content.headerBg:SetTexture(1, 1, 1, 0.1)
 
 	-- Headers
+	frame.fromHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	frame.fromHeader:SetPoint("LEFT", content.headerBg, "LEFT", 10, 0)
+	frame.fromHeader:SetText("From")
+
 	frame.countHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	frame.countHeader:SetPoint("LEFT", content.headerBg, "LEFT", 10, 0)
+	frame.countHeader:SetPoint("LEFT", content.headerBg, "LEFT", 70, 0)
 	frame.countHeader:SetText("Available")
 
 	frame.durHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	frame.durHeader:SetPoint("LEFT", content.headerBg, "LEFT", 85, 0)
+	frame.durHeader:SetPoint("LEFT", content.headerBg, "LEFT", 140, 0)
 	frame.durHeader:SetText("Duration")
 
 	frame.priceHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	frame.priceHeader:SetPoint("LEFT", content.headerBg, "LEFT", 175, 0)
+	frame.priceHeader:SetPoint("LEFT", content.headerBg, "LEFT", 225, 0)
 	frame.priceHeader:SetText("Unit Price")
 
 	frame.profitHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	frame.profitHeader:SetPoint("LEFT", content.headerBg, "LEFT", 330, 0)
+	frame.profitHeader:SetPoint("LEFT", content.headerBg, "LEFT", 360, 0)
 	frame.profitHeader:SetText("Profit")
 
 	frame.pctHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	frame.pctHeader:SetPoint("LEFT", content.headerBg, "LEFT", 510, 0)
+	frame.pctHeader:SetPoint("LEFT", content.headerBg, "LEFT", 520, 0)
 	frame.pctHeader:SetText("Market %")
 
 	local scrollFrame = CreateFrame("ScrollFrame", "AuctionEnhancementsListingsScrollFrame", frame, "FauxScrollFrameTemplate")
@@ -596,24 +614,28 @@ local function CreateListingsList()
 		row:SetPoint("TOPRIGHT", content, "TOPRIGHT", -15, -(i * LISTINGS_ROW_HEIGHT))
 		row:SetFrameLevel(content:GetFrameLevel() + 1)
 		
+		row.from = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		row.from:SetPoint("LEFT", 10, 0)
+		row.from:SetJustifyH("LEFT")
+
 		row.count = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row.count:SetPoint("LEFT", 10, 0)
+		row.count:SetPoint("LEFT", 70, 0)
 		row.count:SetJustifyH("LEFT")
 
 		row.dur = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row.dur:SetPoint("LEFT", 85, 0)
+		row.dur:SetPoint("LEFT", 140, 0)
 		row.dur:SetJustifyH("LEFT")
 
 		row.price = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row.price:SetPoint("LEFT", 175, 0)
+		row.price:SetPoint("LEFT", 225, 0)
 		row.price:SetJustifyH("LEFT")
 
 		row.profit = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row.profit:SetPoint("LEFT", 330, 0)
+		row.profit:SetPoint("LEFT", 360, 0)
 		row.profit:SetJustifyH("LEFT")
 
 		row.pct = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row.pct:SetPoint("LEFT", 510, 0)
+		row.pct:SetPoint("LEFT", 520, 0)
 		row.pct:SetJustifyH("LEFT")
 
 		row.highlight = row:CreateTexture(nil, "BACKGROUND")
@@ -651,21 +673,31 @@ local function CreateListingsList()
 		Render = function(self)
 			FauxScrollFrame_Update(self.scrollFrame, table.getn(self.records), LISTINGS_VISIBLE_ROWS, LISTINGS_ROW_HEIGHT)
 			local offset = FauxScrollFrame_GetOffset(self.scrollFrame)
-			local minPrice = self.records[1] and self.records[1].price or 0
+			
+			local minPrice = 0
+			for _, rec in ipairs(self.records) do
+				if rec.from == "Auction" and (minPrice == 0 or rec.price < minPrice) then
+					minPrice = rec.price
+				end
+			end
 
 			for i = 1, LISTINGS_VISIBLE_ROWS do
 				local row = self.rows[i]
 				local record = self.records[i + offset]
 				if record then
+					row.from:SetText(record.from or "")
 					row.count:SetText(record.count)
-					row.dur:SetText(DURATION_LABELS[record.duration] or "")
+					row.dur:SetText(DURATION_LABELS[record.duration] or "-")
 					row.price:SetText(CopperToMoneyString(record.price))
 					
 					local profit = record.price * (module.data.stackSize or 1) * (module.data.stackCount or 1)
 					row.profit:SetText(CopperToMoneyString(profit))
 
-					local pct = minPrice > 0 and (record.price / minPrice * 100) or 100
-					row.pct:SetText(string.format("%.1f%%", pct))
+					local pctText = "-"
+					if minPrice > 0 and record.from ~= "Vendor" then
+						pctText = string.format("%.1f%%", record.price / minPrice * 100)
+					end
+					row.pct:SetText(pctText)
 					row.priceValue = record.price
 					row:Show()
 				else
@@ -964,7 +996,7 @@ function AuctionEnhancements_OnEvent()
 					local duration = GetAuctionItemTimeLeft("list", i)
 					local key = pricePerItem .. ":" .. duration
 					if not module.data.scanResults[key] then
-						module.data.scanResults[key] = { price = pricePerItem, duration = duration, count = 0 }
+						module.data.scanResults[key] = { from = "Auction", price = pricePerItem, duration = duration, count = 0 }
 					end
 					module.data.scanResults[key].count = module.data.scanResults[key].count + count
 				end
@@ -1024,8 +1056,11 @@ function AuctionEnhancements_OnEvent()
 				return ra.duration < rb.duration
 			end)
 			
-			if sortedKeys[1] then
-				minPrice = module.data.scanResults[sortedKeys[1]].price
+			for _, key in ipairs(sortedKeys) do
+				local res = module.data.scanResults[key]
+				if res.from == "Auction" and (minPrice == 0 or res.price < minPrice) then
+					minPrice = res.price
+				end
 			end
 
 			-- Store the lowest price found in persistent data
@@ -1037,11 +1072,19 @@ function AuctionEnhancements_OnEvent()
 
 			for _, key in ipairs(sortedKeys) do
 				local res = module.data.scanResults[key]
-				local percentage = 0
-				if minPrice > 0 then
-					percentage = (res.price / minPrice) * 100
+				if res.from == "Auction" then
+					local percentage = 0
+					if minPrice > 0 then
+						percentage = (res.price / minPrice) * 100
+					end
+					
+					local countStr = tostring(res.count)
+					if type(res.count) == "number" then
+						countStr = countStr .. "x"
+					end
+					
+					VE.print(string.format("[Scan] %s %s @ %s each (%s, %.1f%%)", countStr, record.itemLink, CopperToMoneyString(res.price), DURATION_LABELS[res.duration] or "-", percentage))
 				end
-				VE.print(string.format("[Scan] %dx %s @ %s each (%s, %.1f%%)", res.count, record.itemLink, CopperToMoneyString(res.price), DURATION_LABELS[res.duration] or "", percentage))
 			end
 			
 			CancelScan()
