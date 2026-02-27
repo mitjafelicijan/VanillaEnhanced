@@ -522,15 +522,15 @@ end
 local BAG_ITEMS_ROW_HEIGHT = 36
 local BAG_ITEMS_VISIBLE_ROWS = 9
 local LISTINGS_ROW_HEIGHT = 20
-local LISTINGS_VISIBLE_ROWS = 8
+local LISTINGS_VISIBLE_ROWS = 12
 
 local function CreateListingsList()
 	local frame = AuctionEnhancementsListingsFrame
 	if frame.list then return end
 
 	local content = CreateFrame("Frame", nil, frame)
-	content:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -30)
-	content:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -25, 35)
+	content:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -6)
+	content:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -12, 0)
 	
 	-- Add a subtle background to the content area
 	content.bg = content:CreateTexture(nil, "BACKGROUND")
@@ -539,20 +539,20 @@ local function CreateListingsList()
 
 	-- Headers
 	frame.priceHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	frame.priceHeader:SetPoint("TOPLEFT", 5, 15)
+	frame.priceHeader:SetPoint("TOPLEFT", 10, 15)
 	frame.priceHeader:SetText("Unit Price")
 
 	frame.countHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	frame.countHeader:SetPoint("TOPLEFT", 180, 15)
+	frame.countHeader:SetPoint("TOPLEFT", 260, 15)
 	frame.countHeader:SetText("Available")
 
 	frame.pctHeader = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	frame.pctHeader:SetPoint("TOPLEFT", 280, 15)
+	frame.pctHeader:SetPoint("TOPLEFT", 420, 15)
 	frame.pctHeader:SetText("Market %")
 
 	local scrollFrame = CreateFrame("ScrollFrame", "AuctionEnhancementsListingsScrollFrame", frame, "FauxScrollFrameTemplate")
 	scrollFrame:SetPoint("TOPLEFT", content, "TOPLEFT", 0, 0)
-	scrollFrame:SetPoint("BOTTOMRIGHT", content, "BOTTOMRIGHT", 20, 0)
+	scrollFrame:SetPoint("BOTTOMRIGHT", content, "BOTTOMRIGHT", -12, 0)
 	scrollFrame:SetScript("OnVerticalScroll", function()
 		FauxScrollFrame_OnVerticalScroll(LISTINGS_ROW_HEIGHT, function()
 			if frame.list then frame.list:Render() end
@@ -564,19 +564,19 @@ local function CreateListingsList()
 		local row = CreateFrame("Button", nil, content)
 		row:SetHeight(LISTINGS_ROW_HEIGHT)
 		row:SetPoint("TOPLEFT", content, "TOPLEFT", 0, -((i - 1) * LISTINGS_ROW_HEIGHT))
-		row:SetPoint("TOPRIGHT", content, "TOPRIGHT", 0, -((i - 1) * LISTINGS_ROW_HEIGHT))
+		row:SetPoint("TOPRIGHT", content, "TOPRIGHT", -25, -((i - 1) * LISTINGS_ROW_HEIGHT))
 		row:SetFrameLevel(content:GetFrameLevel() + 1)
 		
 		row.price = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row.price:SetPoint("LEFT", 5, 0)
+		row.price:SetPoint("LEFT", 10, 0)
 		row.price:SetJustifyH("LEFT")
 
 		row.count = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row.count:SetPoint("LEFT", 180, 0)
+		row.count:SetPoint("LEFT", 260, 0)
 		row.count:SetJustifyH("LEFT")
 
 		row.pct = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row.pct:SetPoint("LEFT", 280, 0)
+		row.pct:SetPoint("LEFT", 420, 0)
 		row.pct:SetJustifyH("LEFT")
 
 		row.highlight = row:CreateTexture(nil, "BACKGROUND")
