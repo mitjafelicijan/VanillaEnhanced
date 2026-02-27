@@ -66,6 +66,18 @@ local function CopperToMoneyString(money)
 	return VE.trim(text)
 end
 
+local function CopperToColoredMoneyString(money)
+	local gold = floor(money / 10000)
+	local silver = floor(mod(money, 10000) / 100)
+	local copper = mod(money, 100)
+	
+	local text = ""
+	if gold > 0 then text = text .. gold .. "|cffffd700g|r " end
+	if silver > 0 then text = text .. silver .. "|cffc7c7cfs|r " end
+	if copper > 0 or text == "" then text = text .. copper .. "|cffeda55fc|r" end
+	return VE.trim(text)
+end
+
 local function ParseItemLink(itemLink)
 	local _, _, itemString = string.find(itemLink, "(item:[^|]+)")
 	if not itemString then
@@ -580,8 +592,8 @@ local function CreateAuctionHouseForm()
 	frame.UpdateTotal = function()
 		local totalStart = (module.data.startPrice or 0) * (module.data.stackSize or 1) * (module.data.stackCount or 1)
 		local totalBuyout = (module.data.buyoutPrice or 0) * (module.data.stackSize or 1) * (module.data.stackCount or 1)
-		frame.totalBidText:SetText(string.format("Total Bid: %s", CopperToMoneyString(totalStart)))
-		frame.totalBuyoutText:SetText(string.format("Total Buyout: %s", CopperToMoneyString(totalBuyout)))
+		frame.totalBidText:SetText(string.format("Total Bid: %s", CopperToColoredMoneyString(totalStart)))
+		frame.totalBuyoutText:SetText(string.format("Total Buyout: %s", CopperToColoredMoneyString(totalBuyout)))
 	end
 
 	if AuctionEnhancementsActionsFrameScan then
@@ -837,10 +849,10 @@ local function CreateListingsList()
 					row.from:SetText(record.from or "")
 					row.count:SetText(record.count)
 					row.dur:SetText(DURATION_LABELS[record.duration] or "-")
-					row.price:SetText(CopperToMoneyString(record.price))
+					row.price:SetText(CopperToColoredMoneyString(record.price))
 					
 					local profit = record.price * (module.data.stackSize or 1) * (module.data.stackCount or 1)
-					row.profit:SetText(CopperToMoneyString(profit))
+					row.profit:SetText(CopperToColoredMoneyString(profit))
 
 					local pctText = "-"
 					if minPrice > 0 and record.from ~= "Vendor" then
@@ -1252,7 +1264,7 @@ function AuctionEnhancements_OnEvent()
 						countStr = countStr .. "x"
 					end
 					
-					-- VE.print(string.format("[Scan] %s %s @ %s each (%s, %.1f%%)", countStr, record.itemLink, CopperToMoneyString(res.price), DURATION_LABELS[res.duration] or "-", percentage))
+					VE.print(string.format("[Scan] %s %s @ %s each (%s, %.1f%%)", countStr, record.itemLink, CopperToColoredMoneyString(res.price), DURATION_LABELS[res.duration] or "-", percentage))
 				end
 			end
 			
