@@ -638,7 +638,11 @@ local function CreateListingsList()
 		row.pct:SetPoint("LEFT", 520, 0)
 		row.pct:SetJustifyH("LEFT")
 
-		row.highlight = row:CreateTexture(nil, "BACKGROUND")
+		row.bg = row:CreateTexture(nil, "BACKGROUND")
+		row.bg:SetAllPoints(row)
+		row.bg:Hide()
+
+		row.highlight = row:CreateTexture(nil, "BACKGROUND", nil, 1)
 		row.highlight:SetAllPoints(row)
 		row.highlight:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
 		row.highlight:SetTexCoord(0.1, 0.8, 0, 1)
@@ -699,6 +703,14 @@ local function CreateListingsList()
 					end
 					row.pct:SetText(pctText)
 					row.priceValue = record.price
+
+					if record.from == "Vendor" or record.count == "Hist." then
+						row.bg:SetTexture(0, 1, 0, 0.1)
+						row.bg:Show()
+					else
+						row.bg:Hide()
+					end
+
 					row:Show()
 				else
 					row:Hide()
