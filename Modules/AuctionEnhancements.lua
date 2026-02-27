@@ -286,9 +286,38 @@ local function PostNext()
 		ClearCursor()
 		ClickAuctionSellItemButton()
 		ClearCursor()
+		
+		local wasVisible = true
+		if AuctionFrameAuctions and not AuctionFrameAuctions:IsVisible() then
+			wasVisible = false
+			AuctionFrameAuctions:Show()
+		end
+
 		PickupContainerItem(bag, slot)
 		ClickAuctionSellItemButton()
 		ClearCursor()
+
+		if not wasVisible and AuctionFrameAuctions then
+			AuctionFrameAuctions:Hide()
+		end
+
+		-- Verify item is actually in the slot before starting the auction
+		local _, _, count = GetAuctionSellItemInfo()
+		if count ~= stackSize then
+			-- It failed to drop into the slot! The client might be busy or desyncing.
+			-- Clear the cursor just in case the item is stuck on it.
+			ClearCursor()
+			module.data.postRetries = (module.data.postRetries or 0) + 1
+			if module.data.postRetries < 5 then
+				VE.executeWithDelay(0.3, PostNext)
+				return
+			end
+			StopPosting("Script Error: Failed to place item in the auction slot. The UI frame might be blocking it.")
+			return
+		end
+
+		-- Reset retries on successful placement
+		module.data.postRetries = 0
 
 		-- Determine native duration code (1=2h/6h, 2=8h/24h, 3=24h/72h depending on patch)
 		local durationCode = 3
@@ -330,6 +359,8 @@ local function PostNext()
 		local emptyBag, emptySlot = FindEmptySlot()
 		if emptyBag and emptySlot then
 			module.data.isWaitingForBag = true
+			module.data.postRetries = 0 -- Reset retries on successful action
+			ClearCursor()
 			SplitContainerItem(largeBag, largeSlot, stackSize)
 			PickupContainerItem(emptyBag, emptySlot)
 			
@@ -342,7 +373,14 @@ local function PostNext()
 		end
 	end
 
-	StopPosting("Could not find any more items to post. Note: Auto-stacking is not currently supported.")
+	-- If we get here, no items were found. It's possible the bag is just desyncing and we need a moment.
+	module.data.postRetries = (module.data.postRetries or 0) + 1
+	if module.data.postRetries < 5 then
+		VE.executeWithDelay(0.3, PostNext)
+		return
+	end
+
+	StopPosting("Script Error: Could not find any more items in bags. Note: Auto-stacking is not currently supported.")
 end
 
 local function PostAuction()
@@ -1224,13 +1262,20 @@ function AuctionEnhancements_OnEvent()
 
 	if event == "CHAT_MSG_SYSTEM" then
 		if arg1 == ERR_AUCTION_STARTED and module.data.isPosting then
-			PostNext()
+			-- Wait a short delay before trying to post the next one to allow the server to fully process
+			-- the consumed item, avoiding the ERR_ITEM_NOT_FOUND "ghost item" desync issue.
+			VE.executeWithDelay(0.4, PostNext)
 		end
 	end
 
 	if event == "UI_ERROR_MESSAGE" then
 		if module.data.isPosting then
-			StopPosting("Error: " .. arg1)
+			if arg1 == ERR_ITEM_NOT_FOUND or arg1 == "Item not found." then
+				-- This is a desync ghost item. Just wait a moment and try again.
+				VE.executeWithDelay(0.5, PostNext)
+			else
+				StopPosting("UI Error: " .. tostring(arg1))
+			end
 		end
 	end
 
