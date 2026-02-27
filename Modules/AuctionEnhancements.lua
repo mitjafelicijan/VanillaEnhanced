@@ -305,6 +305,7 @@ local function CancelScan()
 		end
 	end
 	if AuctionEnhancementsActionsFrameStatusBar then
+		AuctionEnhancementsActionsFrameStatusBar:SetMinMaxValues(0, 1)
 		AuctionEnhancementsActionsFrameStatusBar:SetValue(0)
 	end
 end
@@ -1143,9 +1144,11 @@ function AuctionEnhancements_OnEvent()
 		-- Update progress bar
 		if AuctionEnhancementsActionsFrameStatusBar then
 			if totalCount > 0 then
-				local progress = ((module.data.scanPage * 50) + batchCount) / totalCount
-				AuctionEnhancementsActionsFrameStatusBar:SetValue(progress)
+				local totalPages = math.max(1, math.ceil(totalCount / 50))
+				AuctionEnhancementsActionsFrameStatusBar:SetMinMaxValues(0, totalPages)
+				AuctionEnhancementsActionsFrameStatusBar:SetValue(module.data.scanPage + 1)
 			else
+				AuctionEnhancementsActionsFrameStatusBar:SetMinMaxValues(0, 1)
 				AuctionEnhancementsActionsFrameStatusBar:SetValue(1)
 			end
 		end
