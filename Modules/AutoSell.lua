@@ -43,6 +43,29 @@ local function GetItemPrice(bag, slot)
 	return price
 end
 
+local function ShouldSellItem(id)
+	if not id then return false, false end
+	
+	local sellList = {}
+	if VanillaEnhancedData[module.identifier] and VanillaEnhancedData[module.identifier].sellList then
+		sellList = VanillaEnhancedData[module.identifier].sellList
+	end
+	
+	local status = sellList[id]
+	if status == true then
+		return true, true
+	elseif status == false then
+		return false, false
+	else
+		local _, _, quality = GetItemInfo(id)
+		if quality == 0 then
+			return true, false
+		end
+	end
+	
+	return false, false
+end
+
 local function UpdateFrameIcons(frame)
 	if not frame then frame = this end
 	if not frame then return end
@@ -61,22 +84,19 @@ local function UpdateFrameIcons(frame)
 			if button then
 				local slot = button:GetID()
 				local link = GetContainerItemLink(bag, slot)
-				local isPoor = false
+				local shouldSell, isForced = false, false
 
 				if link then
 					local _, _, id = string.find(link, "item:(%d+)")
 					if id then
-						local _, _, quality = GetItemInfo(id)
-						if quality == 0 then
-							isPoor = true
-						end
+						shouldSell, isForced = ShouldSellItem(tonumber(id))
 					end
 				end
 
 				local iconName = buttonName .. "AutoSellIcon"
 				local icon = getglobal(iconName)
 
-				if isPoor then
+				if shouldSell then
 					if not icon then
 						icon = button:CreateTexture(iconName, "OVERLAY")
 						icon:SetTexture("Interface\\Icons\\INV_Misc_Coin_01")
@@ -84,6 +104,13 @@ local function UpdateFrameIcons(frame)
 						icon:SetHeight(12)
 						icon:SetPoint("TOPRIGHT", -3, -3)
 					end
+					
+					if isForced then
+						icon:SetVertexColor(0, 1, 0)
+					else
+						icon:SetVertexColor(1, 1, 1)
+					end
+					
 					icon:Show()
 				elseif icon then
 					icon:Hide()
@@ -116,12 +143,67 @@ local function AreBagsShown()
 	return false
 end
 
+local function OnBagItemClick(button)
+	if not VE.isModuleEnabled(module.identifier) then return end
+	if button == "LeftButton" and IsAltKeyDown() then
+		local bag = this:GetParent():GetID()
+		local slot = this:GetID()
+		local link = GetContainerItemLink(bag, slot)
+		
+		if link then
+			local _, _, id = string.find(link, "item:(%d+)")
+			if id then
+				id = tonumber(id)
+
+				if not VanillaEnhancedData[module.identifier].sellList then
+					VanillaEnhancedData[module.identifier].sellList = {}
+				end
+
+				local sellList = VanillaEnhancedData[module.identifier].sellList
+				local shouldSell, _ = ShouldSellItem(id)
+				local _, _, quality = GetItemInfo(id)
+
+				if shouldSell then
+					-- Currently selling. Toggle to NOT selling.
+					if quality == 0 then
+						sellList[id] = false -- Explicitly ignore grey
+					else
+						sellList[id] = nil -- Return to default (no sell)
+					end
+					VE.print("Removed " .. link .. " from AutoSell list.")
+				else
+					-- Currently NOT selling. Toggle to selling.
+					if quality == 0 then
+						sellList[id] = nil -- Return to default (sell grey)
+					else
+						sellList[id] = true -- Explicitly sell
+					end
+					VE.print("Added " .. link .. " to AutoSell list.")
+				end
+
+				UpdateAllOpenBags()
+			end
+		end
+	end
+end
+
 if ContainerFrame_Update then
 	VE.hooksecurefunc("ContainerFrame_Update", UpdateFrameIcons, true)
 end
 
+if ContainerFrameItemButton_OnClick then
+	VE.hooksecurefunc("ContainerFrameItemButton_OnClick", OnBagItemClick, true)
+end
+
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
+
+	if not VanillaEnhancedData[module.identifier] then
+		VanillaEnhancedData[module.identifier] = {}
+	end
+	if not VanillaEnhancedData[module.identifier].sellList then
+		VanillaEnhancedData[module.identifier].sellList = {}
+	end
 
 	UpdateAllOpenBags()
 
@@ -151,8 +233,8 @@ module.plug:SetScript("OnUpdate", function()
 					if link then
 						local _, _, id = string.find(link, "item:(%d+)")
 						if id then
-							local _, _, quality = GetItemInfo(id)
-							if quality == 0 then
+							local shouldSell = ShouldSellItem(tonumber(id))
+							if shouldSell then
 								local price = GetItemPrice(bag, slot)
 								if price > 0 then
 									VE.print("Selling " .. link .. " for " .. VE.copperToColoredMoneyString(price))
