@@ -28,6 +28,21 @@ module.plug:RegisterEvent("MERCHANT_CLOSED")
 module.plug:RegisterEvent("BAG_OPEN")
 module.plug:RegisterEvent("BAG_CLOSED")
 
+local scanTooltip = CreateFrame("GameTooltip", "VEAutoSellScanTooltip", nil, "GameTooltipTemplate")
+scanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+
+local function GetItemPrice(bag, slot)
+	local price = 0
+	if scanTooltip then
+		scanTooltip:SetScript("OnTooltipAddMoney", function()
+			price = arg1
+		end)
+		scanTooltip:SetBagItem(bag, slot)
+		scanTooltip:SetScript("OnTooltipAddMoney", nil)
+	end
+	return price
+end
+
 local function UpdateFrameIcons(frame)
 	if not frame then frame = this end
 	if not frame then return end
@@ -138,7 +153,12 @@ module.plug:SetScript("OnUpdate", function()
 						if id then
 							local _, _, quality = GetItemInfo(id)
 							if quality == 0 then
-								VE.print("Selling " .. link)
+								local price = GetItemPrice(bag, slot)
+								if price > 0 then
+									VE.print("Selling " .. link .. " for " .. VE.copperToColoredMoneyString(price))
+								else
+									VE.print("Selling " .. link)
+								end
 								UseContainerItem(bag, slot)
 								return
 							end

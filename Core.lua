@@ -203,6 +203,55 @@ VE.getCoinText = function(money)
 	return table.concat(parts, " ")
 end
 
+VE.moneyStringToCopper = function(text)
+	if not text or text == "" then return 0 end
+	local _, _, gold = string.find(text, "(%d+)g")
+	local _, _, silver = string.find(text, "(%d+)s")
+	local _, _, copper = string.find(text, "(%d+)c")
+
+	gold = tonumber(gold) or 0
+	silver = tonumber(silver) or 0
+	copper = tonumber(copper) or 0
+
+	-- If it's just a number, assume it's copper? Or gold? 
+	-- Let's try to match "1g 2s 3c" or just "12345"
+	if gold == 0 and silver == 0 and copper == 0 then
+		local num = tonumber(text)
+		if num then return num end
+	end
+
+	return (gold * 100 * 100) + (silver * 100) + copper
+end
+
+
+VE.copperToMoneyString = function(money)
+	local gold = floor(money / 10000)
+	local silver = floor(mod(money, 10000) / 100)
+	local copper = mod(money, 100)
+
+	if gold > 0 then
+		return string.format("%dg %02ds %02dc", gold, silver, copper)
+	elseif silver > 0 then
+		return string.format("%ds %02dc", silver, copper)
+	else
+		return string.format("%dc", copper)
+	end
+end
+
+VE.copperToColoredMoneyString = function(money)
+	local gold = floor(money / 10000)
+	local silver = floor(mod(money, 10000) / 100)
+	local copper = mod(money, 100)
+
+	if gold > 0 then
+		return string.format("%d|cffffd700g|r %02d|cffc7c7cfs|r %02d|cffeda55fc|r", gold, silver, copper)
+	elseif silver > 0 then
+		return string.format("%d|cffc7c7cfs|r %02d|cffeda55fc|r", silver, copper)
+	else
+		return string.format("%d|cffeda55fc|r", copper)
+	end
+end
+
 VE.registerModule = function(module)
 	if VanillaEnhancedModules[module.identifier] == nil then
 		VanillaEnhancedModules[module.identifier] = false
