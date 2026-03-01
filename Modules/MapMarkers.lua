@@ -30,6 +30,11 @@ if not VE.superWoWCheck(module) then
 	return
 end
 
+local CONTINENT_NAMES = {
+	[1] = "Kalimdor",
+	[2] = "Eastern Kingdoms"
+}
+
 -- Helper Functions
 local function cacheZones()
 	module.data.zoneCache[1] = { GetMapZones(1) } -- Kalimdor
@@ -132,6 +137,43 @@ local function getOrCreateMarker(index)
 	return module.data.markers[index]
 end
 
+local function drawMarker(markerIndex, data, x, y)
+	local marker = getOrCreateMarker(markerIndex)
+	if not marker then return markerIndex end
+
+	-- Sizing
+	if data.type == "DUNGEON" or data.type == "RAID" or data.type == "WORLDBOSS" then
+		marker:SetWidth(32)
+		marker:SetHeight(32)
+	else
+		marker:SetWidth(24)
+		marker:SetHeight(24)
+	end
+
+	-- Position
+	local width  = WorldMapDetailFrame:GetWidth()
+	local height = WorldMapDetailFrame:GetHeight()
+	marker:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x * width, -y * height)
+
+	-- Texture
+	local tex = module.data.textureMap[data.type] or "Interface\\Minimap\\POIIcons"
+	if marker.lastTexture ~= tex then
+		marker.texture:SetTexture(tex)
+		marker.lastTexture = tex
+	end
+
+	-- Metadata
+	marker.name        = data.name
+	marker.description = data.description
+	marker.markerType  = data.type
+	marker.atlasID     = data.atlasID
+	marker.continent   = data.continent
+	marker.zoneName    = data.zoneName
+
+	marker:Show()
+	return markerIndex + 1
+end
+
 local function refreshMarkers()
 	for _, marker in ipairs(module.data.markers) do marker:Hide() end
 	if not WorldMapFrame:IsVisible() then return end
@@ -142,62 +184,66 @@ local function refreshMarkers()
 	local currentContinent = GetCurrentMapContinent()
 	local currentZone      = GetCurrentMapZone()
 
-	if currentContinent == 0 or currentZone == 0 then return end
+	if currentContinent == 0 then return end
 
-	local zoneNames      = module.data.zoneCache[currentContinent]
-	local currentZoneName = zoneNames and zoneNames[currentZone]
-	if not currentZoneName then return end
+	local playerFaction = UnitFactionGroup("player")
+	local markerIndex = 1
 
-	local currentZoneMarkers = module.data.zoneMarkers[currentContinent] and module.data.zoneMarkers[currentContinent][currentZoneName]
+	if currentZone > 0 then
+		-- Zone View
+		local zoneNames = module.data.zoneCache[currentContinent]
+		local currentZoneName = zoneNames and zoneNames[currentZone]
+		if not currentZoneName then return end
 
-	if currentZoneMarkers then
-		local markerIndex = 1
-		local playerFaction = UnitFactionGroup("player")
+		local currentZoneMarkers = module.data.zoneMarkers[currentContinent] and module.data.zoneMarkers[currentContinent][currentZoneName]
 
-		for _, data in ipairs(currentZoneMarkers) do
-			local showMarker = true
+		if currentZoneMarkers then
+			for _, data in ipairs(currentZoneMarkers) do
+				local showMarker = true
+				if (data.type == "BOAT" or data.type == "ZEPPELIN" or data.type == "TRAM") then
+					if data.description ~= "Neutral" and data.description ~= playerFaction then
+						showMarker = false
+					end
+				end
 
-			-- Faction Check for Transport
-			if (data.type == "BOAT" or data.type == "ZEPPELIN" or data.type == "TRAM") then
-				if data.description ~= "Neutral" and data.description ~= playerFaction then
-					showMarker = false
+				if showMarker then
+					markerIndex = drawMarker(markerIndex, data, data.x, data.y)
 				end
 			end
+		end
 
-			if showMarker then
-				local marker = getOrCreateMarker(markerIndex)
+	elseif currentZone == 0 and VE_ZoneGeometry then
+		-- Continent View
+		local continentName = CONTINENT_NAMES[currentContinent]
+		local contGeo = VE_ZoneGeometry[continentName]
+		local continentMarkers = module.data.zoneMarkers[currentContinent]
 
-				-- Sizing
-				if data.type == "DUNGEON" or data.type == "RAID" or data.type == "WORLDBOSS" then
-					marker:SetWidth(32)
-					marker:SetHeight(32)
-				else
-					marker:SetWidth(24)
-					marker:SetHeight(24)
+		if contGeo and continentMarkers then
+			for zoneName, zonePoints in pairs(continentMarkers) do
+				local zoneGeo = VE_ZoneGeometry[zoneName]
+				if zoneGeo then
+					for _, data in ipairs(zonePoints) do
+						local showMarker = true
+						if (data.type == "BOAT" or data.type == "ZEPPELIN" or data.type == "TRAM") then
+							if data.description ~= "Neutral" and data.description ~= playerFaction then
+								showMarker = false
+							end
+						end
+
+						if showMarker then
+							-- Translate Coordinates
+							-- Zone -> World
+							local wx = (data.x - zoneGeo.offset_x) / zoneGeo.scale_x
+							local wy = (data.y - zoneGeo.offset_y) / zoneGeo.scale_y
+
+							-- World -> Continent
+							local cx = contGeo.offset_x + contGeo.scale_x * wx
+							local cy = contGeo.offset_y + contGeo.scale_y * wy
+
+							markerIndex = drawMarker(markerIndex, data, cx, cy)
+						end
+					end
 				end
-
-				-- Position
-				local width  = WorldMapDetailFrame:GetWidth()
-				local height = WorldMapDetailFrame:GetHeight()
-				marker:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", data.x * width, -data.y * height)
-
-				-- Texture
-				local tex = module.data.textureMap[data.type] or "Interface\\Minimap\\POIIcons"
-				if marker.lastTexture ~= tex then
-					marker.texture:SetTexture(tex)
-					marker.lastTexture = tex
-				end
-
-				-- Metadata
-				marker.name        = data.name
-				marker.description = data.description
-				marker.markerType  = data.type
-				marker.atlasID     = data.atlasID
-				marker.continent   = data.continent
-				marker.zoneName    = data.zoneName
-
-				marker:Show()
-				markerIndex = markerIndex + 1
 			end
 		end
 	end

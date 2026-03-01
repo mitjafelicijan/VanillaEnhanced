@@ -11,6 +11,7 @@ Data\SpellInfo.lua
 Data\WoWCodexWeapons.lua
 Data\WoWCodexArmor.lua
 Data\MarkerData.lua
+Data\ZoneGeometry.lua
 
 # Essentials
 Core.lua
