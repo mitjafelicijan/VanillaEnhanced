@@ -80,6 +80,7 @@ Modules\TrinketManager.lua
 Modules\ConsumablesPanel.lua
 Modules\BulletinBoard.xml
 Modules\AuctionEnhancements.xml
+Modules\CharacterStats.lua
 
 # Work in progress
 # Modules\TargetChangeStopAttack.lua

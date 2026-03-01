@@ -136,7 +136,7 @@ local function getOrCreateMarker(index)
 	return module.data.markers[index]
 end
 
-local function drawMarker(markerIndex, data, x, y)
+local function drawMarker(markerIndex, data, x, y, isContinent)
 	local marker = getOrCreateMarker(markerIndex)
 	if not marker then return markerIndex end
 
@@ -144,6 +144,9 @@ local function drawMarker(markerIndex, data, x, y)
 	if data.type == "DUNGEON" or data.type == "RAID" or data.type == "WORLDBOSS" then
 		marker:SetWidth(32)
 		marker:SetHeight(32)
+	elseif isContinent and (data.type == "BOAT" or data.type == "ZEPPELIN") then
+		marker:SetWidth(16)
+		marker:SetHeight(16)
 	else
 		marker:SetWidth(24)
 		marker:SetHeight(24)
@@ -206,7 +209,7 @@ local function refreshMarkers()
 				end
 
 				if showMarker then
-					markerIndex = drawMarker(markerIndex, data, data.x, data.y)
+					markerIndex = drawMarker(markerIndex, data, data.x, data.y, false)
 				end
 			end
 		end
@@ -239,7 +242,7 @@ local function refreshMarkers()
 							local cx = contGeo.offset_x + contGeo.scale_x * wx
 							local cy = contGeo.offset_y + contGeo.scale_y * wy
 
-							markerIndex = drawMarker(markerIndex, data, cx, cy)
+							markerIndex = drawMarker(markerIndex, data, cx, cy, true)
 						end
 					end
 				end
