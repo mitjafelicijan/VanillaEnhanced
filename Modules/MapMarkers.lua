@@ -20,6 +20,10 @@ local module = VE.registerModule({
 			ZEPPELIN  = "Interface\\AddOns\\VanillaEnhanced\\Assets\\zepp",
 			TRAM      = "Interface\\AddOns\\VanillaEnhanced\\Assets\\tram",
 			WORLDBOSS = "Interface\\AddOns\\VanillaEnhanced\\Assets\\worldboss",
+		},
+		continentNames = {
+			[1] = "Kalimdor",
+			[2] = "Eastern Kingdoms"
 		}
 	},
 })
@@ -29,11 +33,6 @@ if not VE.superWoWCheck(module) then
 	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
 	return
 end
-
-local CONTINENT_NAMES = {
-	[1] = "Kalimdor",
-	[2] = "Eastern Kingdoms"
-}
 
 -- Helper Functions
 local function cacheZones()
@@ -214,7 +213,7 @@ local function refreshMarkers()
 
 	elseif currentZone == 0 and VE_ZoneGeometry then
 		-- Continent View
-		local continentName = CONTINENT_NAMES[currentContinent]
+		local continentName = module.data.continentNames[currentContinent]
 		local contGeo = VE_ZoneGeometry[continentName]
 		local continentMarkers = module.data.zoneMarkers[currentContinent]
 
