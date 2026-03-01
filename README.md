@@ -53,13 +53,11 @@ Compatible with World of Warcraft Client v1.12.
 - **Solo Self Found**: A challenge mode module that blocks grouping, trading, and auction house usage.
 - **Hide UI Elements**: Specialized modules to hide Lua errors and specific Minimap buttons (BGF, LFT, EBC).
 
-## Settings Panels
+## UI Preview
 
 The addon introduces a TBC-style Interface Options panel accessible via the main menu.
 
 ![Screenshots](Promo/Screens.gif)
-
-## Component Previews
 
 ### Compact Action Bars
 ![Compact Action Bars](Promo/CompactActionBars.jpg)
