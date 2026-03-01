@@ -1,6 +1,8 @@
 VE.panels.Automation = function(parent)
 	local frame = CreateFrame("Frame", "VanillaEnhancedAutomationFrame", parent)
 	frame:SetAllPoints(parent)
+	
+	-- Left
 
 	do
 		local module = VE.getModule("AutoDismount")
@@ -19,6 +21,8 @@ VE.panels.Automation = function(parent)
 			end, module.superWoWRequired)
 		end
 	end
+
+	-- Right
 
 	do
 		local module = VE.getModule("AutoRepair")
