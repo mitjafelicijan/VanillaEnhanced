@@ -20,6 +20,7 @@ local module = VE.registerModule({
 			ZEPPELIN  = "Interface\\AddOns\\VanillaEnhanced\\Assets\\zepp",
 			TRAM      = "Interface\\AddOns\\VanillaEnhanced\\Assets\\tram",
 			WORLDBOSS = "Interface\\AddOns\\VanillaEnhanced\\Assets\\worldboss",
+			FLIGHT    = "Interface\\AddOns\\VanillaEnhanced\\Assets\\flight",
 		},
 		continentNames = {
 			[1] = "Kalimdor",
@@ -74,6 +75,47 @@ local function buildData()
 			end
 		end
 	end
+	
+
+	-- Process Flight Data
+	if VE_FlightData then
+		-- Build reverse zone cache for continent lookup
+		local zoneToContinent = {}
+		if module.data.zoneCache then
+			for cID, zList in pairs(module.data.zoneCache) do
+				if zList then
+					for _, zName in pairs(zList) do
+						zoneToContinent[zName] = cID
+					end
+				end
+			end
+		end
+
+		for zoneName, markers in pairs(VE_FlightData) do
+			local contID = zoneToContinent[zoneName]
+			if contID then
+				module.data.zoneMarkers[contID] = module.data.zoneMarkers[contID] or {}
+				module.data.zoneMarkers[contID][zoneName] = module.data.zoneMarkers[contID][zoneName] or {}
+
+				for _, m in ipairs(markers) do
+					local markerData = {
+						continent   = contID,
+						zoneName    = zoneName,
+						x           = m.x,
+						y           = m.y,
+						name        = m.name,
+						type        = m.type,
+						description = m.info,
+						atlasID     = nil,
+						id          = index
+					}
+					table.insert(module.data.zoneMarkers[contID][zoneName], markerData)
+					index = index + 1
+				end
+			end
+		end
+	end
+
 	module.data.dataBuilt = true
 end
 
@@ -144,6 +186,9 @@ local function drawMarker(markerIndex, data, x, y, isContinent)
 	if data.type == "DUNGEON" or data.type == "RAID" or data.type == "WORLDBOSS" then
 		marker:SetWidth(32)
 		marker:SetHeight(32)
+	elseif data.type == "FLIGHT" then
+		marker:SetWidth(16)
+		marker:SetHeight(16)
 	elseif isContinent and (data.type == "BOAT" or data.type == "ZEPPELIN") then
 		marker:SetWidth(16)
 		marker:SetHeight(16)
