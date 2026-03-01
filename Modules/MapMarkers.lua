@@ -6,13 +6,22 @@ local module = VE.registerModule({
 	},
 	plug = nil,
 	superWoWRequired = false,
-	config = {},
+	config = {
+		filters = {
+			FLIGHT    = true,
+			DUNGEON   = true,
+			RAID      = true,
+			WORLDBOSS = true,
+			TRANSPORT = true,
+		}
+	},
 	data = {
 		markers = {},
 		zoneMarkers = {},
 		zoneCache = {},
 		dataBuilt = false,
 		hooked = false,
+		dropdownCreated = false,
 		textureMap = {
 			DUNGEON   = "Interface\\AddOns\\VanillaEnhanced\\Assets\\dungeon",
 			RAID      = "Interface\\AddOns\\VanillaEnhanced\\Assets\\raid",
@@ -247,7 +256,20 @@ local function refreshMarkers()
 		if currentZoneMarkers then
 			for _, data in ipairs(currentZoneMarkers) do
 				local showMarker = true
-				if (data.type == "BOAT" or data.type == "ZEPPELIN" or data.type == "TRAM") then
+
+				-- Type Filter
+				local mType = data.type
+				if mType == "FLIGHT" and not module.config.filters.FLIGHT then
+					showMarker = false
+				elseif (mType == "DUNGEON" or mType == "RAID") and not module.config.filters.DUNGEON then
+					showMarker = false
+				elseif mType == "WORLDBOSS" and not module.config.filters.WORLDBOSS then
+					showMarker = false
+				elseif (mType == "BOAT" or mType == "ZEPPELIN" or mType == "TRAM") and not module.config.filters.TRANSPORT then
+					showMarker = false
+				end
+
+				if showMarker and (mType == "BOAT" or mType == "ZEPPELIN" or mType == "TRAM") then
 					if data.description ~= "Neutral" and data.description ~= playerFaction then
 						showMarker = false
 					end
@@ -271,7 +293,20 @@ local function refreshMarkers()
 				if zoneGeo then
 					for _, data in ipairs(zonePoints) do
 						local showMarker = true
-						if (data.type == "BOAT" or data.type == "ZEPPELIN" or data.type == "TRAM") then
+
+						-- Type Filter
+						local mType = data.type
+						if mType == "FLIGHT" and not module.config.filters.FLIGHT then
+							showMarker = false
+						elseif (mType == "DUNGEON" or mType == "RAID") and not module.config.filters.DUNGEON then
+							showMarker = false
+						elseif mType == "WORLDBOSS" and not module.config.filters.WORLDBOSS then
+							showMarker = false
+						elseif (mType == "BOAT" or mType == "ZEPPELIN" or mType == "TRAM") and not module.config.filters.TRANSPORT then
+							showMarker = false
+						end
+
+						if showMarker and (mType == "BOAT" or mType == "ZEPPELIN" or mType == "TRAM") then
 							if data.description ~= "Neutral" and data.description ~= playerFaction then
 								showMarker = false
 							end
@@ -296,6 +331,74 @@ local function refreshMarkers()
 	end
 end
 
+local function saveFilters()
+	VanillaEnhancedData[module.identifier] = module.config.filters
+end
+
+local function createDropdown()
+	if module.data.dropdownCreated then return end
+
+	-- Parented to WorldMapButton and set high frame level to ensure clickability
+	local filterBtn = CreateFrame("Button", "VE_MapMarkerFilterButton", WorldMapButton, "UIPanelButtonTemplate")
+	filterBtn:SetWidth(80)
+	filterBtn:SetHeight(24)
+	filterBtn:SetText("Filters")
+	filterBtn:SetFrameLevel(WorldMapButton:GetFrameLevel() + 10)
+	-- Positioned at the top right of the map imagery
+	filterBtn:SetPoint("TOPRIGHT", WorldMapButton, "TOPRIGHT", -5, -5)
+
+	local menuFrame = CreateFrame("Frame", "VE_MapMarkerFilterMenu", filterBtn, "UIDropDownMenuTemplate")
+
+	UIDropDownMenu_Initialize(menuFrame, function()
+		local info = {}
+		info.keepShownOnClick = 1
+		info.isNotRadio = 1
+
+		info.text = "Flight Paths"
+		info.checked = module.config.filters.FLIGHT
+		info.func = function()
+			module.config.filters.FLIGHT = not module.config.filters.FLIGHT
+			saveFilters()
+			refreshMarkers()
+		end
+		UIDropDownMenu_AddButton(info)
+
+		info.text = "Dungeons & Raids"
+		info.checked = module.config.filters.DUNGEON
+		info.func = function() 
+			module.config.filters.DUNGEON = not module.config.filters.DUNGEON
+			module.config.filters.RAID = module.config.filters.DUNGEON
+			saveFilters()
+			refreshMarkers()
+		end
+		UIDropDownMenu_AddButton(info)
+
+		info.text = "World Bosses"
+		info.checked = module.config.filters.WORLDBOSS
+		info.func = function()
+			module.config.filters.WORLDBOSS = not module.config.filters.WORLDBOSS
+			saveFilters()
+			refreshMarkers()
+		end
+		UIDropDownMenu_AddButton(info)
+
+		info.text = "Transports"
+		info.checked = module.config.filters.TRANSPORT
+		info.func = function()
+			module.config.filters.TRANSPORT = not module.config.filters.TRANSPORT
+			saveFilters()
+			refreshMarkers()
+		end
+		UIDropDownMenu_AddButton(info)
+	end, "MENU")
+
+	filterBtn:SetScript("OnClick", function()
+		ToggleDropDownMenu(1, nil, menuFrame, "VE_MapMarkerFilterButton", 0, 0)
+	end)
+
+	module.data.dropdownCreated = true
+end
+
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 
@@ -303,8 +406,16 @@ module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 
 	if event == "PLAYER_ENTERING_WORLD" then
+		-- Load saved filters
+		if VanillaEnhancedData[module.identifier] then
+			for k, v in pairs(VanillaEnhancedData[module.identifier]) do
+				module.config.filters[k] = v
+			end
+		end
+
 		cacheZones()
 		buildData()
+		createDropdown()
 
 		-- Hook WorldMapFrame_Update
 		if not module.data.hooked then
