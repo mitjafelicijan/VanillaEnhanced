@@ -108,15 +108,10 @@ end
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 
-	if event == "BAG_CLOSED" then
-		UpdateAllOpenBags()
-	end
+	UpdateAllOpenBags()
 
-	if event == "MERCHANT_SHOW" then
+	if event == "MERCHANT_SHOW" or event == "MERCHANT_CLOSED" then
 		module.data.allSold = false
-		UpdateAllOpenBags()
-	elseif event == "BAG_OPEN" or event == "PLAYER_ENTERING_WORLD" then
-		UpdateAllOpenBags()
 	end
 end)
 
