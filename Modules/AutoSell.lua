@@ -181,6 +181,7 @@ local function OnBagItemClick(button)
 					VE.print("Added " .. link .. " to AutoSell list.")
 				end
 
+				ClearCursor()
 				UpdateAllOpenBags()
 			end
 		end
