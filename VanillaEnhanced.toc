@@ -10,6 +10,7 @@
 Data\SpellInfo.lua
 Data\WoWCodexWeapons.lua
 Data\WoWCodexArmor.lua
+Data\MarkerData.lua
 
 # Essentials
 Core.lua
@@ -73,12 +74,13 @@ Modules\RestedXPTooltip.lua
 Modules\SoloSelfFound.lua
 Modules\TargetCastingBar.lua
 Modules\TravelJournal.lua
+Modules\MapMarkers.lua
 Modules\TrinketManager.lua
 Modules\ConsumablesPanel.lua
 Modules\BulletinBoard.xml
+Modules\AuctionEnhancements.xml
 
 # Work in progress
-Modules\AuctionEnhancements.xml
 # Modules\TargetChangeStopAttack.lua
 # Modules\NearbyTargets.xml
 
