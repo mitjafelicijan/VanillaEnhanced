@@ -7,13 +7,83 @@ local module = VE.registerModule({
 	plug = nil,
 	superWoWRequired = true,
 	config = {
-		Green = false,
-		ZG = false,
-		MC = false,
-		AQ = false,
-		Sand = false,
-		ES = false,
-		Naxx = false,
+		options = {
+			Green = false,
+			ZG = false,
+			MC = false,
+			AQ = false,
+			Sand = false,
+			ES = false,
+			Naxx = false,
+		},
+		loot = {
+			ZG = {
+				[19698] = "Zulian Coin",
+				[19699] = "Razzashi Coin",
+				[19700] = "Hakkari Coin",
+				[19701] = "Gurubashi Coin",
+				[19702] = "Vilebranch Coin",
+				[19703] = "Witherbark Coin",
+				[19704] = "Sandfury Coin",
+				[19705] = "Skullsplitter Coin",
+				[19706] = "Bloodscalp Coin",
+				[19707] = "Red Hakkari Bijou",
+				[19708] = "Blue Hakkari Bijou",
+				[19709] = "Yellow Hakkari Bijou",
+				[19710] = "Orange Hakkari Bijou",
+				[19711] = "Green Hakkari Bijou",
+				[19712] = "Purple Hakkari Bijou",
+				[19713] = "Bronze Hakkari Bijou",
+				[19714] = "Silver Hakkari Bijou",
+				[19715] = "Gold Hakkari Bijou",
+			},
+			MC = {
+				[11382] = "Blood of the Mountain",
+				[17010] = "Fiery Core",
+				[17011] = "Lava Core",
+			},
+			AQ = {
+				[20858] = "Stone Scarab",
+				[20859] = "Gold Scarab",
+				[20860] = "Silver Scarab",
+				[20861] = "Bronze Scarab",
+				[20862] = "Crystal Scarab",
+				[20863] = "Clay Scarab",
+				[20864] = "Bone Scarab",
+				[20865] = "Ivory Scarab",
+				[20866] = "Azure Idol",
+				[20867] = "Onyx Idol",
+				[20868] = "Lambent Idol",
+				[20869] = "Amber Idol",
+				[20870] = "Jasper Idol",
+				[20871] = "Obsidian Idol",
+				[20872] = "Vermillion Idol",
+				[20873] = "Alabaster Idol",
+				[20874] = "Idol of the Sun",
+				[20875] = "Idol of Night",
+				[20876] = "Idol of Death",
+				[20877] = "Idol of the Sage",
+				[20878] = "Idol of Rebirth",
+				[20879] = "Idol of Life",
+				[20881] = "Idol of Strife",
+				[20882] = "Idol of War",
+			},
+			Sand = {
+				[50203] = "Corrupted Sand",
+			},
+			ES = {
+				[20381] = "Dreamscale",
+				[61197] = "Fading Dream Fragment",
+				[61198] = "Small Dream Shard",
+			},
+			Naxx = {
+				[22373] = "Wartorn Leather Scrap",
+				[22374] = "Wartorn Chain Scrap",
+				[22375] = "Wartorn Plate Scrap",
+				[22376] = "Wartorn Cloth Scrap",
+				[22484] = "Necrotic Rune",
+			},
+		},
 	},
 	data = {},
 })
@@ -23,78 +93,6 @@ if not VE.superWoWCheck(module) then
 	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
 	return
 end
-
-local ZGloot = {
-	[19698] = "Zulian Coin",
-	[19699] = "Razzashi Coin",
-	[19700] = "Hakkari Coin",
-	[19701] = "Gurubashi Coin",
-	[19702] = "Vilebranch Coin",
-	[19703] = "Witherbark Coin",
-	[19704] = "Sandfury Coin",
-	[19705] = "Skullsplitter Coin",
-	[19706] = "Bloodscalp Coin",
-	[19707] = "Red Hakkari Bijou",
-	[19708] = "Blue Hakkari Bijou",
-	[19709] = "Yellow Hakkari Bijou",
-	[19710] = "Orange Hakkari Bijou",
-	[19711] = "Green Hakkari Bijou",
-	[19712] = "Purple Hakkari Bijou",
-	[19713] = "Bronze Hakkari Bijou",
-	[19714] = "Silver Hakkari Bijou",
-	[19715] = "Gold Hakkari Bijou",
-}
-
-local MCloot = {
-	[11382] = "Blood of the Mountain",
-	[17010] = "Fiery Core",
-	[17011] = "Lava Core",
-}
-
-local AQloot = {
-	[20858] = "Stone Scarab",
-	[20859] = "Gold Scarab",
-	[20860] = "Silver Scarab",
-	[20861] = "Bronze Scarab",
-	[20862] = "Crystal Scarab",
-	[20863] = "Clay Scarab",
-	[20864] = "Bone Scarab",
-	[20865] = "Ivory Scarab",
-	[20866] = "Azure Idol",
-	[20867] = "Onyx Idol",
-	[20868] = "Lambent Idol",
-	[20869] = "Amber Idol",
-	[20870] = "Jasper Idol",
-	[20871] = "Obsidian Idol",
-	[20872] = "Vermillion Idol",
-	[20873] = "Alabaster Idol",
-	[20874] = "Idol of the Sun",
-	[20875] = "Idol of Night",
-	[20876] = "Idol of Death",
-	[20877] = "Idol of the Sage",
-	[20878] = "Idol of Rebirth",
-	[20879] = "Idol of Life",
-	[20881] = "Idol of Strife",
-	[20882] = "Idol of War",
-}
-
-local BMloot = {
-	[50203] = "Corrupted Sand",
-}
-
-local ESloot = {
-	[20381] = "Dreamscale",
-	[61197] = "Fading Dream Fragment",
-	[61198] = "Small Dream Shard",
-}
-
-local NaxxLoot = {
-	[22373] = "Wartorn Leather Scrap",
-	[22374] = "Wartorn Chain Scrap",
-	[22375] = "Wartorn Plate Scrap",
-	[22376] = "Wartorn Cloth Scrap",
-	[22484] = "Necrotic Rune",
-}
 
 local function RollToString(roll)
 	if roll == 1 then
@@ -127,20 +125,20 @@ local function AutoRoll(id)
 	if not itemID then return end
 	
 	-- Check specific lists first
-	if ZGloot[itemID] then
-		roll = module.config.ZG
-	elseif MCloot[itemID] then
-		roll = module.config.MC
-	elseif AQloot[itemID] then
-		roll = module.config.AQ
-	elseif BMloot[itemID] then
-		roll = module.config.Sand
-	elseif ESloot[itemID] then
-		roll = module.config.ES
-	elseif NaxxLoot[itemID] then
-		roll = module.config.Naxx
+	if module.config.loot.ZG[itemID] then
+		roll = module.config.options.ZG
+	elseif module.config.loot.MC[itemID] then
+		roll = module.config.options.MC
+	elseif module.config.loot.AQ[itemID] then
+		roll = module.config.options.AQ
+	elseif module.config.loot.Sand[itemID] then
+		roll = module.config.options.Sand
+	elseif module.config.loot.ES[itemID] then
+		roll = module.config.options.ES
+	elseif module.config.loot.Naxx[itemID] then
+		roll = module.config.options.Naxx
 	elseif quality == 2 then -- Green items
-		roll = module.config.Green
+		roll = module.config.options.Green
 	end
 
 	-- Execute roll if a valid option is selected (not disabled/false)
@@ -164,11 +162,11 @@ module.frame:RegisterEvent("CONFIRM_LOOT_ROLL")
 module.frame:SetScript("OnEvent", function()
 	if event == "PLAYER_LOGIN" then
 		if not VanillaEnhancedData[module.identifier] then
-			VanillaEnhancedData[module.identifier] = module.config
+			VanillaEnhancedData[module.identifier] = module.config.options
 		else
 			-- Load saved config
 			for k, v in pairs(VanillaEnhancedData[module.identifier]) do
-				module.config[k] = v
+				module.config.options[k] = v
 			end
 		end
 	end
