@@ -82,38 +82,12 @@ VE.panels.ChatSocial = function(parent)
 		end
 	end
 
-	do
-		local module = VE.getModule("MailboxEnhancements")
-		if module then
-			VE.elements.Checkbox(frame, 270, -180, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
-	do
-		local module = VE.getModule("ChatEnhancements")
-		if module then
-			VE.elements.Checkbox(frame, 270, -210, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
-
-	do
-		local module = VE.getModule("AuctionEnhancements")
-		if module then
-			VE.elements.Checkbox(frame, 270, -240, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
+	
 
 	do
 		local module = VE.getModule("SoloSelfFound")
 		if module then
-			VE.elements.Checkbox(frame, 270, -280, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -180, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end

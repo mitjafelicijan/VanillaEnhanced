@@ -80,11 +80,11 @@ Modules\TrinketManager.lua
 Modules\ConsumablesPanel.lua
 Modules\BulletinBoard.xml
 Modules\AuctionEnhancements.xml
-Modules\CharacterStats.lua
 
 # Work in progress
 # Modules\TargetChangeStopAttack.lua
 # Modules\NearbyTargets.xml
+# Modules\CharacterStats.lua
 
 # Control panels
 Panels\Controls.lua
@@ -96,6 +96,7 @@ Panels\ActionBars.lua
 Panels\ChatSocial.lua
 Panels\RaidParty.lua
 Panels\Features.lua
+Panels\Automation.lua
 Panels\Addons.lua
 
 # Main settings panel

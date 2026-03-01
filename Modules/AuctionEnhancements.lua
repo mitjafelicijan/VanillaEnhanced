@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "AuctionEnhancements",
 	meta = {
 		label = "Auction Enhancements",
-		description = "Adds new post form to the auction house, and a new tab for viewing items in your bags. (WIP)",
+		description = "Adds new post form to the auction house, and a new tab for viewing items in your bags.",
 	},
 	plug = nil,
 	superWoWRequired = false,
@@ -154,7 +154,7 @@ end
 
 local function StopPosting(message)
 	if message then
-		VE.print("|cffff0000[Auction] " .. message .. "|r")
+		VE.print("|cff00ff00[Auction] " .. message .. "|r")
 	end
 	module.data.isPosting = false
 	module.data.remainingStacks = 0

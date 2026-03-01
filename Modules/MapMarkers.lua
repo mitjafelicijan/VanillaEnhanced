@@ -1,7 +1,7 @@
 local module = VE.registerModule({
 	identifier = "MapMarkers",
 	meta = {
-		label = "Map Markers",
+		label = "World Map Markers",
 		description = "Adds markers for dungeons, raids, transport, and world bosses to the World Map.",
 	},
 	plug = nil,
