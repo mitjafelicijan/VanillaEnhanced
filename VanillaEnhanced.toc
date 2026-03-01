@@ -27,6 +27,7 @@ Modules\AlignGrid.lua
 Modules\AuraTracker.lua
 Modules\AutoLoot.lua
 Modules\AutoRepair.lua
+Modules\AutoRoll.lua
 Modules\AutoSell.lua
 Modules\AutoDismount.lua
 Modules\AutoCancelForm.lua
