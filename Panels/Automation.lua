@@ -68,7 +68,7 @@ VE.panels.Automation = function(parent)
 				VanillaEnhancedData["AutoRoll"].Green = key
 			end, module.superWoWRequired)
 
-			VE.elements.DropDown(frame, 20, yStart - yOffset, 160, "Zul'Gurub", module.config.options.ZG or false, rollOptions, function(key)
+			VE.elements.DropDown(frame, 20, yStart - yOffset, 160, "Zul'Gurub (Coin, Bijou)", module.config.options.ZG or false, rollOptions, function(key)
 				module.config.options.ZG = key
 				if not VanillaEnhancedData["AutoRoll"] then VanillaEnhancedData["AutoRoll"] = {} end
 				VanillaEnhancedData["AutoRoll"].ZG = key
