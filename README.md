@@ -98,7 +98,9 @@ Introduces a replacement for Interface Options and adds additional tweaks:
 
 ![MiniPlayerFrame](Promo/MiniPlayerFrame.jpg)
 
-## Game sounds alterations
+## Game tweaks
+
+### Game sounds
 
 In directory `GameSounds` are overrides for some of the internal game sounds
 like Gun sound and Error sound. Copy `Sound` directory to the root of WoW and
@@ -119,7 +121,7 @@ WoW/
       Fizzle/    -> Mutes all the error sounds.
 ```
 
-## Game MPQ
+### Game AOE MPQ
 
 In `GameAssets/Data` copy `patch-O.mpq` to Data folder in WoW directory.
 This patch adds circles around mobs when AOE etc.
