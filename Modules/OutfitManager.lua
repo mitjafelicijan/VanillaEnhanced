@@ -10,6 +10,7 @@ local module = VE.registerModule({
 	data = {
 		outfits = {},
 		selectedIndex = nil,
+		currentOutfitIndex = nil,
 	},
 })
 
@@ -152,6 +153,92 @@ local function EquipOutfit(index)
 	UpdateList()
 end
 
+
+local dropdownMenuFrame = nil
+local currentOutfitIndex = nil
+
+local function ShowDropdown(button, index)
+	currentOutfitIndex = index
+	ToggleDropDownMenu(1, nil, dropdownMenuFrame, button, 0, 0)
+end
+
+-- UI
+local frame = nil
+local scrollFrame = nil
+local listContent = nil
+
+local function UpdateList()
+	if not listContent then return end
+	
+	if not module.data.buttons then module.data.buttons = {} end
+	
+	-- Hide and uncheck all known buttons
+	for _, btn in ipairs(module.data.buttons) do
+		btn:SetChecked(nil)
+		btn:Hide()
+		if btn.dropdown then btn.dropdown:Hide() end
+	end
+	
+	local height = 0
+	for idx, outfit in ipairs(module.data.outfits) do
+		local btn = module.data.buttons[idx]
+		if not btn then
+			local outfitIndex = idx
+
+			btn = CreateFrame("CheckButton", "VE_OutfitItem_" .. outfitIndex, listContent, "UICheckButtonTemplate")
+			btn:SetWidth(24)
+			btn:SetHeight(24)
+
+			btn.text = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+			btn.text:SetPoint("LEFT", btn, "RIGHT", 5, 0)
+			btn.text:SetJustifyH("LEFT")
+			btn.text:SetWidth(110)
+
+			btn.dropdown = CreateFrame("Button", "VE_OutfitDropdown_" .. outfitIndex, btn)
+			btn.dropdown:SetWidth(16)
+			btn.dropdown:SetHeight(16)
+			btn.dropdown:SetPoint("LEFT", btn.text, "RIGHT", 2, 0)
+			btn.dropdown:EnableMouse(true)
+			btn.dropdown:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up")
+			btn.dropdown:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Highlight")
+			btn.dropdown:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
+			btn.dropdown:SetScript("OnClick", function()
+				ShowDropdown(btn.dropdown, outfitIndex)
+			end)
+			
+			btn:SetScript("OnClick", function()
+				local myIndex = this:GetID()
+				
+				if module.data.selectedIndex == myIndex then
+					module.data.selectedIndex = nil
+				else
+					EquipOutfit(myIndex)
+				end
+				SaveData()
+				UpdateList()
+			end)
+			module.data.buttons[outfitIndex] = btn
+		end
+		
+		btn:SetID(idx)
+		btn:ClearAllPoints()
+		btn:SetPoint("TOPLEFT", listContent, "TOPLEFT", 0, -height)
+		btn.text:SetText(outfit.name)
+		
+		if module.data.selectedIndex == idx then
+			btn:SetChecked(1)
+		else
+			btn:SetChecked(nil)
+		end
+		
+		btn:Show()
+		btn.dropdown:Show()
+		height = height + 20
+	end
+	
+	listContent:SetHeight(height)
+end
+
 local function CreateOutfit(name)
 	if not name or name == "" then return end
 	table.insert(module.data.outfits, {
@@ -191,10 +278,6 @@ end
 
 local function DeleteOutfit(index)
 	index = index or module.data.selectedIndex
-	
-	VE.print(index)
-	VE.print(module.data.selectedIndex)
-	
 	if not index then
 		VE.iprint("Select an outfit first.")
 		return
@@ -204,87 +287,6 @@ local function DeleteOutfit(index)
 	module.data.buttons = {}
 	SaveData()
 	UpdateList()
-end
-
-local dropdownMenuFrame = nil
-
-function module.ShowDropdown(button, index)
-	ToggleDropDownMenu(1, index, dropdownMenuFrame, button, 0, 0)
-end
-
--- UI
-local frame = nil
-local scrollFrame = nil
-local listContent = nil
-
-local function UpdateList()
-	if not listContent then return end
-	
-	if not module.data.buttons then module.data.buttons = {} end
-	
-	-- Hide and uncheck all known buttons
-	for _, btn in ipairs(module.data.buttons) do
-		btn:SetChecked(nil)
-		btn:Hide()
-		if btn.dropdown then btn.dropdown:Hide() end
-	end
-	
-	local height = 0
-	for idx, outfit in ipairs(module.data.outfits) do
-		local btn = module.data.buttons[idx]
-		if not btn then
-			btn = CreateFrame("CheckButton", "VE_OutfitItem_" .. idx, listContent, "UICheckButtonTemplate")
-			btn:SetWidth(24)
-			btn:SetHeight(24)
-			
-			btn.text = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-			btn.text:SetPoint("LEFT", btn, "RIGHT", 5, 0)
-			btn.text:SetJustifyH("LEFT")
-			btn.text:SetWidth(110)
-			
-			btn.dropdown = CreateFrame("Button", "VE_OutfitDropdown_" .. idx, btn)
-			btn.dropdown:SetWidth(16)
-			btn.dropdown:SetHeight(16)
-			btn.dropdown:SetPoint("LEFT", btn.text, "RIGHT", 2, 0)
-			btn.dropdown:EnableMouse(true)
-			btn.dropdown:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up")
-			btn.dropdown:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Highlight")
-			btn.dropdown:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
-			btn.dropdown:SetScript("OnClick", function()
-				module.ShowDropdown(btn.dropdown, idx)
-			end)
-			
-			btn:SetScript("OnClick", function()
-				local myIndex = this:GetID()
-				
-				if module.data.selectedIndex == myIndex then
-					module.data.selectedIndex = nil
-				else
-					EquipOutfit(myIndex)
-				end
-				SaveData()
-				UpdateList()
-			end)
-			module.data.buttons[idx] = btn
-		end
-		
-		btn:SetID(idx)
-		btn:ClearAllPoints()
-		btn:SetPoint("TOPLEFT", listContent, "TOPLEFT", 0, -height)
-		btn.text:SetText(outfit.name)
-		
-		if module.data.selectedIndex == idx then
-			btn:SetChecked(1)
-		else
-			btn:SetChecked(nil)
-		end
-		
-		btn:Show()
-		btn.dropdown:Show()
-		height = height + 20
-	end
-	
-	listContent:SetHeight(height)
 end
 
 local function CreateUI()
@@ -321,9 +323,9 @@ local function CreateUI()
 	
 	dropdownMenuFrame = CreateFrame("Frame", "VE_OutfitManagerDropdownMenu", frame, "UIDropDownMenuTemplate")
 	UIDropDownMenu_Initialize(dropdownMenuFrame, function()
-		local info = {}
-		local index = this.value
+		local index = currentOutfitIndex
 		
+		local info = {}
 		info.text = "Rename"
 		info.func = function()
 			local outfit = module.data.outfits[index]
@@ -333,12 +335,14 @@ local function CreateUI()
 		end
 		UIDropDownMenu_AddButton(info)
 		
+		info = {}
 		info.text = "Delete"
 		info.func = function()
 			DeleteOutfit(index)
 		end
 		UIDropDownMenu_AddButton(info)
 		
+		info = {}
 		info.text = "Save"
 		info.func = function()
 			SaveOutfit(index)
