@@ -189,9 +189,8 @@ function module.UpdateList()
 	
 	-- Hide and uncheck all known buttons
 	for _, btn in ipairs(module.data.buttons) do
-		if btn.checkbox then btn.checkbox:SetChecked(nil) end
+		if btn.selectedIcon then btn.selectedIcon:Hide() end
 		btn:Hide()
-		if btn.checkbox then btn.checkbox:Hide() end
 		if btn.dropdown then btn.dropdown:Hide() end
 	end
 	
@@ -207,15 +206,15 @@ function module.UpdateList()
 			btn:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
 			btn:GetHighlightTexture():SetBlendMode("ADD")
 			
-			btn.checkbox = CreateFrame("CheckButton", "VE_OutfitItemCheck_" .. outfitIndex, btn, "UICheckButtonTemplate")
-			btn.checkbox:SetWidth(24)
-			btn.checkbox:SetHeight(24)
-			btn.checkbox:SetPoint("LEFT", btn, "LEFT", 3, 0)
-			btn.checkbox:EnableMouse(true)
-			btn.checkbox:SetID(outfitIndex)
+			btn.selectedIcon = btn:CreateTexture("VE_OutfitSelIcon_" .. outfitIndex, "OVERLAY")
+			btn.selectedIcon:SetWidth(13)
+			btn.selectedIcon:SetHeight(13)
+			btn.selectedIcon:SetPoint("LEFT", btn, "LEFT", 5, 0)
+			btn.selectedIcon:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
+			btn.selectedIcon:Hide()
 			
 			btn.text = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-			btn.text:SetPoint("LEFT", btn.checkbox, "RIGHT", 5, 0)
+			btn.text:SetPoint("LEFT", btn.selectedIcon, "RIGHT", 5, 0)
 			btn.text:SetJustifyH("LEFT")
 			btn.text:SetWidth(110)
 			
@@ -231,28 +230,7 @@ function module.UpdateList()
 				module.ShowDropdown(btn.dropdown, outfitIndex)
 			end)
 			
-			btn.checkbox:SetScript("OnClick", function()
-				this.checkboxClicked = true
-				local myIndex = this:GetID()
-
-				if module.data.selectedIndex == myIndex then
-					module.data.selectedIndex = nil
-				else
-					module.EquipOutfit(myIndex)
-				end
-				module.SaveData()
-				module.UpdateList()
-			end)
-			btn.checkbox:SetScript("OnMouseDown", function()
-				this:StopMovingOrSizing()
-			end)
-			
 			btn:SetScript("OnClick", function()
-				if btn.checkbox and btn.checkbox.checkboxClicked then
-					btn.checkbox.checkboxClicked = nil
-					return
-				end
-				
 				local myIndex = this:GetID()
 				
 				if module.data.selectedIndex == myIndex then
@@ -272,13 +250,12 @@ function module.UpdateList()
 		btn.text:SetText(outfit.name)
 		
 		if module.data.selectedIndex == idx then
-			btn.checkbox:SetChecked(1)
+			btn.selectedIcon:Show()
 		else
-			btn.checkbox:SetChecked(nil)
+			btn.selectedIcon:Hide()
 		end
 		
 		btn:Show()
-		btn.checkbox:Show()
 		btn.dropdown:Show()
 		height = height + 20
 	end
@@ -297,7 +274,7 @@ function module.CreateOutfit(name)
 	if module.data.buttons then
 		for _, btn in ipairs(module.data.buttons) do
 			btn:Hide()
-			if btn.checkbox then btn.checkbox:Hide() end
+			if btn.selectedIcon then btn.selectedIcon:Hide() end
 			if btn.dropdown then btn.dropdown:Hide() end
 		end
 		wipe(module.data.buttons)
@@ -348,7 +325,7 @@ function module.DeleteOutfit(index)
 	if module.data.buttons then
 		for _, btn in ipairs(module.data.buttons) do
 			btn:Hide()
-			if btn.checkbox then btn.checkbox:Hide() end
+			if btn.selectedIcon then btn.selectedIcon:Hide() end
 			if btn.dropdown then btn.dropdown:Hide() end
 		end
 		wipe(module.data.buttons)
