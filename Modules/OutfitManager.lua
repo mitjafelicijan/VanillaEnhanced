@@ -338,6 +338,26 @@ end
 function module.CreateUI()
 	if module.data.frame then return end
 
+	-- Toggle Button on PaperDollFrame
+	module.data.toggleButton = CreateFrame("Button", "VE_OutfitManagerToggle", PaperDollFrame)
+	module.data.toggleButton:SetWidth(64*0.8)
+	module.data.toggleButton:SetHeight(32*0.8)
+	module.data.toggleButton:SetPoint("TOPRIGHT", PaperDollFrame, "TOPRIGHT", -35, -48)
+	module.data.toggleButton:SetFrameLevel(PaperDollFrame:GetFrameLevel() + 10)
+	
+	module.data.toggleButton:SetNormalTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\OutfitManager-Button")
+	module.data.toggleButton:SetPushedTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\OutfitManager-Button")
+	module.data.toggleButton:SetHighlightTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\OutfitManager-Button")
+	module.data.toggleButton:Show()
+	
+	module.data.toggleButton:SetScript("OnClick", function()
+		if module.data.frame:IsVisible() then
+			module.data.frame:Hide()
+		else
+			module.data.frame:Show()
+		end
+	end)
+
 	-- Main Frame
 	module.data.frame = CreateFrame("Frame", "VE_OutfitManagerFrame", PaperDollFrame)
 	module.data.frame:SetWidth(256)
@@ -486,10 +506,13 @@ function module.CreateUI()
 	}
 
 	module.UpdateList()
+	module.data.frame:Hide()
 end
 
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
+module.plug:RegisterEvent("PAPERDOLLFRAME_OPENED")
+module.plug:RegisterEvent("PAPERDOLLFRAME_CLOSED")
 
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
@@ -497,5 +520,16 @@ module.plug:SetScript("OnEvent", function()
 	if event == "PLAYER_ENTERING_WORLD" then
 		module.LoadData()
 		module.CreateUI()
+	elseif event == "PAPERDOLLFRAME_OPENED" then
+		if module.data.toggleButton then
+			module.data.toggleButton:Show()
+		end
+	elseif event == "PAPERDOLLFRAME_CLOSED" then
+		if module.data.toggleButton then
+			module.data.toggleButton:Hide()
+		end
+		if module.data.frame then
+			module.data.frame:Hide()
+		end
 	end
 end)
