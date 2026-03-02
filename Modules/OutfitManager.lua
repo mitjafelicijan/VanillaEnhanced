@@ -173,8 +173,9 @@ function module.UpdateList()
 	
 	-- Hide and uncheck all known buttons
 	for _, btn in ipairs(module.data.buttons) do
-		btn:SetChecked(nil)
+		if btn.checkbox then btn.checkbox:SetChecked(nil) end
 		btn:Hide()
+		if btn.checkbox then btn.checkbox:Hide() end
 		if btn.dropdown then btn.dropdown:Hide() end
 	end
 	
@@ -183,38 +184,45 @@ function module.UpdateList()
 		local btn = module.data.buttons[idx]
 		if not btn then
 			local outfitIndex = idx
-
-			btn = CreateFrame("CheckButton", "VE_OutfitItem_" .. outfitIndex, listContent, "UICheckButtonTemplate")
-			btn:SetWidth(24)
-			btn:SetHeight(24)
-
+			
+			btn = CreateFrame("Button", "VE_OutfitItem_" .. outfitIndex, listContent)
+			btn:SetWidth(200)
+			btn:SetHeight(20)
+			btn:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+			btn:GetHighlightTexture():SetBlendMode("ADD")
+			
+			btn.checkbox = CreateFrame("CheckButton", "VE_OutfitItemCheck_" .. outfitIndex, btn, "UICheckButtonTemplate")
+			btn.checkbox:SetWidth(24)
+			btn.checkbox:SetHeight(24)
+			btn.checkbox:SetPoint("LEFT", btn, "LEFT", 3, 0)
+			
 			btn.text = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-			btn.text:SetPoint("LEFT", btn, "RIGHT", 5, 0)
+			btn.text:SetPoint("LEFT", btn.checkbox, "RIGHT", 5, 0)
 			btn.text:SetJustifyH("LEFT")
 			btn.text:SetWidth(110)
 			
-			btn.textHitBox = CreateFrame("Button", nil, btn)
-			btn.textHitBox:SetPoint("LEFT", btn, "RIGHT", 5, 0)
-			btn.textHitBox:SetWidth(150)
-			btn.textHitBox:SetHeight(20)
-			btn.textHitBox:SetScript("OnClick", function()
-				btn:Click()
-			end)
-			btn.textHitBox:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
-			btn.textHitBox:GetHighlightTexture():SetBlendMode("ADD")
-			
-			--VE.dframe(btn, 1, 0, 0, 0.5)
-
 			btn.dropdown = CreateFrame("Button", "VE_OutfitDropdown_" .. outfitIndex, btn)
 			btn.dropdown:SetWidth(16)
 			btn.dropdown:SetHeight(16)
-			btn.dropdown:SetPoint("LEFT", btn.textHitBox, "RIGHT", 5, 0)
+			btn.dropdown:SetPoint("RIGHT", btn, "RIGHT", 5, 0)
 			btn.dropdown:EnableMouse(true)
 			btn.dropdown:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up")
 			btn.dropdown:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Highlight")
 			btn.dropdown:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
 			btn.dropdown:SetScript("OnClick", function()
 				module.ShowDropdown(btn.dropdown, outfitIndex)
+			end)
+			
+			btn.checkbox:SetScript("OnClick", function()
+				local myIndex = this:GetID()
+				
+				if module.data.selectedIndex == myIndex then
+					module.data.selectedIndex = nil
+				else
+					module.EquipOutfit(myIndex)
+				end
+				module.SaveData()
+				module.UpdateList()
 			end)
 			
 			btn:SetScript("OnClick", function()
@@ -233,16 +241,17 @@ function module.UpdateList()
 		
 		btn:SetID(idx)
 		btn:ClearAllPoints()
-		btn:SetPoint("TOPLEFT", listContent, "TOPLEFT", 0, -height)
+		btn:SetPoint("TOPLEFT", listContent, "TOPLEFT", -5, -height)
 		btn.text:SetText(outfit.name)
 		
 		if module.data.selectedIndex == idx then
-			btn:SetChecked(1)
+			btn.checkbox:SetChecked(1)
 		else
-			btn:SetChecked(nil)
+			btn.checkbox:SetChecked(nil)
 		end
 		
 		btn:Show()
+		btn.checkbox:Show()
 		btn.dropdown:Show()
 		height = height + 20
 	end
@@ -261,6 +270,7 @@ function module.CreateOutfit(name)
 	if module.data.buttons then
 		for _, btn in ipairs(module.data.buttons) do
 			btn:Hide()
+			if btn.checkbox then btn.checkbox:Hide() end
 			if btn.dropdown then btn.dropdown:Hide() end
 		end
 		wipe(module.data.buttons)
@@ -311,6 +321,7 @@ function module.DeleteOutfit(index)
 	if module.data.buttons then
 		for _, btn in ipairs(module.data.buttons) do
 			btn:Hide()
+			if btn.checkbox then btn.checkbox:Hide() end
 			if btn.dropdown then btn.dropdown:Hide() end
 		end
 		wipe(module.data.buttons)
