@@ -396,10 +396,22 @@ function module.CreateUI()
 		info = {}
 		info.text = "Save"
 		info.func = function()
-module.SaveOutfit(index)
+		module.SaveOutfit(index)
 		end
 		UIDropDownMenu_AddButton(info)
 	end, "MENU")
+	
+	-- Close Button
+	local closeBtn = CreateFrame("Button", nil, frame)
+	closeBtn:SetWidth(32)
+	closeBtn:SetHeight(32)
+	closeBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 4, 4)
+	closeBtn:SetNormalTexture("Interface\\Buttons\\UI-Panel-MinimizeButton-Up")
+	closeBtn:SetHighlightTexture("Interface\\Buttons\\UI-Panel-MinimizeButton-Highlight")
+	closeBtn:SetPushedTexture("Interface\\Buttons\\UI-Panel-MinimizeButton-Down")
+	closeBtn:SetScript("OnClick", function()
+		frame:Hide()
+	end)
 	
 	-- New Outfit Button
 	local newBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
@@ -488,6 +500,6 @@ module.plug:SetScript("OnEvent", function()
 	
 	if event == "PLAYER_ENTERING_WORLD" then
 		module.LoadData()
-module.CreateUI()
+		module.CreateUI()
 	end
 end)
