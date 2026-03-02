@@ -6,11 +6,38 @@ local module = VE.registerModule({
 	},
 	plug = nil,
 	superWoWRequired = false,
-	config = {},
+	config = {
+		inventorySlots = {
+			{ name = "HeadSlot", slot = 1 },
+			{ name = "NeckSlot", slot = 2 },
+			{ name = "ShoulderSlot", slot = 3 },
+			{ name = "ShirtSlot", slot = 4 },
+			{ name = "ChestSlot", slot = 5 },
+			{ name = "WaistSlot", slot = 6 },
+			{ name = "LegsSlot", slot = 7 },
+			{ name = "FeetSlot", slot = 8 },
+			{ name = "WristSlot", slot = 9 },
+			{ name = "HandsSlot", slot = 10 },
+			{ name = "Finger0Slot", slot = 11 },
+			{ name = "Finger1Slot", slot = 12 },
+			{ name = "Trinket0Slot", slot = 13 },
+			{ name = "Trinket1Slot", slot = 14 },
+			{ name = "BackSlot", slot = 15 },
+			{ name = "MainHandSlot", slot = 16 },
+			{ name = "SecondaryHandSlot", slot = 17 },
+			{ name = "RangedSlot", slot = 18 },
+			{ name = "TabardSlot", slot = 19 },
+		},
+	},
 	data = {
 		outfits = {},
 		selectedIndex = nil,
 		currentOutfitIndex = nil,
+		frame = nil,
+		scrollFrame = nil,
+		listContent = nil,
+		dropdownMenuFrame = nil,
+		dropdownOutfitIndex = nil,
 	},
 })
 
@@ -19,28 +46,6 @@ if not VE.superWoWCheck(module) then
 	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
 	return
 end
-
-local INV_SLOTS = {
-	{ name = "HeadSlot", slot = 1 },
-	{ name = "NeckSlot", slot = 2 },
-	{ name = "ShoulderSlot", slot = 3 },
-	{ name = "ShirtSlot", slot = 4 },
-	{ name = "ChestSlot", slot = 5 },
-	{ name = "WaistSlot", slot = 6 },
-	{ name = "LegsSlot", slot = 7 },
-	{ name = "FeetSlot", slot = 8 },
-	{ name = "WristSlot", slot = 9 },
-	{ name = "HandsSlot", slot = 10 },
-	{ name = "Finger0Slot", slot = 11 },
-	{ name = "Finger1Slot", slot = 12 },
-	{ name = "Trinket0Slot", slot = 13 },
-	{ name = "Trinket1Slot", slot = 14 },
-	{ name = "BackSlot", slot = 15 },
-	{ name = "MainHandSlot", slot = 16 },
-	{ name = "SecondaryHandSlot", slot = 17 },
-	{ name = "RangedSlot", slot = 18 },
-	{ name = "TabardSlot", slot = 19 },
-}
 
 function module.SaveData()
 	if not VanillaEnhancedData[module.identifier] then
@@ -61,22 +66,14 @@ function module.LoadData()
 	end
 end
 
-local dropdownMenuFrame = nil
-local currentOutfitIndex = nil
-
 function module.ShowDropdown(button, index)
-	currentOutfitIndex = index
-	ToggleDropDownMenu(1, nil, dropdownMenuFrame, button, 0, 0)
+	module.data.dropdownOutfitIndex = index
+	ToggleDropDownMenu(1, nil, module.data.dropdownMenuFrame, button, 0, 0)
 end
-
--- UI
-local frame = nil
-local scrollFrame = nil
-local listContent = nil
 
 function module.GetCurrentGear()
 	local gear = {}
-	for _, info in ipairs(INV_SLOTS) do
+	for _, info in ipairs(module.config.inventorySlots) do
 		local link = GetInventoryItemLink("player", info.slot)
 		if link then
 			gear[info.slot] = link
@@ -134,14 +131,14 @@ function module.EquipOutfit(index)
 	if not outfit then return end
 	
 	VE.print("Equipping outfit: " .. outfit.name)
-	for _, info in ipairs(INV_SLOTS) do
+	for _, info in ipairs(module.config.inventorySlots) do
 		local desiredLink = outfit.gear[info.slot]
 		if desiredLink then
 			VE.print(" - " .. desiredLink)
 		end
 	end
 
-	for _, info in ipairs(INV_SLOTS) do
+	for _, info in ipairs(module.config.inventorySlots) do
 		local desiredLink = outfit.gear[info.slot]
 		local currentLink = GetInventoryItemLink("player", info.slot)
 		
@@ -151,7 +148,6 @@ function module.EquipOutfit(index)
 				if bag and slot then
 					PickupContainerItem(bag, slot)
 					PickupInventoryItem(info.slot)
-					-- Put the old item back into the bag if it was swapped
 					if CursorHasItem() then
 						PickupContainerItem(bag, slot)
 					end
@@ -167,7 +163,7 @@ function module.EquipOutfit(index)
 end
 
 function module.UpdateList()
-	if not listContent then return end
+	if not module.data.listContent then return end
 	
 	if not module.data.buttons then module.data.buttons = {} end
 	
@@ -185,7 +181,7 @@ function module.UpdateList()
 		if not btn then
 			local outfitIndex = idx
 			
-			btn = CreateFrame("Button", "VE_OutfitItem_" .. outfitIndex, listContent)
+			btn = CreateFrame("Button", "VE_OutfitItem_" .. outfitIndex, module.data.listContent)
 			btn:SetWidth(200)
 			btn:SetHeight(20)
 			btn:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
@@ -241,7 +237,7 @@ function module.UpdateList()
 		
 		btn:SetID(idx)
 		btn:ClearAllPoints()
-		btn:SetPoint("TOPLEFT", listContent, "TOPLEFT", -5, -height)
+		btn:SetPoint("TOPLEFT", module.data.listContent, "TOPLEFT", -5, -height)
 		btn.text:SetText(outfit.name)
 		
 		if module.data.selectedIndex == idx then
@@ -256,7 +252,7 @@ function module.UpdateList()
 		height = height + 20
 	end
 	
-	listContent:SetHeight(height)
+	module.data.listContent:SetHeight(height)
 end
 
 function module.CreateOutfit(name)
@@ -329,51 +325,51 @@ function module.DeleteOutfit(index)
 		module.data.buttons = {}
 	end
 	
-	if listContent then
-		listContent:SetHeight(10)
+	if module.data.listContent then
+		module.data.listContent:SetHeight(10)
 	end
-	if scrollFrame then
-		scrollFrame:SetVerticalScroll(0)
+	if module.data.scrollFrame then
+		module.data.scrollFrame:SetVerticalScroll(0)
 	end
 	
 	module.UpdateList()
 end
 
 function module.CreateUI()
-	if frame then return end
+	if module.data.frame then return end
 
 	-- Main Frame
-	frame = CreateFrame("Frame", "VE_OutfitManagerFrame", PaperDollFrame)
-	frame:SetWidth(256)
-	frame:SetHeight(350)
-	frame:SetPoint("TOPLEFT", PaperDollFrame, "TOPRIGHT", -37, -42)
-	frame:SetFrameLevel(PaperDollFrame:GetFrameLevel() - 1)
+	module.data.frame = CreateFrame("Frame", "VE_OutfitManagerFrame", PaperDollFrame)
+	module.data.frame:SetWidth(256)
+	module.data.frame:SetHeight(350)
+	module.data.frame:SetPoint("TOPLEFT", PaperDollFrame, "TOPRIGHT", -37, -42)
+	module.data.frame:SetFrameLevel(PaperDollFrame:GetFrameLevel() - 1)
 
-	local bg = frame:CreateTexture(nil, "BACKGROUND")
+	local bg = module.data.frame:CreateTexture(nil, "BACKGROUND")
 	bg:SetAllPoints()
 	bg:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\OutfitManager")
 	bg:SetTexCoord(0, 1, 0, 350/512)
 	
 	-- Title
-	local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	title:SetPoint("TOP", frame, "TOP", -5, -7)
+	local title = module.data.frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	title:SetPoint("TOP", module.data.frame, "TOP", -5, -7)
 	title:SetText("Outfits")
 	
 	-- Scroll Frame for the list
-	scrollFrame = CreateFrame("ScrollFrame", "VE_OutfitManagerScroll", frame, "UIPanelScrollFrameTemplate")
-	scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 15, -37)
-	scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -35, 43)
-	scrollFrame:SetClampedToScreen(true)
-	scrollFrame:SetFrameLevel(frame:GetFrameLevel() + 1)
+	module.data.scrollFrame = CreateFrame("ScrollFrame", "VE_OutfitManagerScroll", module.data.frame, "UIPanelScrollFrameTemplate")
+	module.data.scrollFrame:SetPoint("TOPLEFT", module.data.frame, "TOPLEFT", 15, -37)
+	module.data.scrollFrame:SetPoint("BOTTOMRIGHT", module.data.frame, "BOTTOMRIGHT", -35, 43)
+	module.data.scrollFrame:SetClampedToScreen(true)
+	module.data.scrollFrame:SetFrameLevel(module.data.frame:GetFrameLevel() + 1)
 	
-	listContent = CreateFrame("Frame", "VE_OutfitManagerList", scrollFrame)
-	listContent:SetWidth(175)
-	listContent:SetHeight(10)
-	scrollFrame:SetScrollChild(listContent)
+	module.data.listContent = CreateFrame("Frame", "VE_OutfitManagerList", module.data.scrollFrame)
+	module.data.listContent:SetWidth(175)
+	module.data.listContent:SetHeight(10)
+	module.data.scrollFrame:SetScrollChild(module.data.listContent)
 	
-	dropdownMenuFrame = CreateFrame("Frame", "VE_OutfitManagerDropdownMenu", frame, "UIDropDownMenuTemplate")
-	UIDropDownMenu_Initialize(dropdownMenuFrame, function()
-		local index = currentOutfitIndex
+	module.data.dropdownMenuFrame = CreateFrame("Frame", "VE_OutfitManagerDropdownMenu", module.data.frame, "UIDropDownMenuTemplate")
+	UIDropDownMenu_Initialize(module.data.dropdownMenuFrame, function()
+		local index = module.data.dropdownOutfitIndex
 		
 		local info = {}
 		info.text = "Rename"
@@ -402,22 +398,22 @@ function module.CreateUI()
 	end, "MENU")
 	
 	-- Close Button
-	local closeBtn = CreateFrame("Button", nil, frame)
+	local closeBtn = CreateFrame("Button", nil, module.data.frame)
 	closeBtn:SetWidth(32)
 	closeBtn:SetHeight(32)
-	closeBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 4, 4)
+	closeBtn:SetPoint("TOPRIGHT", module.data.frame, "TOPRIGHT", 4, 4)
 	closeBtn:SetNormalTexture("Interface\\Buttons\\UI-Panel-MinimizeButton-Up")
 	closeBtn:SetHighlightTexture("Interface\\Buttons\\UI-Panel-MinimizeButton-Highlight")
 	closeBtn:SetPushedTexture("Interface\\Buttons\\UI-Panel-MinimizeButton-Down")
 	closeBtn:SetScript("OnClick", function()
-		frame:Hide()
+		module.data.frame:Hide()
 	end)
 	
 	-- New Outfit Button
-	local newBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+	local newBtn = CreateFrame("Button", nil, module.data.frame, "UIPanelButtonTemplate")
 	newBtn:SetWidth(80)
 	newBtn:SetHeight(22)
-	newBtn:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -10, 13)
+	newBtn:SetPoint("BOTTOMRIGHT", module.data.frame, "BOTTOMRIGHT", -10, 13)
 	newBtn:SetText("New Outfit")
 	newBtn:SetScript("OnClick", function()
 		StaticPopup_Show("VE_OUTFIT_NEW")
