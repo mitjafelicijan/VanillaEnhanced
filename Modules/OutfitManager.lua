@@ -338,7 +338,8 @@ local function CreateUI()
 		info = {}
 		info.text = "Delete"
 		info.func = function()
-			DeleteOutfit(index)
+			module.data.currentOutfitIndex = index
+			StaticPopup_Show("VE_OUTFIT_DELETE")
 		end
 		UIDropDownMenu_AddButton(info)
 		
@@ -361,6 +362,18 @@ local function CreateUI()
 	end)
 	
 	-- Popups
+	StaticPopupDialogs["VE_OUTFIT_DELETE"] = {
+		text = "Are you sure you want to delete this outfit?",
+	button1 = "Yes",
+	button2 = "No",
+		OnAccept = function()
+			DeleteOutfit(module.data.currentOutfitIndex)
+		end,
+		timeout = 0,
+		whileDead = 1,
+	hideOnEscape = 1,
+	}
+
 	StaticPopupDialogs["VE_OUTFIT_NEW"] = {
 		text = "Enter name for new outfit:",
 		button1 = "Accept",
