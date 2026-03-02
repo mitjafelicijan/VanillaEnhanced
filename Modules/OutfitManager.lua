@@ -200,6 +200,8 @@ function module.UpdateList()
 			btn.textHitBox:SetScript("OnClick", function()
 				btn:Click()
 			end)
+			btn.textHitBox:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+			btn.textHitBox:GetHighlightTexture():SetBlendMode("ADD")
 			
 			--VE.dframe(btn, 1, 0, 0, 0.5)
 
