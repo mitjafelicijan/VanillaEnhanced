@@ -61,6 +61,19 @@ local function LoadData()
 	end
 end
 
+local dropdownMenuFrame = nil
+local currentOutfitIndex = nil
+
+local function ShowDropdown(button, index)
+	currentOutfitIndex = index
+	ToggleDropDownMenu(1, nil, dropdownMenuFrame, button, 0, 0)
+end
+
+-- UI
+local frame = nil
+local scrollFrame = nil
+local listContent = nil
+
 local function GetCurrentGear()
 	local gear = {}
 	for _, info in ipairs(INV_SLOTS) do
@@ -152,20 +165,6 @@ local function EquipOutfit(index)
 	SaveData()
 	UpdateList()
 end
-
-
-local dropdownMenuFrame = nil
-local currentOutfitIndex = nil
-
-local function ShowDropdown(button, index)
-	currentOutfitIndex = index
-	ToggleDropDownMenu(1, nil, dropdownMenuFrame, button, 0, 0)
-end
-
--- UI
-local frame = nil
-local scrollFrame = nil
-local listContent = nil
 
 local function UpdateList()
 	if not listContent then return end
@@ -434,16 +433,21 @@ local function CreateUI()
 		button2 = "Cancel",
 		hasEditBox = 1,
 		maxLetters = 32,
+		OnShow = function()
+			local editBox = getglobal(this:GetName() .. "EditBox")
+			local outfit = module.data.outfits[module.data.currentOutfitIndex]
+			if outfit then
+				editBox:SetText(outfit.name)
+			end
+		end,
 		OnAccept = function()
-			local dialog = this:GetParent()
-			local editBox = getglobal(dialog:GetName() .. "EditBox")
+			local editBox = getglobal(this:GetParent():GetName() .. "EditBox")
 			RenameOutfit(module.data.currentOutfitIndex, editBox:GetText())
 		end,
 		EditBoxOnEnterPressed = function()
-			local dialog = this:GetParent()
-			local editBox = getglobal(dialog:GetName() .. "EditBox")
+			local editBox = this
 			RenameOutfit(module.data.currentOutfitIndex, editBox:GetText())
-			dialog:Hide()
+			editBox:GetParent():Hide()
 		end,
 		timeout = 0,
 		whileDead = 1,
