@@ -214,7 +214,7 @@ function module.UpdateList()
 			btn.selectedIcon:Hide()
 			
 			btn.text = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-			btn.text:SetPoint("LEFT", btn.selectedIcon, "RIGHT", 5, 0)
+			btn.text:SetPoint("LEFT", btn, "LEFT", 23, 0)
 			btn.text:SetJustifyH("LEFT")
 			btn.text:SetWidth(110)
 			
