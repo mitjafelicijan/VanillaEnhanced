@@ -42,7 +42,7 @@ local INV_SLOTS = {
 	{ name = "TabardSlot", slot = 19 },
 }
 
-local function SaveData()
+function module.SaveData()
 	if not VanillaEnhancedData[module.identifier] then
 		VanillaEnhancedData[module.identifier] = {}
 	end
@@ -50,7 +50,7 @@ local function SaveData()
 	VanillaEnhancedData[module.identifier].selectedIndex = module.data.selectedIndex
 end
 
-local function LoadData()
+function module.LoadData()
 	if VanillaEnhancedData[module.identifier] then
 		if VanillaEnhancedData[module.identifier].outfits then
 			module.data.outfits = VanillaEnhancedData[module.identifier].outfits
@@ -64,7 +64,7 @@ end
 local dropdownMenuFrame = nil
 local currentOutfitIndex = nil
 
-local function ShowDropdown(button, index)
+function module.ShowDropdown(button, index)
 	currentOutfitIndex = index
 	ToggleDropDownMenu(1, nil, dropdownMenuFrame, button, 0, 0)
 end
@@ -74,7 +74,7 @@ local frame = nil
 local scrollFrame = nil
 local listContent = nil
 
-local function GetCurrentGear()
+function module.GetCurrentGear()
 	local gear = {}
 	for _, info in ipairs(INV_SLOTS) do
 		local link = GetInventoryItemLink("player", info.slot)
@@ -85,7 +85,7 @@ local function GetCurrentGear()
 	return gear
 end
 
-local function FindItemLocation(targetLink)
+function module.FindItemLocation(targetLink)
 	-- Check Bags 0-4
 	for bag = 0, 4 do
 		local numSlots = GetContainerNumSlots(bag)
@@ -129,7 +129,7 @@ local function FindItemLocation(targetLink)
 	return nil, nil
 end
 
-local function EquipOutfit(index)
+function module.EquipOutfit(index)
 	local outfit = module.data.outfits[index]
 	if not outfit then return end
 	
@@ -147,7 +147,7 @@ local function EquipOutfit(index)
 		
 		if desiredLink ~= currentLink then
 			if desiredLink then
-				local bag, slot = FindItemLocation(desiredLink)
+				local bag, slot = module.FindItemLocation(desiredLink)
 				if bag and slot then
 					PickupContainerItem(bag, slot)
 					PickupInventoryItem(info.slot)
@@ -162,11 +162,11 @@ local function EquipOutfit(index)
 		end
 	end
 	module.data.selectedIndex = index
-	SaveData()
-	UpdateList()
+	module.SaveData()
+	module.UpdateList()
 end
 
-local function UpdateList()
+function module.UpdateList()
 	if not listContent then return end
 	
 	if not module.data.buttons then module.data.buttons = {} end
@@ -202,7 +202,7 @@ local function UpdateList()
 			btn.dropdown:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Highlight")
 			btn.dropdown:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
 			btn.dropdown:SetScript("OnClick", function()
-				ShowDropdown(btn.dropdown, outfitIndex)
+				module.ShowDropdown(btn.dropdown, outfitIndex)
 			end)
 			
 			btn:SetScript("OnClick", function()
@@ -211,10 +211,10 @@ local function UpdateList()
 				if module.data.selectedIndex == myIndex then
 					module.data.selectedIndex = nil
 				else
-					EquipOutfit(myIndex)
+					module.EquipOutfit(myIndex)
 				end
-				SaveData()
-				UpdateList()
+				module.SaveData()
+				module.UpdateList()
 			end)
 			module.data.buttons[outfitIndex] = btn
 		end
@@ -238,11 +238,11 @@ local function UpdateList()
 	listContent:SetHeight(height)
 end
 
-local function CreateOutfit(name)
+function module.CreateOutfit(name)
 	if not name or name == "" then return end
 	table.insert(module.data.outfits, {
 		name = name,
-		gear = GetCurrentGear()
+		gear = module.GetCurrentGear()
 	})
 	module.data.selectedIndex = table.getn(module.data.outfits)
 	
@@ -256,11 +256,11 @@ local function CreateOutfit(name)
 		module.data.buttons = {}
 	end
 	
-	SaveData()
-	UpdateList()
+	module.SaveData()
+	module.UpdateList()
 end
 
-local function SaveOutfit(index)
+function module.SaveOutfit(index)
 	index = index or module.data.selectedIndex
 	if not index then
 		VE.iprint("Select an outfit first.")
@@ -268,24 +268,24 @@ local function SaveOutfit(index)
 	end
 	local outfit = module.data.outfits[index]
 	if outfit then
-		outfit.gear = GetCurrentGear()
-		SaveData()
+		outfit.gear = module.GetCurrentGear()
+		module.SaveData()
 		VE.print("Outfit '" .. outfit.name .. "' updated with current gear.")
 	end
 end
 
-local function RenameOutfit(index, newName)
+function module.RenameOutfit(index, newName)
 	index = index or module.data.selectedIndex
 	if not index or not newName or newName == "" then return end
 	local outfit = module.data.outfits[index]
 	if outfit then
 		outfit.name = newName
-		SaveData()
-		UpdateList()
+		module.SaveData()
+		module.UpdateList()
 	end
 end
 
-local function DeleteOutfit(index)
+function module.DeleteOutfit(index)
 	index = index or module.data.currentOutfitIndex
 	if not index then
 		VE.iprint("Select an outfit first.")
@@ -294,7 +294,7 @@ local function DeleteOutfit(index)
 	table.remove(module.data.outfits, index)
 	module.data.selectedIndex = nil
 	CloseDropDownMenus()
-	SaveData()
+	module.SaveData()
 	
 	if module.data.buttons then
 		for _, btn in ipairs(module.data.buttons) do
@@ -313,10 +313,10 @@ local function DeleteOutfit(index)
 		scrollFrame:SetVerticalScroll(0)
 	end
 	
-	UpdateList()
+	module.UpdateList()
 end
 
-local function CreateUI()
+function module.CreateUI()
 	if frame then return end
 
 	-- Main Frame
@@ -373,7 +373,7 @@ local function CreateUI()
 		info = {}
 		info.text = "Save"
 		info.func = function()
-			SaveOutfit(index)
+module.SaveOutfit(index)
 		end
 		UIDropDownMenu_AddButton(info)
 	end, "MENU")
@@ -394,7 +394,7 @@ local function CreateUI()
 	button1 = "Yes",
 	button2 = "No",
 		OnAccept = function()
-			DeleteOutfit(module.data.currentOutfitIndex)
+			module.DeleteOutfit(module.data.currentOutfitIndex)
 		end,
 		timeout = 0,
 		whileDead = 1,
@@ -412,14 +412,14 @@ local function CreateUI()
 			local editBox = getglobal(dialog:GetName() .. "EditBox")
 			local name = editBox:GetText()
 			editBox:SetText("")
-			CreateOutfit(name)
+			module.CreateOutfit(name)
 		end,
 		EditBoxOnEnterPressed = function()
 			local dialog = this:GetParent()
 			local editBox = getglobal(dialog:GetName() .. "EditBox")
 			local name = editBox:GetText()
 			editBox:SetText("")
-			CreateOutfit(name)
+			module.CreateOutfit(name)
 			dialog:Hide()
 		end,
 		timeout = 0,
@@ -442,11 +442,11 @@ local function CreateUI()
 		end,
 		OnAccept = function()
 			local editBox = getglobal(this:GetParent():GetName() .. "EditBox")
-			RenameOutfit(module.data.currentOutfitIndex, editBox:GetText())
+			module.RenameOutfit(module.data.currentOutfitIndex, editBox:GetText())
 		end,
 		EditBoxOnEnterPressed = function()
 			local editBox = this
-			RenameOutfit(module.data.currentOutfitIndex, editBox:GetText())
+			module.RenameOutfit(module.data.currentOutfitIndex, editBox:GetText())
 			editBox:GetParent():Hide()
 		end,
 		timeout = 0,
@@ -454,7 +454,7 @@ local function CreateUI()
 		hideOnEscape = 1,
 	}
 
-	UpdateList()
+	module.UpdateList()
 end
 
 module.plug = CreateFrame("Frame", module.identifier)
@@ -464,7 +464,7 @@ module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 	
 	if event == "PLAYER_ENTERING_WORLD" then
-		LoadData()
-		CreateUI()
+		module.LoadData()
+module.CreateUI()
 	end
 end)
