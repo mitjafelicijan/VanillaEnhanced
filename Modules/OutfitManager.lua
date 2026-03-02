@@ -149,21 +149,22 @@ local function EquipOutfit(index)
 	end
 	module.data.selectedIndex = index
 	SaveData()
-	module.UpdateList()
+	UpdateList()
 end
 
-function module.CreateOutfit(name)
+local function CreateOutfit(name)
 	if not name or name == "" then return end
 	table.insert(module.data.outfits, {
 		name = name,
 		gear = GetCurrentGear()
 	})
 	module.data.selectedIndex = table.getn(module.data.outfits)
+	module.data.buttons = {}
 	SaveData()
-	module.UpdateList()
+	UpdateList()
 end
 
-function module.SaveOutfit()
+local function SaveOutfit()
 	if not module.data.selectedIndex then
 		VE.iprint("Select an outfit first.")
 		return
@@ -176,17 +177,17 @@ function module.SaveOutfit()
 	end
 end
 
-function module.RenameOutfit(newName)
+local function RenameOutfit(newName)
 	if not module.data.selectedIndex or not newName or newName == "" then return end
 	local outfit = module.data.outfits[module.data.selectedIndex]
 	if outfit then
 		outfit.name = newName
 		SaveData()
-		module.UpdateList()
+		UpdateList()
 	end
 end
 
-function module.DeleteOutfit()
+local function DeleteOutfit()
 	if not module.data.selectedIndex then
 		VE.iprint("Select an outfit first.")
 		return
@@ -194,7 +195,16 @@ function module.DeleteOutfit()
 	table.remove(module.data.outfits, module.data.selectedIndex)
 	module.data.selectedIndex = nil
 	SaveData()
-	module.UpdateList()
+	UpdateList()
+end
+
+local dropdownMenuFrame = nil
+local currentDropdownIndex = nil
+
+function module.ShowDropdown(button, index)
+	currentDropdownIndex = index
+	module.data.dropdownIndex = index
+	ToggleDropDownMenu(1, nil, dropdownMenuFrame, button, 0, 0)
 end
 
 -- UI
@@ -202,7 +212,7 @@ local frame = nil
 local scrollFrame = nil
 local listContent = nil
 
-function module.UpdateList()
+local function UpdateList()
 	if not listContent then return end
 	
 	if not module.data.buttons then module.data.buttons = {} end
@@ -211,6 +221,7 @@ function module.UpdateList()
 	for _, btn in ipairs(module.data.buttons) do
 		btn:SetChecked(nil)
 		btn:Hide()
+		if btn.dropdown then btn.dropdown:Hide() end
 	end
 	
 	local height = 0
@@ -224,32 +235,39 @@ function module.UpdateList()
 			btn.text = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 			btn.text:SetPoint("LEFT", btn, "RIGHT", 5, 0)
 			btn.text:SetJustifyH("LEFT")
-			btn.text:SetWidth(130)
+			btn.text:SetWidth(110)
+			
+			btn.dropdown = CreateFrame("Button", "VE_OutfitDropdown_" .. idx, btn)
+			btn.dropdown:SetWidth(16)
+			btn.dropdown:SetHeight(16)
+			btn.dropdown:SetPoint("LEFT", btn.text, "RIGHT", 2, 0)
+			btn.dropdown:EnableMouse(true)
+			btn.dropdown:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up")
+			btn.dropdown:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Highlight")
+			btn.dropdown:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
+			btn.dropdown:SetScript("OnClick", function()
+				module.ShowDropdown(btn.dropdown, idx)
+			end)
 			
 			btn:SetScript("OnClick", function()
-				-- In Vanilla, 'this' refers to the button clicked.
-				-- We need to know which index this button represents.
-				-- Since we map buttons 1:1 to indices, we can store the index on the button.
 				local myIndex = this:GetID()
 				
 				if module.data.selectedIndex == myIndex then
-					-- Toggle off if clicking the same one
 					module.data.selectedIndex = nil
 				else
 					EquipOutfit(myIndex)
 				end
 				SaveData()
-				module.UpdateList()
+				UpdateList()
 			end)
 			module.data.buttons[idx] = btn
 		end
 		
-		btn:SetID(idx) -- Ensure the button knows its current index
+		btn:SetID(idx)
 		btn:ClearAllPoints()
-		btn:SetPoint("TOPLEFT", listContent, "TOPLEFT", 5, -height)
+		btn:SetPoint("TOPLEFT", listContent, "TOPLEFT", 0, -height)
 		btn.text:SetText(outfit.name)
 		
-		-- Set the checked state correctly
 		if module.data.selectedIndex == idx then
 			btn:SetChecked(1)
 		else
@@ -257,7 +275,8 @@ function module.UpdateList()
 		end
 		
 		btn:Show()
-		height = height + 24
+		btn.dropdown:Show()
+		height = height + 20
 	end
 	
 	listContent:SetHeight(height)
@@ -268,82 +287,73 @@ local function CreateUI()
 
 	-- Main Frame
 	frame = CreateFrame("Frame", "VE_OutfitManagerFrame", PaperDollFrame)
-	frame:SetWidth(200)
-	frame:SetHeight(320)
-	-- Positioned next to the character paperdoll, slightly overlapping the edge for a docked look
-	frame:SetPoint("TOPLEFT", PaperDollFrame, "TOPRIGHT", -32, -12)
-	
-	frame:SetBackdrop({
-		bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-		tile = true, tileSize = 32, edgeSize = 32,
-		insets = { left = 11, right = 12, top = 12, bottom = 11 }
-	})
+	frame:SetWidth(256)
+	frame:SetHeight(350)
+	frame:SetPoint("TOPLEFT", PaperDollFrame, "TOPRIGHT", -37, -42)
+	frame:SetFrameLevel(PaperDollFrame:GetFrameLevel() - 1)
+
+	local bg = frame:CreateTexture(nil, "BACKGROUND")
+	bg:SetAllPoints()
+	bg:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\OutfitManager")
+	bg:SetTexCoord(0, 1, 0, 350/512)
 	
 	-- Title
 	local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	title:SetPoint("TOP", frame, "TOP", 0, -15)
-	title:SetText("Outfit Manager")
+	title:SetPoint("TOP", frame, "TOP", -5, -7)
+	title:SetText("Outfits")
 	
 	-- Scroll Frame for the list
 	scrollFrame = CreateFrame("ScrollFrame", "VE_OutfitManagerScroll", frame, "UIPanelScrollFrameTemplate")
-	scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 15, -40)
-	scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -35, 75)
+	scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 15, -37)
+	scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -35, 43)
+	scrollFrame:SetClampedToScreen(true)
+	scrollFrame:SetFrameLevel(frame:GetFrameLevel() + 1)
 	
 	listContent = CreateFrame("Frame", "VE_OutfitManagerList", scrollFrame)
-	listContent:SetWidth(150)
+	listContent:SetWidth(175)
 	listContent:SetHeight(10)
 	scrollFrame:SetScrollChild(listContent)
 	
-	-- Control Buttons
-	local saveBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-	saveBtn:SetWidth(80)
-	saveBtn:SetHeight(22)
-	saveBtn:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 15, 40)
-	saveBtn:SetText("Save")
-	saveBtn:SetScript("OnClick", function()
-		module.SaveOutfit()
-	end)
-	
-	local renameBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-	renameBtn:SetWidth(80)
-	renameBtn:SetHeight(22)
-	renameBtn:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -15, 40)
-	renameBtn:SetText("Rename")
-	renameBtn:SetScript("OnClick", function()
-		if module.data.selectedIndex then
-			local outfit = module.data.outfits[module.data.selectedIndex]
-			local dialog = StaticPopup_Show("VE_OUTFIT_RENAME")
-			if dialog and outfit then
-				local editBox = getglobal(dialog:GetName().."EditBox")
-				editBox:SetText(outfit.name)
-				editBox:HighlightText()
-			end
-		else
-			VE.iprint("Select an outfit first.")
+	dropdownMenuFrame = CreateFrame("Frame", "VE_OutfitManagerDropdownMenu", frame, "UIDropDownMenuTemplate")
+	UIDropDownMenu_Initialize(dropdownMenuFrame, function()
+		local info = {}
+		info.text = "Rename"
+		info.func = function()
+			local outfit = module.data.outfits[currentDropdownIndex]
+			if not outfit then return end
+			VE.iprint("Enter new name for outfit: " .. outfit.name)
+			module.data.pendingRename = currentDropdownIndex
 		end
-	end)
+		UIDropDownMenu_AddButton(info)
+		
+		info.text = "Delete"
+		info.func = function()
+			table.remove(module.data.outfits, currentDropdownIndex)
+			module.data.selectedIndex = nil
+			module.data.buttons = {}
+			CloseDropDownMenus()
+			SaveData()
+			UpdateList()
+		end
+		UIDropDownMenu_AddButton(info)
+		
+		info.text = "Save"
+		info.func = function()
+			SaveOutfit(currentDropdownIndex)
+			module.data.buttons = {}
+			UpdateList()
+		end
+		UIDropDownMenu_AddButton(info)
+	end, "MENU")
 	
+	-- New Outfit Button
 	local newBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 	newBtn:SetWidth(80)
 	newBtn:SetHeight(22)
-	newBtn:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 15, 15)
+	newBtn:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -10, 13)
 	newBtn:SetText("New Outfit")
 	newBtn:SetScript("OnClick", function()
 		StaticPopup_Show("VE_OUTFIT_NEW")
-	end)
-	
-	local deleteBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-	deleteBtn:SetWidth(80)
-	deleteBtn:SetHeight(22)
-	deleteBtn:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -15, 15)
-	deleteBtn:SetText("Delete")
-	deleteBtn:SetScript("OnClick", function()
-		if module.data.selectedIndex then
-			StaticPopup_Show("VE_OUTFIT_DELETE")
-		else
-			VE.iprint("Select an outfit first.")
-		end
 	end)
 	
 	-- Popups
@@ -352,7 +362,7 @@ local function CreateUI()
 		button1 = "Yes",
 		button2 = "No",
 		OnAccept = function()
-			module.DeleteOutfit()
+			DeleteOutfit()
 		end,
 		timeout = 0,
 		whileDead = 1,
@@ -367,10 +377,10 @@ local function CreateUI()
 		maxLetters = 32,
 		OnAccept = function()
 			local editBox = getglobal(this:GetParent():GetName().."EditBox")
-			module.CreateOutfit(editBox:GetText())
+			CreateOutfit(editBox:GetText())
 		end,
 		EditBoxOnEnterPressed = function()
-			module.CreateOutfit(this:GetText())
+			CreateOutfit(this:GetText())
 			this:GetParent():Hide()
 		end,
 		timeout = 0,
@@ -386,10 +396,10 @@ local function CreateUI()
 		maxLetters = 32,
 		OnAccept = function()
 			local editBox = getglobal(this:GetParent():GetName().."EditBox")
-			module.RenameOutfit(editBox:GetText())
+			RenameOutfit(editBox:GetText())
 		end,
 		EditBoxOnEnterPressed = function()
-			module.RenameOutfit(this:GetText())
+			RenameOutfit(this:GetText())
 			this:GetParent():Hide()
 		end,
 		timeout = 0,
@@ -397,7 +407,7 @@ local function CreateUI()
 		hideOnEscape = 1,
 	}
 
-	module.UpdateList()
+	UpdateList()
 end
 
 module.plug = CreateFrame("Frame", module.identifier)
