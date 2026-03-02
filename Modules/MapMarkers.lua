@@ -340,11 +340,16 @@ local function createDropdown()
 
 	-- Parented to WorldMapButton and set high frame level to ensure clickability
 	local filterBtn = CreateFrame("Button", "VE_MapMarkerFilterButton", WorldMapButton, "UIPanelButtonTemplate")
-	filterBtn:SetWidth(80)
+	filterBtn:SetWidth(100)
 	filterBtn:SetHeight(24)
-	filterBtn:SetText("Filters")
+	filterBtn:SetText("Map Filters")
 	filterBtn:SetFrameLevel(WorldMapButton:GetFrameLevel() + 10)
-	filterBtn:SetPoint("TOPRIGHT", WorldMapButton, "TOPRIGHT", -16, -12)
+
+	if IsAddOnLoaded("pfQuest") then
+		filterBtn:SetPoint("TOPRIGHT", WorldMapButton, "TOPRIGHT", -16, -40)
+	else
+		filterBtn:SetPoint("TOPRIGHT", WorldMapButton, "TOPRIGHT", -16, -12)
+	end
 
 	local menuFrame = CreateFrame("Frame", "VE_MapMarkerFilterMenu", filterBtn, "UIDropDownMenuTemplate")
 
