@@ -358,8 +358,8 @@ local function CreateUI()
 		info.func = function()
 			local outfit = module.data.outfits[index]
 			if not outfit then return end
-			VE.iprint("Enter new name for outfit: " .. outfit.name)
-			module.data.pendingRename = index
+			module.data.currentOutfitIndex = index
+			StaticPopup_Show("VE_OUTFIT_RENAME")
 		end
 		UIDropDownMenu_AddButton(info)
 		
