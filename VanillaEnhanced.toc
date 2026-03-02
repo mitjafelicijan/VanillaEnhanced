@@ -25,25 +25,28 @@ Modules\FrameStack.lua
 
 # Modules
 Modules\AlignGrid.lua
+Modules\AuctionEnhancements.xml
 Modules\AuraTracker.lua
+Modules\AutoCancelForm.lua
+Modules\AutoDismount.lua
 Modules\AutoLoot.lua
 Modules\AutoRepair.lua
 Modules\AutoRoll.lua
 Modules\AutoSell.lua
-Modules\AutoDismount.lua
-Modules\AutoCancelForm.lua
 Modules\BagSearch.lua
 Modules\BankBags.lua
 Modules\BigPlayerFrame.lua
 Modules\BlockAuctionHouse.lua
 Modules\BlockGrouping.lua
 Modules\BlockMailbox.lua
+Modules\BulletinBoard.xml
 Modules\CastingBarPosition.lua
 Modules\ChatEnhancements.lua
 Modules\CombatCursor.lua
 Modules\CompactActionBars.lua
 Modules\CompactFrames.xml
 Modules\CompareTooltip.lua
+Modules\ConsumablesPanel.lua
 Modules\CooldownTimers.lua
 Modules\DruidManaBar.lua
 Modules\DruidOneButton.lua
@@ -63,6 +66,7 @@ Modules\MailboxEnhancements.lua
 Modules\MaintainDruidForms.lua
 Modules\MaintainHunterAspects.lua
 Modules\ManaBarColor.lua
+Modules\MapMarkers.lua
 Modules\MaxCameraZoom.lua
 Modules\MinimapClock.lua
 Modules\MiniPlayerFrame.xml
@@ -70,6 +74,7 @@ Modules\MiniPowerFrame.xml
 Modules\NameplateComboPoints.lua
 Modules\NameplateScaling.lua
 Modules\NameplateThreat.lua
+Modules\OutfitManager.lua
 Modules\OutOfRange.lua
 Modules\PullBreakTimer.lua
 Modules\QuestItemTooltip.lua
@@ -77,11 +82,7 @@ Modules\RestedXPTooltip.lua
 Modules\SoloSelfFound.lua
 Modules\TargetCastingBar.lua
 Modules\TravelJournal.lua
-Modules\MapMarkers.lua
 Modules\TrinketManager.lua
-Modules\ConsumablesPanel.lua
-Modules\BulletinBoard.xml
-Modules\AuctionEnhancements.xml
 
 # Work in progress
 # Modules\TargetChangeStopAttack.lua
