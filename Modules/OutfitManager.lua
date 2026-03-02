@@ -277,7 +277,7 @@ local function RenameOutfit(index, newName)
 end
 
 local function DeleteOutfit(index)
-	index = index or module.data.selectedIndex
+	index = index or module.data.currentOutfitIndex
 	if not index then
 		VE.iprint("Select an outfit first.")
 		return
