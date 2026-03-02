@@ -339,10 +339,26 @@ local function CreateUI()
 	deleteBtn:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -15, 15)
 	deleteBtn:SetText("Delete")
 	deleteBtn:SetScript("OnClick", function()
-		module.DeleteOutfit()
+		if module.data.selectedIndex then
+			StaticPopup_Show("VE_OUTFIT_DELETE")
+		else
+			VE.iprint("Select an outfit first.")
+		end
 	end)
 	
 	-- Popups
+	StaticPopupDialogs["VE_OUTFIT_DELETE"] = {
+		text = "Are you sure you want to delete this outfit?",
+		button1 = "Yes",
+		button2 = "No",
+		OnAccept = function()
+			module.DeleteOutfit()
+		end,
+		timeout = 0,
+		whileDead = 1,
+		hideOnEscape = 1,
+	}
+
 	StaticPopupDialogs["VE_OUTFIT_NEW"] = {
 		text = "Enter name for new outfit:",
 		button1 = "Accept",
