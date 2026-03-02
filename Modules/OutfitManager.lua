@@ -164,12 +164,13 @@ local function CreateOutfit(name)
 	UpdateList()
 end
 
-local function SaveOutfit()
-	if not module.data.selectedIndex then
+local function SaveOutfit(index)
+	index = index or module.data.selectedIndex
+	if not index then
 		VE.iprint("Select an outfit first.")
 		return
 	end
-	local outfit = module.data.outfits[module.data.selectedIndex]
+	local outfit = module.data.outfits[index]
 	if outfit then
 		outfit.gear = GetCurrentGear()
 		SaveData()
@@ -177,9 +178,10 @@ local function SaveOutfit()
 	end
 end
 
-local function RenameOutfit(newName)
-	if not module.data.selectedIndex or not newName or newName == "" then return end
-	local outfit = module.data.outfits[module.data.selectedIndex]
+local function RenameOutfit(index, newName)
+	index = index or module.data.selectedIndex
+	if not index or not newName or newName == "" then return end
+	local outfit = module.data.outfits[index]
 	if outfit then
 		outfit.name = newName
 		SaveData()
@@ -187,24 +189,27 @@ local function RenameOutfit(newName)
 	end
 end
 
-local function DeleteOutfit()
-	if not module.data.selectedIndex then
+local function DeleteOutfit(index)
+	index = index or module.data.selectedIndex
+	
+	VE.print(index)
+	VE.print(module.data.selectedIndex)
+	
+	if not index then
 		VE.iprint("Select an outfit first.")
 		return
 	end
-	table.remove(module.data.outfits, module.data.selectedIndex)
+	table.remove(module.data.outfits, index)
 	module.data.selectedIndex = nil
+	module.data.buttons = {}
 	SaveData()
 	UpdateList()
 end
 
 local dropdownMenuFrame = nil
-local currentDropdownIndex = nil
 
 function module.ShowDropdown(button, index)
-	currentDropdownIndex = index
-	module.data.dropdownIndex = index
-	ToggleDropDownMenu(1, nil, dropdownMenuFrame, button, 0, 0)
+	ToggleDropDownMenu(1, index, dropdownMenuFrame, button, 0, 0)
 end
 
 -- UI
@@ -317,31 +322,26 @@ local function CreateUI()
 	dropdownMenuFrame = CreateFrame("Frame", "VE_OutfitManagerDropdownMenu", frame, "UIDropDownMenuTemplate")
 	UIDropDownMenu_Initialize(dropdownMenuFrame, function()
 		local info = {}
+		local index = this.value
+		
 		info.text = "Rename"
 		info.func = function()
-			local outfit = module.data.outfits[currentDropdownIndex]
+			local outfit = module.data.outfits[index]
 			if not outfit then return end
 			VE.iprint("Enter new name for outfit: " .. outfit.name)
-			module.data.pendingRename = currentDropdownIndex
+			module.data.pendingRename = index
 		end
 		UIDropDownMenu_AddButton(info)
 		
 		info.text = "Delete"
 		info.func = function()
-			table.remove(module.data.outfits, currentDropdownIndex)
-			module.data.selectedIndex = nil
-			module.data.buttons = {}
-			CloseDropDownMenus()
-			SaveData()
-			UpdateList()
+			DeleteOutfit(index)
 		end
 		UIDropDownMenu_AddButton(info)
 		
 		info.text = "Save"
 		info.func = function()
-			SaveOutfit(currentDropdownIndex)
-			module.data.buttons = {}
-			UpdateList()
+			SaveOutfit(index)
 		end
 		UIDropDownMenu_AddButton(info)
 	end, "MENU")
@@ -357,18 +357,6 @@ local function CreateUI()
 	end)
 	
 	-- Popups
-	StaticPopupDialogs["VE_OUTFIT_DELETE"] = {
-		text = "Are you sure you want to delete this outfit?",
-		button1 = "Yes",
-		button2 = "No",
-		OnAccept = function()
-			DeleteOutfit()
-		end,
-		timeout = 0,
-		whileDead = 1,
-		hideOnEscape = 1,
-	}
-
 	StaticPopupDialogs["VE_OUTFIT_NEW"] = {
 		text = "Enter name for new outfit:",
 		button1 = "Accept",
