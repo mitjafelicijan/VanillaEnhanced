@@ -82,4 +82,9 @@ WoW/
 ```
 
 ### Game AOE MPQ
+
+![Raid Visuals](Promo/RaidVisuals.png)
+
 Copy `GameAssets/Data/patch-O.mpq` to the `Data` folder in your WoW directory. This patch adds visual indicators (circles) around mobs during AOE.
+
+https://github.com/MarcelineVQ/twow-raid-visuals
