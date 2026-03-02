@@ -246,7 +246,17 @@ local function CreateOutfit(name)
 		gear = GetCurrentGear()
 	})
 	module.data.selectedIndex = table.getn(module.data.outfits)
-	module.data.buttons = {}
+	
+	if module.data.buttons then
+		for _, btn in ipairs(module.data.buttons) do
+			btn:Hide()
+			if btn.dropdown then btn.dropdown:Hide() end
+		end
+		wipe(module.data.buttons)
+	else
+		module.data.buttons = {}
+	end
+	
 	SaveData()
 	UpdateList()
 end
