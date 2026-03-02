@@ -284,8 +284,26 @@ local function DeleteOutfit(index)
 	end
 	table.remove(module.data.outfits, index)
 	module.data.selectedIndex = nil
-	module.data.buttons = {}
+	CloseDropDownMenus()
 	SaveData()
+	
+	if module.data.buttons then
+		for _, btn in ipairs(module.data.buttons) do
+			btn:Hide()
+			if btn.dropdown then btn.dropdown:Hide() end
+		end
+		wipe(module.data.buttons)
+	else
+		module.data.buttons = {}
+	end
+	
+	if listContent then
+		listContent:SetHeight(10)
+	end
+	if scrollFrame then
+		scrollFrame:SetVerticalScroll(0)
+	end
+	
 	UpdateList()
 end
 
