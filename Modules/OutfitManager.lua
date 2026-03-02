@@ -211,6 +211,8 @@ function module.UpdateList()
 			btn.checkbox:SetWidth(24)
 			btn.checkbox:SetHeight(24)
 			btn.checkbox:SetPoint("LEFT", btn, "LEFT", 3, 0)
+			btn.checkbox:EnableMouse(true)
+			btn.checkbox:SetID(outfitIndex)
 			
 			btn.text = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 			btn.text:SetPoint("LEFT", btn.checkbox, "RIGHT", 5, 0)
@@ -230,8 +232,9 @@ function module.UpdateList()
 			end)
 			
 			btn.checkbox:SetScript("OnClick", function()
+				this.checkboxClicked = true
 				local myIndex = this:GetID()
-				
+
 				if module.data.selectedIndex == myIndex then
 					module.data.selectedIndex = nil
 				else
@@ -240,8 +243,16 @@ function module.UpdateList()
 				module.SaveData()
 				module.UpdateList()
 			end)
+			btn.checkbox:SetScript("OnMouseDown", function()
+				this:StopMovingOrSizing()
+			end)
 			
 			btn:SetScript("OnClick", function()
+				if btn.checkbox and btn.checkbox.checkboxClicked then
+					btn.checkbox.checkboxClicked = nil
+					return
+				end
+				
 				local myIndex = this:GetID()
 				
 				if module.data.selectedIndex == myIndex then
