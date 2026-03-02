@@ -23,18 +23,27 @@ Compatible with World of Warcraft Client v1.12.
 - **Enhanced Aura Buttons**: Expands the player buff frame to support up to 32 buffs and 16 debuffs with countdown timers and stack counts.
 - **Minimap Clock & Stopwatch**: Adds local/server time to the minimap and a built-in stopwatch feature.
 - **Align Grid**: Draws a reference grid (Ctrl+Alt+Shift) to help you align UI elements perfectly.
+- **Casting Bar Position**: Moves the standard player casting bar higher up on the screen for better visibility.
+- **Chat Enhancements**: Enables mouse wheel scrolling in chat windows and arrow key navigation in the edit box.
+- **Compare Tooltip**: Shows equipped item comparison tooltips when holding Shift.
+- **Last Message Only**: Filters the red error text area to show only the most recent message, preventing spam.
+- **Low Health Warning**: Displays a red screen pulse animation when player health drops below 35%.
+- **Rested XP Tooltip**: Displays exact XP numbers and rested percentage directly on the XP bar when hovered.
 
 ### Combat & Gameplay
 - **Target Casting Bar**: Displays the name and progress of the spell your current target is casting directly on their unit frame.
 - **Cooldown Timers**: Adds numerical countdowns and icon desaturation to abilities and items on cooldown.
 - **Nameplate Enhancements**: Adds combo points, scaling based on UI settings, and threat-based coloring (green when you have aggro) to nameplates.
 - **Out of Range Indicator**: Colors action button icons red when your target is out of range for that specific spell.
+- **Combat Cursor**: Adds a high-visibility background trail to the cursor during combat (or toggle via `/cursor`).
 - **Hunter Target Distance**: A specialized indicator for Hunters showing Melee, Ranged, Deadzone, or Out of Range status.
-- **Druid Specifics**: Smart rotation macro (`/dob`), mana bar visibility while shapeshifted, and form-switch spam protection.
+- **Druid Specifics**: Smart rotation macro (`/dob`), mana bar visibility while shapeshifted, and form-switch spam protection (prevents toggling off forms).
+- **Maintain Hunter Aspects**: Prevents accidental toggling off of Aspects when spamming the key.
 - **Pull & Break Timer**: Compatible with BigWigs to show countdown bars for raid pulls and breaks.
 
 ### Automation & Quality of Life
 - **Auction Enhancements**: Adds a "Post" tab to the AH with automated stack splitting, price scanning, and bulk posting.
+- **Auto Roll**: Automatically rolls on items based on config (ZG coins, MC cores, Green items, etc.).
 - **Auto Loot/Repair/Sell**: Automates looting (via Shift), gear repairs at merchants, and selling of junk (grey) items.
 - **Mailbox Enhancements**: Remembers the last recipient and adds Shift+Click to quickly take items and delete mail.
 - **Bag & Item Tools**: Adds a search box to the backpack, shows free slot counts, displays item levels/rarity on gear icons, and adds quest progress to tooltips.
@@ -52,6 +61,29 @@ Compatible with World of Warcraft Client v1.12.
 - **Extended Commands**: Adds modern slash commands like `/rl` (reload), `/use`, `/dismount`, and `/cancelform`.
 - **Solo Self Found**: A challenge mode module that blocks grouping, trading, and auction house usage.
 - **Hide UI Elements**: Specialized modules to hide Lua errors and specific Minimap buttons (BGF, LFT, EBC).
+
+## Slash Commands (Extended Commands)
+
+| Command | Aliases | Description |
+| :--- | :--- | :--- |
+| `/rl` | `/reload`, `/reloadui` | Reloads the game interface. |
+| `/rp [arg]` | `/raidpullout` | Manages raid pullout frames (`show`, `hide`, `reload`). |
+| `/reset` | `/resetinstances` | Resets all active instances. |
+| `/dismount` | | Automatically finds and cancels your mount aura. |
+| `/cancelform` | | Cancels Druid shapeshift forms or Priest Shadowform. |
+| `/bearform` | | Enters Druid Bear Form. |
+| `/aquaticform` | | Enters Druid Aquatic Form. |
+| `/catform` | | Enters Druid Cat Form. |
+| `/travelform` | | Enters Druid Travel Form. |
+| `/use [item]` | | Searches bags for an item by name and uses it. |
+| `/feedpet [food]` | | Feeds the specified food to your hunter pet. |
+| `/cleartarget` | | Clears your current selection. |
+| `/stopattack` | | Stops attacking and re-targets the last target. |
+| `/targetlasttarget` | | Re-targets your previous selection. |
+| `/targetmouseoverunit`| | Targets the unit currently under your mouse. |
+| `/mcast [spell]` | | Casts a spell on your mouseover unit (Legacy). |
+| `/dcast [spell]` | | Casts a spell with a short delay (Legacy). |
+| `/sa` | `/sandbox` | Debugging tool (currently empty). |
 
 ## UI Preview
 
