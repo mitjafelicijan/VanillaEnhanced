@@ -126,6 +126,20 @@ function module.FindItemLocation(targetLink)
 	return nil, nil
 end
 
+function module.FindEmptyBagSlot()
+	for bag = 0, 4 do
+		local numSlots = GetContainerNumSlots(bag)
+		if numSlots and numSlots > 0 then
+			for slot = 1, numSlots do
+				if not GetContainerItemLink(bag, slot) then
+					return bag, slot
+				end
+			end
+		end
+	end
+	return nil, nil
+end
+
 function module.EquipOutfit(index)
 	local outfit = module.data.outfits[index]
 	if not outfit then return end
@@ -153,6 +167,12 @@ function module.EquipOutfit(index)
 					end
 				else
 					VE.iprint("Item not found: " .. desiredLink)
+				end
+			elseif currentLink then
+				local emptyBag, emptySlot = module.FindEmptyBagSlot()
+				if emptyBag and emptySlot then
+					PickupInventoryItem(info.slot)
+					PickupContainerItem(emptyBag, emptySlot)
 				end
 			end
 		end
