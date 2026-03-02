@@ -409,12 +409,19 @@ local function CreateUI()
 		hasEditBox = 1,
 		maxLetters = 32,
 		OnAccept = function()
-			local editBox = getglobal(this:GetParent():GetName().."EditBox")
-			CreateOutfit(editBox:GetText())
+			local dialog = this:GetParent()
+			local editBox = getglobal(dialog:GetName() .. "EditBox")
+			local name = editBox:GetText()
+			editBox:SetText("")
+			CreateOutfit(name)
 		end,
 		EditBoxOnEnterPressed = function()
-			CreateOutfit(this:GetText())
-			this:GetParent():Hide()
+			local dialog = this:GetParent()
+			local editBox = getglobal(dialog:GetName() .. "EditBox")
+			local name = editBox:GetText()
+			editBox:SetText("")
+			CreateOutfit(name)
+			dialog:Hide()
 		end,
 		timeout = 0,
 		whileDead = 1,
@@ -428,12 +435,15 @@ local function CreateUI()
 		hasEditBox = 1,
 		maxLetters = 32,
 		OnAccept = function()
-			local editBox = getglobal(this:GetParent():GetName().."EditBox")
-			RenameOutfit(editBox:GetText())
+			local dialog = this:GetParent()
+			local editBox = getglobal(dialog:GetName() .. "EditBox")
+			RenameOutfit(module.data.currentOutfitIndex, editBox:GetText())
 		end,
 		EditBoxOnEnterPressed = function()
-			RenameOutfit(this:GetText())
-			this:GetParent():Hide()
+			local dialog = this:GetParent()
+			local editBox = getglobal(dialog:GetName() .. "EditBox")
+			RenameOutfit(module.data.currentOutfitIndex, editBox:GetText())
+			dialog:Hide()
 		end,
 		timeout = 0,
 		whileDead = 1,
