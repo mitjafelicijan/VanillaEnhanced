@@ -50,6 +50,7 @@ Compatible with World of Warcraft Client v1.12.
 - **Bank Bags**: Allows you to view a snapshot of your bank contents even when you are not at a bank.
 - **Consumables Panel**: A dedicated 6x6 grid that automatically finds and displays all consumable items in your bags.
 - **Trinket Manager**: A small frame for managing equipped trinkets and relics, including cooldown tracking and easy usage.
+- **Outfit Manager**: Integrated into the character pane, this tool allows you to save, rename, and quickly swap between different equipment sets.
 
 ### World & Map
 - **World Map Markers**: Adds persistent icons for Dungeons, Raids, Flight Paths, Transports, and World Bosses to the world map.

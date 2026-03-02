@@ -344,8 +344,7 @@ local function createDropdown()
 	filterBtn:SetHeight(24)
 	filterBtn:SetText("Filters")
 	filterBtn:SetFrameLevel(WorldMapButton:GetFrameLevel() + 10)
-	-- Positioned at the top right of the map imagery
-	filterBtn:SetPoint("TOPRIGHT", WorldMapButton, "TOPRIGHT", -5, -5)
+	filterBtn:SetPoint("TOPRIGHT", WorldMapButton, "TOPRIGHT", -16, -12)
 
 	local menuFrame = CreateFrame("Frame", "VE_MapMarkerFilterMenu", filterBtn, "UIDropDownMenuTemplate")
 
