@@ -55,6 +55,15 @@ VE.panels.RaidParty = function(parent)
 			if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
 		end, option.superWoWRequired)
 	end
+	
+	do
+		local module = VE.getModule("RaidTargetMarkers")
+		if module then
+			VE.elements.Checkbox(frame, 20, -310, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
 
 	-- Right column
 
