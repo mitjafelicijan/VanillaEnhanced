@@ -43,7 +43,7 @@ local function ScanMarkers()
 		end
 	end
 	if not found then
-		VE.print(" No marked targets found nearby.")
+		VE.print("No marked targets found nearby.")
 	end
 end
 
