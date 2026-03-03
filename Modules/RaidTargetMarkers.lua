@@ -9,10 +9,11 @@ local module = VE.registerModule({
 	config = {
 		buttonSize = 24,
 		padding = 6,
-		updateInterval = 1.0,
+		updateInterval = 0.2,
 	},
 	data = {
 		buttons = {},
+		casts = {},
 	},
 })
 
@@ -75,6 +76,7 @@ local function CreateMarkerFrame()
 		local tex = btn:CreateTexture(nil, "ARTWORK")
 		tex:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
 		tex:SetAllPoints()
+		btn.tex = tex
 
 		local left = mod(index - 1, 4) * 0.25
 		local right = left + 0.25
@@ -97,13 +99,79 @@ local function CreateMarkerFrame()
 			local unit = "mark" .. this.index
 			GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
 			GameTooltip:ClearLines()
-			GameTooltip:AddLine(markerNames[this.index], 1, 1, 1)
-			if UnitExists(unit) then
+			
+			local exists, guid = UnitExists(unit)
+			if exists then
 				local name = UnitName(unit)
+				local level = UnitLevel(unit)
+				if level == -1 then level = "??" end
+				local classification = UnitClassification(unit)
+				local type = UnitCreatureType(unit) or ""
 				local health = floor((UnitHealth(unit) / UnitHealthMax(unit)) * 100)
-				GameTooltip:AddLine(name, 1, 0.82, 0)
-				GameTooltip:AddLine(string.format("Health: %d%%", health), 1, 1, 1)
+				
+				local classStr = ""
+				if classification == "worldboss" or classification == "elite" or classification == "rareelite" then
+					classStr = " (Elite)"
+				end
+
+				-- Header: Marker Name and Health
+				GameTooltip:AddDoubleLine(markerNames[this.index], string.format("Health: %d%%", health), 1, 1, 1, 1, 1, 1)
+				
+				-- Line 1: Name with Class/Reaction coloring
+				local r, g, b = 1, 0.82, 0
+				if UnitIsPlayer(unit) then
+					local _, class = UnitClass(unit)
+					if class then
+						local classKey = string.upper(string.sub(class, 1, 1)) .. string.lower(string.sub(class, 2))
+						if VE.config.ClassColors[classKey] then
+							r, g, b = VE.config.ClassColors[classKey].r, VE.config.ClassColors[classKey].g, VE.config.ClassColors[classKey].b
+						end
+					end
+				else
+					if UnitIsFriend("player", unit) then
+						r, g, b = 0.1, 1, 0.1
+					elseif UnitCanAttack("player", unit) then
+						r, g, b = 1, 0.1, 0.1
+					else
+						r, g, b = 1, 1, 0.1
+					end
+				end
+				GameTooltip:AddLine(name, r, g, b)
+				
+				-- Line 2: Level / Type
+				GameTooltip:AddLine(string.format("Level %s %s%s", level, type, classStr), 0.8, 0.8, 0.8)
+
+				-- Line 3: Casting Info (if tracked)
+				if guid and module.data.casts[guid] then
+					local cast = module.data.casts[guid]
+					if GetTime() < cast.endTime then
+						GameTooltip:AddLine("Casting: " .. cast.name, 1, 0.7, 0)
+					else
+						module.data.casts[guid] = nil
+					end
+				end
+
+				-- Line 4: Target of Target (Aggro)
+				local target = guid .. "target"
+				if UnitExists(target) then
+					local targetName = UnitName(target)
+					local tr, tg, tb = 1, 1, 1
+					if UnitIsUnit(target, "player") then
+						tr, tg, tb = 1, 0.2, 0.2 -- Red alert
+						targetName = "YOU"
+					elseif UnitIsPlayer(target) then
+						local _, tclass = UnitClass(target)
+						if tclass then
+							local tclassKey = string.upper(string.sub(tclass, 1, 1)) .. string.lower(string.sub(tclass, 2))
+							if VE.config.ClassColors[tclassKey] then
+								tr, tg, tb = VE.config.ClassColors[tclassKey].r, VE.config.ClassColors[tclassKey].g, VE.config.ClassColors[tclassKey].b
+							end
+						end
+					end
+					GameTooltip:AddLine("Target: " .. targetName)
+				end
 			else
+				GameTooltip:AddLine(markerNames[this.index], 1, 1, 1)
 				GameTooltip:AddLine("<No target>", 0.5, 0.5, 0.5)
 			end
 			GameTooltip:Show()
@@ -113,7 +181,6 @@ local function CreateMarkerFrame()
 			GameTooltip:Hide()
 		end)
 
-		btn:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
 		module.data.buttons[index] = btn
 	end
 
@@ -129,7 +196,8 @@ local function CreateMarkerFrame()
 			for i = 1, 8 do
 				local idx = 9 - i
 				local btn = module.data.buttons[idx]
-				if UnitExists("mark" .. idx) then
+				local unit = "mark" .. idx
+				if UnitExists(unit) then
 					visibleCount = visibleCount + 1
 					btn:ClearAllPoints()
 					btn:SetPoint("LEFT", this, "LEFT", padding + (visibleCount - 1) * (size + padding), 0)
@@ -153,6 +221,7 @@ end
 
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
+module.plug:RegisterEvent("UNIT_CASTEVENT")
 
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
@@ -163,6 +232,24 @@ module.plug:SetScript("OnEvent", function()
 		end
 
 		VE.executeWithDelay(2, ScanMarkers)
+	end
+
+	if event == "UNIT_CASTEVENT" then
+		local casterGUID = arg1
+		local eventType = arg3 -- ("START", "CAST", "FAIL", "CHANNEL")
+		local spellID = arg4
+		local castDuration = arg5
+
+		if eventType == "START" or eventType == "CHANNEL" then
+			local castName, _, castTexture = SpellInfo(spellID)
+			module.data.casts[casterGUID] = {
+				name = castName,
+				endTime = GetTime() + (castDuration / 1000),
+				texture = castTexture
+			}
+		elseif eventType == "FAIL" or eventType == "CAST" then
+			module.data.casts[casterGUID] = nil
+		end
 	end
 end)
 
