@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "RaidTargetMarkers",
 	meta = {
 		label = "Raid Target Markers",
-		description = "Easily target or set raid markers. Uses SuperWoW for direct 'mark1-8' targeting.",
+		description = "Easily target raid markers. Uses SuperWoW for direct 'mark1-8' targeting.",
 	},
 	plug = nil,
 	superWoWRequired = true,
@@ -82,19 +82,12 @@ local function CreateMarkerFrame()
 
 		btn:SetScript("OnClick", function()
 			local unit = "mark" .. index
-			if IsShiftKeyDown() then
-				-- Set marker on current target
-				local isSolo = not InGroupOrRaid()
-				SetRaidTarget("target", index, isSolo and 1 or nil)
-				VE.print(string.format("Set %s on target.", markerNames[index]))
+			-- Target the marked unit
+			if UnitExists(unit) then
+				TargetUnit(unit)
+				VE.print(string.format("Targeted %s: %s", markerNames[index], UnitName(unit)))
 			else
-				-- Target the marked unit
-				if UnitExists(unit) then
-					TargetUnit(unit)
-					VE.print(string.format("Targeted %s: %s", markerNames[index], UnitName(unit)))
-				else
-					VE.print(string.format("No unit found with %s marker.", markerNames[index]))
-				end
+				VE.print(string.format("No unit found with %s marker.", markerNames[index]))
 			end
 		end)
 
@@ -113,7 +106,6 @@ local function CreateMarkerFrame()
 			end
 			GameTooltip:AddLine(" ")
 			GameTooltip:AddLine("|cff00ff00Click:|r Target unit", 0.8, 0.8, 0.8)
-			GameTooltip:AddLine("|cff00ff00Shift-Click:|r Set marker on target", 0.8, 0.8, 0.8)
 			GameTooltip:Show()
 		end)
 
