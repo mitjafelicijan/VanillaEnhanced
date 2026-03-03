@@ -85,7 +85,6 @@ local function CreateMarkerFrame()
 
 		btn:SetScript("OnClick", function()
 			local unit = "mark" .. this.index
-			-- Target the marked unit
 			if UnitExists(unit) then
 				TargetUnit(unit)
 				VE.print(string.format("Targeted %s: %s", markerNames[this.index], UnitName(unit)))
@@ -113,10 +112,8 @@ local function CreateMarkerFrame()
 					classStr = " (Elite)"
 				end
 
-				-- Header: Marker Name and Health
 				GameTooltip:AddDoubleLine(markerNames[this.index], string.format("Health: %d%%", health), 1, 1, 1, 1, 1, 1)
-				
-				-- Line 1: Name with Class/Reaction coloring
+
 				local r, g, b = 1, 0.82, 0
 				if UnitIsPlayer(unit) then
 					local _, class = UnitClass(unit)
@@ -136,11 +133,9 @@ local function CreateMarkerFrame()
 					end
 				end
 				GameTooltip:AddLine(name, r, g, b)
-				
-				-- Line 2: Level / Type
+
 				GameTooltip:AddLine(string.format("Level %s %s%s", level, type, classStr), 0.8, 0.8, 0.8)
 
-				-- Line 3: Target of Target (Aggro)
 				local target = guid .. "target"
 				if UnitExists(target) then
 					local targetName = UnitName(target)
