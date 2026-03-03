@@ -13,7 +13,6 @@ local module = VE.registerModule({
 	},
 	data = {
 		buttons = {},
-		casts = {},
 	},
 })
 
@@ -141,33 +140,10 @@ local function CreateMarkerFrame()
 				-- Line 2: Level / Type
 				GameTooltip:AddLine(string.format("Level %s %s%s", level, type, classStr), 0.8, 0.8, 0.8)
 
-				-- Line 3: Casting Info (if tracked)
-				if guid and module.data.casts[guid] then
-					local cast = module.data.casts[guid]
-					if GetTime() < cast.endTime then
-						GameTooltip:AddLine("Casting: " .. cast.name, 1, 0.7, 0)
-					else
-						module.data.casts[guid] = nil
-					end
-				end
-
-				-- Line 4: Target of Target (Aggro)
+				-- Line 3: Target of Target (Aggro)
 				local target = guid .. "target"
 				if UnitExists(target) then
 					local targetName = UnitName(target)
-					local tr, tg, tb = 1, 1, 1
-					if UnitIsUnit(target, "player") then
-						tr, tg, tb = 1, 0.2, 0.2 -- Red alert
-						targetName = "YOU"
-					elseif UnitIsPlayer(target) then
-						local _, tclass = UnitClass(target)
-						if tclass then
-							local tclassKey = string.upper(string.sub(tclass, 1, 1)) .. string.lower(string.sub(tclass, 2))
-							if VE.config.ClassColors[tclassKey] then
-								tr, tg, tb = VE.config.ClassColors[tclassKey].r, VE.config.ClassColors[tclassKey].g, VE.config.ClassColors[tclassKey].b
-							end
-						end
-					end
 					GameTooltip:AddLine("Target: " .. targetName)
 				end
 			else
@@ -181,6 +157,7 @@ local function CreateMarkerFrame()
 			GameTooltip:Hide()
 		end)
 
+		btn:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
 		module.data.buttons[index] = btn
 	end
 
@@ -197,7 +174,7 @@ local function CreateMarkerFrame()
 				local idx = 9 - i
 				local btn = module.data.buttons[idx]
 				local unit = "mark" .. idx
-				if UnitExists(unit) then
+				if UnitExists(unit) and not UnitIsDead(unit) then
 					visibleCount = visibleCount + 1
 					btn:ClearAllPoints()
 					btn:SetPoint("LEFT", this, "LEFT", padding + (visibleCount - 1) * (size + padding), 0)
@@ -221,7 +198,6 @@ end
 
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
-module.plug:RegisterEvent("UNIT_CASTEVENT")
 
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
@@ -232,24 +208,6 @@ module.plug:SetScript("OnEvent", function()
 		end
 
 		VE.executeWithDelay(2, ScanMarkers)
-	end
-
-	if event == "UNIT_CASTEVENT" then
-		local casterGUID = arg1
-		local eventType = arg3 -- ("START", "CAST", "FAIL", "CHANNEL")
-		local spellID = arg4
-		local castDuration = arg5
-
-		if eventType == "START" or eventType == "CHANNEL" then
-			local castName, _, castTexture = SpellInfo(spellID)
-			module.data.casts[casterGUID] = {
-				name = castName,
-				endTime = GetTime() + (castDuration / 1000),
-				texture = castTexture
-			}
-		elseif eventType == "FAIL" or eventType == "CAST" then
-			module.data.casts[casterGUID] = nil
-		end
 	end
 end)
 
