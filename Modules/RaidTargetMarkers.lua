@@ -7,10 +7,13 @@ local module = VE.registerModule({
 	plug = nil,
 	superWoWRequired = true,
 	config = {
-		buttonSize = 32,
-		padding = 4,
+		buttonSize = 24,
+		padding = 6,
+		updateInterval = 1.0,
 	},
-	data = {},
+	data = {
+		buttons = {},
+	},
 })
 
 VE.enableModule(module.identifier)
@@ -54,7 +57,7 @@ local function CreateMarkerFrame()
 	local frame = CreateFrame("Frame", "RaidTargetMarkersFrame", UIParent)
 	frame:SetWidth(width)
 	frame:SetHeight(height)
-	frame:SetPoint("CENTER", 0, -100)
+	frame:SetPoint("CENTER", 0, -80)
 	frame:SetFrameStrata("HIGH")
 	frame:EnableMouse(true)
 	frame:SetMovable(true)
@@ -63,12 +66,11 @@ local function CreateMarkerFrame()
 	frame:SetScript("OnDragStart", function() this:StartMoving() end)
 	frame:SetScript("OnDragStop", function() this:StopMovingOrSizing() end)
 
-	for i = 1, 8 do
-		local index = 9 - i -- Reversed order (Skull to Star)
+	for index = 1, 8 do
 		local btn = CreateFrame("Button", nil, frame)
 		btn:SetWidth(size)
 		btn:SetHeight(size)
-		btn:SetPoint("LEFT", frame, "LEFT", padding + (i - 1) * (size + padding), 0)
+		btn.index = index
 
 		local tex = btn:CreateTexture(nil, "ARTWORK")
 		tex:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
@@ -81,21 +83,21 @@ local function CreateMarkerFrame()
 		tex:SetTexCoord(left, right, top, bottom)
 
 		btn:SetScript("OnClick", function()
-			local unit = "mark" .. index
+			local unit = "mark" .. this.index
 			-- Target the marked unit
 			if UnitExists(unit) then
 				TargetUnit(unit)
-				VE.print(string.format("Targeted %s: %s", markerNames[index], UnitName(unit)))
+				VE.print(string.format("Targeted %s: %s", markerNames[this.index], UnitName(unit)))
 			else
-				VE.print(string.format("No unit found with %s marker.", markerNames[index]))
+				VE.print(string.format("No unit found with %s marker.", markerNames[this.index]))
 			end
 		end)
 
 		btn:SetScript("OnEnter", function()
-			local unit = "mark" .. index
+			local unit = "mark" .. this.index
 			GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
 			GameTooltip:ClearLines()
-			GameTooltip:AddLine(markerNames[index], 1, 1, 1)
+			GameTooltip:AddLine(markerNames[this.index], 1, 1, 1)
 			if UnitExists(unit) then
 				local name = UnitName(unit)
 				local health = floor((UnitHealth(unit) / UnitHealthMax(unit)) * 100)
@@ -104,8 +106,6 @@ local function CreateMarkerFrame()
 			else
 				GameTooltip:AddLine("<No target>", 0.5, 0.5, 0.5)
 			end
-			GameTooltip:AddLine(" ")
-			GameTooltip:AddLine("|cff00ff00Click:|r Target unit", 0.8, 0.8, 0.8)
 			GameTooltip:Show()
 		end)
 
@@ -114,7 +114,38 @@ local function CreateMarkerFrame()
 		end)
 
 		btn:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
+		module.data.buttons[index] = btn
 	end
+
+	frame.timeSinceLastUpdate = 0
+	frame:SetScript("OnUpdate", function()
+		if not arg1 then return end
+		this.timeSinceLastUpdate = this.timeSinceLastUpdate + arg1
+		if this.timeSinceLastUpdate >= module.config.updateInterval then
+			this.timeSinceLastUpdate = 0
+			
+			local visibleCount = 0
+			-- Reverse order: Skull (8) to Star (1)
+			for i = 1, 8 do
+				local idx = 9 - i
+				local btn = module.data.buttons[idx]
+				if UnitExists("mark" .. idx) then
+					visibleCount = visibleCount + 1
+					btn:ClearAllPoints()
+					btn:SetPoint("LEFT", this, "LEFT", padding + (visibleCount - 1) * (size + padding), 0)
+					btn:Show()
+				else
+					btn:Hide()
+				end
+			end
+			
+			if visibleCount > 0 then
+				this:SetWidth((size + padding) * visibleCount + padding)
+			else
+				this:SetWidth(1)
+			end
+		end
+	end)
 
 	frame:Show()
 	return frame
@@ -130,7 +161,7 @@ module.plug:SetScript("OnEvent", function()
 		if not module.plug.frame then
 			module.plug.frame = CreateMarkerFrame()
 		end
-		-- Wait a bit for units to load before scanning
+
 		VE.executeWithDelay(2, ScanMarkers)
 	end
 end)
