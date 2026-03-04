@@ -115,8 +115,8 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 		flyoutFrame:SetFrameStrata("TOOLTIP")
 	end
 	
-	local flyoutWidth = iconSize + 10
-	local flyoutHeight = (iconSize + 2) * numItems + 10
+	local flyoutWidth = iconSize
+	local flyoutHeight = (iconSize + 2) * numItems
 	
 	flyoutFrame:ClearAllPoints()
 	-- Anchor bottom of flyout to top of target button
@@ -125,13 +125,8 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 	flyoutFrame:SetWidth(flyoutWidth)
 	flyoutFrame:SetHeight(flyoutHeight)
 	
-	flyoutFrame:SetBackdrop({
-		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-		tile = true, tileSize = 16, edgeSize = 16,
-		insets = { left = 4, right = 4, top = 4, bottom = 4 }
-	})
-	flyoutFrame:SetBackdropColor(0, 0, 0, 0.9)
+	-- Removed border/backdrop
+	flyoutFrame:SetBackdrop(nil)
 	
 	flyoutFrame:Show()
 	
@@ -159,7 +154,8 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 		btn.isIdol = isIdol
 		
 		btn:ClearAllPoints()
-		btn:SetPoint("TOP", flyoutFrame, "TOP", 0, -(i - 1) * (iconSize + 2) - 5)
+		-- Stack from bottom to top: (i-1) goes up
+		btn:SetPoint("BOTTOM", flyoutFrame, "BOTTOM", 0, (i - 1) * (iconSize + 2))
 		
 		btn:SetScript("OnClick", function()
 			local bag, slot = item.bag, item.slot
@@ -235,7 +231,7 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 	
 	local removeBtn = flyoutButtons[removeIndex]
 	removeBtn:ClearAllPoints()
-	removeBtn:SetPoint("TOP", flyoutFrame, "TOP", 0, -(removeIndex - 1) * (iconSize + 2) - 5)
+	removeBtn:SetPoint("BOTTOM", flyoutFrame, "BOTTOM", 0, (removeIndex - 1) * (iconSize + 2))
 	
 	removeBtn:SetScript("OnClick", function()
 		local currentLink = GetInventoryItemLink("player", equipSlot)
