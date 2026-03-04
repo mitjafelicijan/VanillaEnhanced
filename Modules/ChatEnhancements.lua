@@ -205,6 +205,29 @@ local function ColorizeNames(msg)
 	return msg
 end
 
+local function ShortenChannelNames()
+	CHAT_GUILD_GET = "|Hchannel:Guild|h[G]|h %s: "
+	CHAT_OFFICER_GET = "|Hchannel:Officer|h[O]|h %s: "
+	CHAT_PARTY_GET = "|Hchannel:Party|h[P]|h %s: "
+	CHAT_RAID_GET = "|Hchannel:Raid|h[R]|h %s: "
+	CHAT_RAID_LEADER_GET = "|Hchannel:Raid|h[RL]|h %s: "
+	CHAT_RAID_WARNING_GET = "[RW] %s: "
+	CHAT_BATTLEGROUND_GET = "|Hchannel:Battleground|h[BG]|h %s: "
+	CHAT_BATTLEGROUND_LEADER_GET = "|Hchannel:Battleground|h[BGL]|h %s: "
+end
+
+local function ShortenNumberedChannels(msg)
+	if not msg then return msg end
+	msg = string.gsub(msg, "%[(%d+)%. General%]", "[%1. G]")
+	msg = string.gsub(msg, "%[(%d+)%. Trade%]", "[%1. T]")
+	msg = string.gsub(msg, "%[(%d+)%. LocalDefense%]", "[%1. LD]")
+	msg = string.gsub(msg, "%[(%d+)%. WorldDefense%]", "[%1. WD]")
+	msg = string.gsub(msg, "%[(%d+)%. LookingForGroup%]", "[%1. LFG]")
+	msg = string.gsub(msg, "%[(%d+)%. GuildRecruitment%]", "[%1. GR]")
+	msg = string.gsub(msg, "%[(%d+)%. Hardcore%]", "[%1. HC]")
+	return msg
+end
+
 local function HookChatFrame(frame)
 	if not frame or frame.VE_AddMessage_Org then return end
 
@@ -213,6 +236,7 @@ local function HookChatFrame(frame)
 		if msg then
 			msg = ProcessMessage(msg)
 			msg = ColorizeNames(msg)
+			msg = ShortenNumberedChannels(msg)
 		end
 		this:VE_AddMessage_Org(msg, r, g, b, id)
 	end
@@ -248,6 +272,7 @@ module.plug:SetScript("OnEvent", function()
 		event == "RAID_ROSTER_UPDATE" or event == "PARTY_MEMBERS_CHANGED" or 
 		event == "FRIENDLIST_UPDATE" then
 		UpdateClassCache()
+		ShortenChannelNames()
 	end
 
 	if event == "PLAYER_ENTERING_WORLD" then
@@ -288,4 +313,9 @@ for i=1, NUM_CHAT_WINDOWS do
 	if frame then
 		HookChatFrame(frame)
 	end
+end
+
+-- Shorten channel names on load
+if VE.isModuleEnabled(module.identifier) then
+	ShortenChannelNames()
 end
