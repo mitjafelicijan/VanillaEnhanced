@@ -42,6 +42,7 @@ Modules\BlockMailbox.lua
 Modules\BulletinBoard.xml
 Modules\CastingBarPosition.lua
 Modules\ChatEnhancements.lua
+Modules\ClassPortraits.lua
 Modules\CombatCursor.lua
 Modules\CompactActionBars.lua
 Modules\CompactFrames.xml
