@@ -70,6 +70,10 @@ local function FindEmptyBagSlot()
 	return nil, nil
 end
 
+-- Forward declarations
+local UpdateTrinketSlot
+local UpdateIdolSlot
+
 local flyoutFrame = nil
 local flyoutButtons = {}
 local currentFlyoutTarget = nil
@@ -330,7 +334,7 @@ local function GetBindingKeyText(name)
 	return FormatBindingText(key)
 end
 
-local function UpdateTrinketSlot(name, slot)
+UpdateTrinketSlot = function(name, slot)
 	local trinketLink = GetInventoryItemLink("player", slot)
 	local texture = GetInventoryItemTexture("player", slot)
 
@@ -393,7 +397,7 @@ local function CreateTrinketSlot(parent, name, offset, slot)
 	end)
 end
 
-local function UpdateIdolSlot(name, slot)
+UpdateIdolSlot = function(name, slot)
 	local trinketLink = GetInventoryItemLink("player", slot)
 	local texture = GetInventoryItemTexture("player", slot)
 
