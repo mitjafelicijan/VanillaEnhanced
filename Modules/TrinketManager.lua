@@ -171,6 +171,17 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 				end)
 			end
 		end)
+		
+		btn:SetScript("OnEnter", function()
+			GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
+			GameTooltip:SetBagItem(this.item.bag, this.item.slot)
+			GameTooltip:Show()
+		end)
+		
+		btn:SetScript("OnLeave", function()
+			GameTooltip:Hide()
+		end)
+		
 		btn:Show()
 	end
 	
