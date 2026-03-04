@@ -95,7 +95,6 @@ if not flyoutClickFrame then
 	flyoutClickFrame:SetAllPoints(UIParent)
 	flyoutClickFrame:Hide()
 	flyoutClickFrame:SetScript("OnClick", function()
-		VE.print("Clicked outside - hiding flyout")
 		HideFlyout()
 	end)
 	flyoutClickFrame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -116,40 +115,23 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 		flyoutFrame:SetFrameStrata("TOOLTIP")
 	end
 	
-	local flyoutWidth = iconSize + 20
+	local flyoutWidth = iconSize + 10
 	local flyoutHeight = (iconSize + 2) * numItems + 10
 	
-	local uiScale = UIParent:GetEffectiveScale()
-	local targetX = targetButton:GetCenter()
-	local targetTop = targetButton:GetTop()
-	
-	if not targetX or not targetTop then
-		return
-	end
-	
-	-- Convert to UIParent coordinate space
-	local x = targetX / uiScale
-	local y = targetTop / uiScale
-	
-	-- Center horizontally relative to button
-	x = x - (flyoutWidth / 2)
-	-- Position above button with some padding
-	y = y + 5
-	
 	flyoutFrame:ClearAllPoints()
-	flyoutFrame:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", x, y)
+	-- Anchor bottom of flyout to top of target button
+	flyoutFrame:SetPoint("BOTTOM", targetButton, "TOP", 0, 5)
 	
 	flyoutFrame:SetWidth(flyoutWidth)
 	flyoutFrame:SetHeight(flyoutHeight)
-	flyoutFrame:SetFrameStrata("TOOLTIP")
-	flyoutFrame:SetFrameLevel(200)
 	
 	flyoutFrame:SetBackdrop({
-		bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-		tile = true, tileSize = 32, edgeSize = 32,
-		insets = { left = 11, right = 12, top = 12, bottom = 11 }
+		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+		tile = true, tileSize = 16, edgeSize = 16,
+		insets = { left = 4, right = 4, top = 4, bottom = 4 }
 	})
+	flyoutFrame:SetBackdropColor(0, 0, 0, 0.9)
 	
 	flyoutFrame:Show()
 	
@@ -180,7 +162,6 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 		btn:SetPoint("TOP", flyoutFrame, "TOP", 0, -(i - 1) * (iconSize + 2) - 5)
 		
 		btn:SetScript("OnClick", function()
-			VE.print("Clicked flyout item: " .. tostring(item.name))
 			local bag, slot = item.bag, item.slot
 			local currentLink = GetInventoryItemLink("player", equipSlot)
 			
@@ -227,13 +208,13 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 		end)
 		
 		btn:SetScript("OnEnter", function()
-			GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
-			GameTooltip:SetBagItem(item.bag, item.slot)
-			GameTooltip:Show()
+			--GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
+			--GameTooltip:SetBagItem(item.bag, item.slot)
+			--GameTooltip:Show()
 		end)
 		
 		btn:SetScript("OnLeave", function()
-			GameTooltip:Hide()
+			--GameTooltip:Hide()
 		end)
 		
 		btn:Show()
@@ -400,11 +381,9 @@ local function CreateTrinketSlot(parent, name, offset, slot)
 
 	module.plug.frame[name]:SetScript("OnMouseDown", function()
 		local button = arg1
-		VE.print("Click: " .. tostring(button))
 		if button == "LeftButton" then
 			UseInventoryItem(slot)
 		elseif button == "RightButton" then
-			VE.print("Opening flyout...")
 			ToggleFlyout(this, slot, false)
 		end
 	end)
@@ -447,11 +426,9 @@ local function CreateIdolSlot(parent, name, offset, slot)
 
 	module.plug.frame[name]:SetScript("OnMouseDown", function()
 		local button = arg1
-		VE.print("Click: " .. tostring(button))
 		if button == "LeftButton" then
 			UseInventoryItem(slot)
 		elseif button == "RightButton" then
-			VE.print("Opening flyout...")
 			ToggleFlyout(this, slot, true)
 		end
 	end)
