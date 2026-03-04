@@ -11,6 +11,7 @@ Data\SpellInfo.lua
 Data\WoWCodexWeapons.lua
 Data\WoWCodexArmor.lua
 Data\MarkerData.lua
+Data\GrindSpotsData.lua
 Data\FlightData.lua
 Data\ZoneGeometry.lua
 
