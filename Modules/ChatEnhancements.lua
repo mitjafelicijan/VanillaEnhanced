@@ -206,14 +206,14 @@ local function ColorizeNames(msg)
 end
 
 local function ShortenChannelNames()
-	CHAT_GUILD_GET = "|Hchannel:Guild|h[G]|h %s: "
-	CHAT_OFFICER_GET = "|Hchannel:Officer|h[O]|h %s: "
-	CHAT_PARTY_GET = "|Hchannel:Party|h[P]|h %s: "
-	CHAT_RAID_GET = "|Hchannel:Raid|h[R]|h %s: "
-	CHAT_RAID_LEADER_GET = "|Hchannel:Raid|h[RL]|h %s: "
+	CHAT_GUILD_GET = "[G] %s: "
+	CHAT_OFFICER_GET = "[O] %s: "
+	CHAT_PARTY_GET = "[P] %s: "
+	CHAT_RAID_GET = "[R] %s: "
+	CHAT_RAID_LEADER_GET = "[RL] %s: "
 	CHAT_RAID_WARNING_GET = "[RW] %s: "
-	CHAT_BATTLEGROUND_GET = "|Hchannel:Battleground|h[BG]|h %s: "
-	CHAT_BATTLEGROUND_LEADER_GET = "|Hchannel:Battleground|h[BGL]|h %s: "
+	CHAT_BATTLEGROUND_GET = "[BG] %s: "
+	CHAT_BATTLEGROUND_LEADER_GET = "[BGL] %s: "
 end
 
 local function ShortenNumberedChannels(msg)
