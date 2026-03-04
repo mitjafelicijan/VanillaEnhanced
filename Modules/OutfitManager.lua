@@ -360,8 +360,10 @@ function module.CreateUI()
 	
 	module.data.toggleButton:SetScript("OnClick", function()
 		if module.data.frame:IsVisible() then
+			PlaySound("igCharacterInfoClose")
 			module.data.frame:Hide()
 		else
+			PlaySound("igCharacterInfoOpen")
 			module.data.frame:Show()
 		end
 	end)
@@ -434,6 +436,7 @@ function module.CreateUI()
 	closeBtn:SetHighlightTexture("Interface\\Buttons\\UI-Panel-MinimizeButton-Highlight")
 	closeBtn:SetPushedTexture("Interface\\Buttons\\UI-Panel-MinimizeButton-Down")
 	closeBtn:SetScript("OnClick", function()
+		PlaySound("igCharacterInfoClose")
 		module.data.frame:Hide()
 	end)
 	
@@ -533,6 +536,7 @@ module.plug:SetScript("OnEvent", function()
 			module.data.toggleButton:Show()
 		end
 	elseif event == "PAPERDOLLFRAME_CLOSED" then
+		PlaySound("igCharacterInfoClose")
 		if module.data.toggleButton then
 			module.data.toggleButton:Hide()
 		end
