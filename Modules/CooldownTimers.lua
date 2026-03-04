@@ -61,8 +61,8 @@ local function SaturateIcon(frame, state)
 
 	local frameName = frame:GetParent():GetName()
 
-	-- Trinekt cooldowns/
-	if frameName == "Trinket1" or frameName == "Trinket2" then
+	-- Trinket/Idol cooldowns.
+	if frameName == "Trinket1" or frameName == "Trinket2" or frameName == "Idol1" then
 		local button = frame:GetParent()
 		local normalTex = button:GetNormalTexture()
 
@@ -93,6 +93,7 @@ module.plug:SetScript("OnEvent", function()
 
 		module.data.CooldownFrame_SetTimer = CooldownFrame_SetTimer
 		CooldownFrame_SetTimer = function(cooldownFrame, start, duration, enable)
+			if not cooldownFrame then return end
 			module.data.CooldownFrame_SetTimer(cooldownFrame, start, duration, enable)
 
 			if start > 0 and duration > module.config.minDuration and enable > 0 then

@@ -282,6 +282,7 @@ local function CreateTrinketSlot(parent, name, offset, slot)
 	module.plug.frame[name].cooldown:SetFrameLevel(module.plug.frame[name]:GetFrameLevel() + 1)
 	module.plug.frame[name].cooldown:SetScale(module.config.iconScale)
 	module.plug.frame[name].cooldown.ScaleSet = true
+	module.plug.frame[name].cooldown:EnableMouse(false)
 
 	module.plug.frame[name].hotkey = module.plug.frame[name]:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
 	module.plug.frame[name].hotkey:SetPoint("TOPRIGHT", -2, -2)
@@ -292,11 +293,11 @@ local function CreateTrinketSlot(parent, name, offset, slot)
 		UpdateTrinketSlot(name, slot)
 	end)
 
-	module.plug.frame[name]:SetScript("OnMouseDown", function()
-		local button = arg1
-		if button == "LeftButton" then
+	module.plug.frame[name]:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	module.plug.frame[name]:SetScript("OnClick", function()
+		if arg1 == "LeftButton" then
 			UseInventoryItem(slot)
-		elseif button == "RightButton" then
+		elseif arg1 == "RightButton" then
 			ToggleFlyout(this, slot, false)
 		end
 	end)
@@ -314,6 +315,9 @@ UpdateIdolSlot = function(name, slot)
 	module.plug.frame[name]:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
 	module.plug.frame[name]:GetHighlightTexture():SetAllPoints()
 	module.plug.frame[name]:GetHighlightTexture():SetBlendMode("ADD")
+
+	local start, duration, enable = GetInventoryItemCooldown("player", slot)
+	CooldownFrame_SetTimer(module.plug.frame[name].cooldown, start or 0, duration or 0, enable or 0)
 
 	module.plug.frame[name]:SetScript("OnEnter", function()
 		if trinketLink then
@@ -333,15 +337,22 @@ local function CreateIdolSlot(parent, name, offset, slot)
 	module.plug.frame[name]:SetHeight(module.config.iconSize * module.config.iconScale)
 	module.plug.frame[name]:SetPoint("Left", parent, "Left", offset, 0)
 
+	module.plug.frame[name].cooldown = CreateFrame("Model", name.."Cooldown", module.plug.frame[name], "CooldownFrameTemplate")
+	module.plug.frame[name].cooldown:SetAllPoints()
+	module.plug.frame[name].cooldown:SetFrameLevel(module.plug.frame[name]:GetFrameLevel() + 1)
+	module.plug.frame[name].cooldown:SetScale(module.config.iconScale)
+	module.plug.frame[name].cooldown.ScaleSet = true
+	module.plug.frame[name].cooldown:EnableMouse(false)
+
 	VE.executeWithDelay(0.5, function()
 		UpdateIdolSlot(name, slot)
 	end)
 
-	module.plug.frame[name]:SetScript("OnMouseDown", function()
-		local button = arg1
-		if button == "LeftButton" then
+	module.plug.frame[name]:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	module.plug.frame[name]:SetScript("OnClick", function()
+		if arg1 == "LeftButton" then
 			UseInventoryItem(slot)
-		elseif button == "RightButton" then
+		elseif arg1 == "RightButton" then
 			ToggleFlyout(this, slot, true)
 		end
 	end)
