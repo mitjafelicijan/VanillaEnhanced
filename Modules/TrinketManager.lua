@@ -29,14 +29,15 @@ local function ScanBagsForType(itemType, equipLoc)
 			for slot = 1, numSlots do
 				local link = GetContainerItemLink(bag, slot)
 				if link then
-					local _, _, itemString = string.find(link, "|H(.+)|h")
+						local _, _, itemString = string.find(link, "|H(.+)|h")
 					if itemString then
-						local name, _, _, _, _, iType, iSubType, iEquipLoc, texture = GetItemInfo(itemString)
+						local name, _, _, _, _, iType, iSubType, iEquipLoc = GetItemInfo(itemString)
+						local texture = GetContainerItemInfo(bag, slot)
 						-- VE.print("Found " .. tostring(name) .. " (" .. tostring(iEquipLoc) .. ")")
 						
 						local isValid = false
 						if equipLoc and equipLoc ~= "" then
-							if iEquipLoc == equipLoc then
+							if iEquipLoc == equipLoc or iSubType == equipLoc then
 								isValid = true
 							end
 						elseif itemType then
