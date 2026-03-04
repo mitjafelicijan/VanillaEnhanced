@@ -144,14 +144,13 @@ module.plug:RegisterEvent("PARTY_MEMBERS_CHANGED")
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 	
-	local event = event
-	
 	if event == "UNIT_PORTRAIT_UPDATE" then
 		local unit = arg1
+		if not unit then return end
 		if unit == "player" then
 			UpdatePlayerPortrait()
-		elseif string.match(unit, "^party%d$") then
-			local index = tonumber(string.match(unit, "party(%d)"))
+		elseif string.sub(unit, 1, 5) == "party" then
+			local index = tonumber(string.sub(unit, 6))
 			if index then UpdatePartyPortrait(index) end
 		elseif unit == "target" then
 			UpdateTargetPortrait()
