@@ -158,6 +158,9 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 		btn:SetPoint("BOTTOM", flyoutFrame, "BOTTOM", 0, (i - 1) * (iconSize + 2))
 		
 		btn:SetScript("OnClick", function()
+			local item = this.item
+			local equipSlot = this.equipSlot
+			local isIdol = this.isIdol
 			local bag, slot = item.bag, item.slot
 			local currentLink = GetInventoryItemLink("player", equipSlot)
 			
@@ -230,10 +233,15 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 	end
 	
 	local removeBtn = flyoutButtons[removeIndex]
+	removeBtn.equipSlot = equipSlot
+	removeBtn.isIdol = isIdol
+	
 	removeBtn:ClearAllPoints()
 	removeBtn:SetPoint("BOTTOM", flyoutFrame, "BOTTOM", 0, (removeIndex - 1) * (iconSize + 2))
 	
 	removeBtn:SetScript("OnClick", function()
+		local equipSlot = this.equipSlot
+		local isIdol = this.isIdol
 		local currentLink = GetInventoryItemLink("player", equipSlot)
 		if currentLink then
 			local emptyBag, emptySlot = FindEmptyBagSlot()
