@@ -150,8 +150,8 @@ module.plug:SetScript("OnEvent", function()
 		local unit = arg1
 		if unit == "player" then
 			UpdatePlayerPortrait()
-		elseif unit:match("^party%d$") then
-			local index = tonumber(unit:match("party(%d)"))
+		elseif string.match(unit, "^party%d$") then
+			local index = tonumber(string.match(unit, "party(%d)"))
 			if index then UpdatePartyPortrait(index) end
 		elseif unit == "target" then
 			UpdateTargetPortrait()
