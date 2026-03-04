@@ -31,16 +31,16 @@ local function ScanBagsForType(itemType, equipLoc)
 				if link then
 					local _, _, itemString = string.find(link, "|H(.+)|h")
 					if itemString then
-						local name, _, _, _, _, itemSubType, _, itemEquipLoc, texture = GetItemInfo(itemString)
-						-- VE.print("Found " .. tostring(name) .. " (" .. tostring(itemEquipLoc) .. ")")
+						local name, _, _, _, _, iType, iSubType, iEquipLoc, texture = GetItemInfo(itemString)
+						-- VE.print("Found " .. tostring(name) .. " (" .. tostring(iEquipLoc) .. ")")
 						
 						local isValid = false
 						if equipLoc and equipLoc ~= "" then
-							if itemEquipLoc == equipLoc then
+							if iEquipLoc == equipLoc then
 								isValid = true
 							end
 						elseif itemType then
-							if itemSubType == itemType then
+							if iSubType == itemType or iType == itemType then
 								isValid = true
 							end
 						end
@@ -238,7 +238,7 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 end
 
 local function ToggleFlyout(button, equipSlot, isIdol)
-	local items = isIdol and ScanBagsForType("Idol", nil) or ScanBagsForType(nil, "INVTYPE_TRINKET")
+	local items = isIdol and ScanBagsForType(nil, "INVTYPE_RELIC") or ScanBagsForType(nil, "INVTYPE_TRINKET")
 	
 	-- Limit to max 8 buttons total (7 items + 1 remove)
 	if table.getn(items) > 7 then
