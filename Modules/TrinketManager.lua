@@ -394,8 +394,8 @@ end
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("UNIT_INVENTORY_CHANGED")
-
--- module.plug:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+module.plug:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+module.plug:RegisterEvent("BAG_UPDATE_COOLDOWN")
 
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
@@ -429,8 +429,9 @@ module.plug:SetScript("OnEvent", function()
 		end
 	end
 
-	if event == "SPELL_UPDATE_COOLDOWN" then
+	if event == "SPELL_UPDATE_COOLDOWN" or event == "BAG_UPDATE_COOLDOWN" then
 		UpdateTrinketSlot("Trinket1", 13)
 		UpdateTrinketSlot("Trinket2", 14)
+		UpdateIdolSlot("Idol1", module.config.slots.idol1)
 	end
 end)
