@@ -11,6 +11,7 @@ local module = VE.registerModule({
 		scrollSpeed = 3
 	},
 	data = {
+		classCache = {},
 		urlPatterns = {
 			"(https?://[%w%d%._%-%/%%]+)",
 			"(www%.[%w%d%._%-%/%%]+)",
@@ -20,6 +21,12 @@ local module = VE.registerModule({
 		},
 	},
 })
+
+-- Check for SuperWoW dependency.
+if not VE.superWoWCheck(module) then
+	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
+	return
+end
 
 local function CopyURL(url)
 	if not url then return end
@@ -68,6 +75,102 @@ local function OnHyperlinkShow(link, text, button)
 	end
 end
 
+local function UpdateClassCache()
+	-- Guild
+	if IsInGuild() then
+		local numGuild = GetNumGuildMembers()
+		for i = 1, numGuild do
+			local name, _, _, _, class = GetGuildRosterInfo(i)
+			if name and class then
+				module.data.classCache[name] = class
+			end
+		end
+	end
+	
+	-- Raid
+	local numRaid = GetNumRaidMembers()
+	if numRaid > 0 then
+		for i = 1, numRaid do
+			local name, _, _, _, class, fileName = GetRaidRosterInfo(i)
+			if name and (fileName or class) then
+				module.data.classCache[name] = fileName or class
+			end
+		end
+	end
+	
+	-- Party
+	local numParty = GetNumPartyMembers()
+	if numParty > 0 then
+		for i = 1, numParty do
+			local name = UnitName("party"..i)
+			local _, class = UnitClass("party"..i)
+			if name and class then
+				module.data.classCache[name] = class
+			end
+		end
+	end
+
+	-- Self
+	local name = UnitName("player")
+	local _, class = UnitClass("player")
+	if name and class then
+		module.data.classCache[name] = class
+	end
+	
+	-- Friends
+	local numFriends = GetNumFriends()
+	for i = 1, numFriends do
+		local name, _, class = GetFriendInfo(i)
+		if name and class then
+			module.data.classCache[name] = class
+		end
+	end
+end
+
+local function GetClassColor(name)
+	if not name then return nil end
+	
+	local class = module.data.classCache[name]
+	
+	-- If not in cache, try to find the unit directly
+	if not class then
+		if UnitName("player") == name then
+			_, class = UnitClass("player")
+		elseif GetNumRaidMembers() > 0 then
+			for i=1, 40 do
+				local u = "raid"..i
+				if UnitName(u) == name then
+					_, class = UnitClass(u)
+					break
+				end
+			end
+		elseif GetNumPartyMembers() > 0 then
+			for i=1, 4 do
+				local u = "party"..i
+				if UnitName(u) == name then
+					_, class = UnitClass(u)
+					break
+				end
+			end
+		end
+		
+		-- Store in cache if found
+		if class then
+			module.data.classCache[name] = class
+		end
+	end
+	
+	if class then
+		-- Normalize class name (handle WARRIOR, Warrior, etc.)
+		local classKey = string.upper(string.sub(class, 1, 1)) .. string.lower(string.sub(class, 2))
+		local color = VE.config.ClassColors[classKey]
+		if color then
+			return string.format("%02x%02x%02x", math.floor(color.r * 255), math.floor(color.g * 255), math.floor(color.b * 255))
+		end
+	end
+	return nil
+end
+
 local function ProcessMessage(msg)
 	if not msg or type(msg) ~= "string" then return msg end
 
@@ -85,6 +188,23 @@ local function ProcessMessage(msg)
 	end)
 end
 
+local function ColorizeNames(msg)
+	-- Matches: |Hplayer:Name[:extra]|hDisplay|h
+	-- Display can contain brackets or colors from other addons
+	msg = string.gsub(msg, "(|Hplayer:([^:]+)([:%d]*)|h)(.-)(|h)", function(linkStart, name, extra, display, linkEnd)
+		local color = GetClassColor(name)
+		if color then
+			-- Strip existing colors from display if any (like from CleanChat)
+			display = string.gsub(display, "|c%x%x%x%x%x%x%x%x", "")
+			display = string.gsub(display, "|r", "")
+			return linkStart .. "|cff" .. color .. display .. "|r" .. linkEnd
+		end
+		return linkStart .. display .. linkEnd
+	end)
+
+	return msg
+end
+
 local function HookChatFrame(frame)
 	if not frame or frame.VE_AddMessage_Org then return end
 
@@ -92,15 +212,10 @@ local function HookChatFrame(frame)
 	frame.AddMessage = function(this, msg, r, g, b, id)
 		if msg then
 			msg = ProcessMessage(msg)
+			msg = ColorizeNames(msg)
 		end
 		this:VE_AddMessage_Org(msg, r, g, b, id)
 	end
-end
-
--- Check for SuperWoW dependency.
-if not VE.superWoWCheck(module) then
-	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
-	return
 end
 
 local function ChatOnMouseWheel()
@@ -129,26 +244,48 @@ module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 
-	-- Hook hyperlink show.
-	if not module.hooks.ChatFrame_OnHyperlinkShow then
-		module.hooks.ChatFrame_OnHyperlinkShow = ChatFrame_OnHyperlinkShow
-		ChatFrame_OnHyperlinkShow = OnHyperlinkShow
+	if event == "PLAYER_ENTERING_WORLD" or event == "GUILD_ROSTER_UPDATE" or 
+		event == "RAID_ROSTER_UPDATE" or event == "PARTY_MEMBERS_CHANGED" or 
+		event == "FRIENDLIST_UPDATE" then
+		UpdateClassCache()
 	end
 
-	-- Enable arrow keys.
-	ChatFrameEditBox:SetAltArrowKeyMode(false)
-
-	-- Enable mouse scroll and link clicking.
-	for i=1, NUM_CHAT_WINDOWS do
-		local frame = getglobal("ChatFrame" .. i)
-		if frame then
-			frame:EnableMouseWheel(true)
-			frame:SetScript("OnMouseWheel", ChatOnMouseWheel)
-			frame:EnableMouse(true)
-			HookChatFrame(frame)
+	if event == "PLAYER_ENTERING_WORLD" then
+		-- Hook hyperlink show.
+		if not module.hooks.ChatFrame_OnHyperlinkShow then
+			module.hooks.ChatFrame_OnHyperlinkShow = ChatFrame_OnHyperlinkShow
+			ChatFrame_OnHyperlinkShow = OnHyperlinkShow
 		end
-	end
 
-	-- Always select first tab (General).
-	FCF_SelectDockFrame(ChatFrame1)
+		-- Enable arrow keys.
+		ChatFrameEditBox:SetAltArrowKeyMode(false)
+
+		-- Enable mouse scroll and link clicking.
+		for i=1, NUM_CHAT_WINDOWS do
+			local frame = getglobal("ChatFrame" .. i)
+			if frame then
+				frame:EnableMouseWheel(true)
+				frame:SetScript("OnMouseWheel", ChatOnMouseWheel)
+				frame:EnableMouse(true)
+				HookChatFrame(frame)
+			end
+		end
+
+		-- Always select first tab (General).
+		FCF_SelectDockFrame(ChatFrame1)
+
+		-- Register additional events for name coloring
+		module.plug:RegisterEvent("GUILD_ROSTER_UPDATE")
+		module.plug:RegisterEvent("RAID_ROSTER_UPDATE")
+		module.plug:RegisterEvent("PARTY_MEMBERS_CHANGED")
+		module.plug:RegisterEvent("FRIENDLIST_UPDATE")
+	end
 end)
+
+-- Hook existing frames for reloads
+for i=1, NUM_CHAT_WINDOWS do
+	local frame = getglobal("ChatFrame" .. i)
+	if frame then
+		HookChatFrame(frame)
+	end
+end
