@@ -87,8 +87,10 @@ local currentFlyoutItems = nil
 local function HideFlyout()
 	if flyoutFrame then
 		flyoutFrame:Hide()
-		for _, btn in ipairs(flyoutButtons) do
-			btn:Hide()
+		for i = 1, 20 do
+			if flyoutButtons[i] then
+				flyoutButtons[i]:Hide()
+			end
 		end
 		currentFlyoutTarget = nil
 		currentFlyoutItems = nil
@@ -112,15 +114,16 @@ end
 local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 	HideFlyout()
 	
-	if VE.count(items) == 0 then
+	local itemCount = table.getn(items)
+	if itemCount == 0 then
 		return
 	end
 	
 	local iconSize = module.config.iconSize * module.config.iconScale
-	local numItems = VE.count(items) + 1
+	local numItems = itemCount + 1
 	
 	if not flyoutFrame then
-		flyoutFrame = CreateFrame("Frame", "VE_TrinketFlyout", UIParent)
+		flyoutFrame = CreateFrame("Frame", nil, UIParent)
 		flyoutFrame:SetFrameStrata("TOOLTIP")
 	end
 	
@@ -128,24 +131,19 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 	local flyoutHeight = (iconSize + 2) * numItems
 	
 	flyoutFrame:ClearAllPoints()
-	-- Anchor bottom of flyout to top of target button
 	flyoutFrame:SetPoint("BOTTOM", targetButton, "TOP", 0, 5)
-	
 	flyoutFrame:SetWidth(flyoutWidth)
 	flyoutFrame:SetHeight(flyoutHeight)
-	
-	-- Removed border/backdrop
 	flyoutFrame:SetBackdrop(nil)
-	
 	flyoutFrame:Show()
 	
-	flyoutClickFrame:ClearAllPoints()
-	flyoutClickFrame:SetAllPoints(UIParent)
 	flyoutClickFrame:Show()
 	
-	for i, item in ipairs(items) do
+	-- Show item buttons
+	for i = 1, itemCount do
+		local item = items[i]
 		if not flyoutButtons[i] then
-			flyoutButtons[i] = CreateFrame("Button", "VE_FlyoutBtn" .. i, flyoutFrame)
+			flyoutButtons[i] = CreateFrame("Button", nil, flyoutFrame)
 			flyoutButtons[i]:SetFrameStrata("TOOLTIP")
 			flyoutButtons[i]:SetFrameLevel(flyoutFrame:GetFrameLevel() + 10)
 			flyoutButtons[i]:SetWidth(iconSize)
@@ -164,54 +162,34 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 		btn.isIdol = isIdol
 		
 		btn:ClearAllPoints()
-		-- Stack from bottom to top: (i-1) goes up
 		btn:SetPoint("BOTTOM", flyoutFrame, "BOTTOM", 0, (i - 1) * (iconSize + 2))
 		
 		btn:SetScript("OnClick", function()
 			local item = this.item
 			local equipSlot = this.equipSlot
 			local isIdol = this.isIdol
-			local bag, slot = item.bag, item.slot
-			
-			PickupContainerItem(bag, slot)
+			PickupContainerItem(item.bag, item.slot)
 			PickupInventoryItem(equipSlot)
 			if CursorHasItem() then
-				PickupContainerItem(bag, slot)
+				PickupContainerItem(item.bag, item.slot)
 			end
-			
 			HideFlyout()
-			
 			if isIdol then
-				VE.executeWithDelay(0.1, function()
-					UpdateIdolSlot("Idol1", module.config.slots.idol1)
-				end)
+				VE.executeWithDelay(0.1, function() UpdateIdolSlot("Idol1", module.config.slots.idol1) end)
 			else
 				VE.executeWithDelay(0.1, function()
-					if equipSlot == 13 then
-						UpdateTrinketSlot("Trinket1", 13)
-					elseif equipSlot == 14 then
-						UpdateTrinketSlot("Trinket2", 14)
-					end
+					if equipSlot == 13 then UpdateTrinketSlot("Trinket1", 13)
+					elseif equipSlot == 14 then UpdateTrinketSlot("Trinket2", 14) end
 				end)
 			end
 		end)
-		
-		btn:SetScript("OnEnter", function()
-			--GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
-			--GameTooltip:SetBagItem(item.bag, item.slot)
-			--GameTooltip:Show()
-		end)
-		
-		btn:SetScript("OnLeave", function()
-			--GameTooltip:Hide()
-		end)
-		
 		btn:Show()
 	end
 	
-	local removeIndex = VE.count(items) + 1
+	-- Show remove button
+	local removeIndex = itemCount + 1
 	if not flyoutButtons[removeIndex] then
-		flyoutButtons[removeIndex] = CreateFrame("Button", "VE_FlyoutBtn" .. removeIndex, flyoutFrame)
+		flyoutButtons[removeIndex] = CreateFrame("Button", nil, flyoutFrame)
 		flyoutButtons[removeIndex]:SetFrameStrata("TOOLTIP")
 		flyoutButtons[removeIndex]:SetFrameLevel(flyoutFrame:GetFrameLevel() + 10)
 		flyoutButtons[removeIndex]:SetWidth(iconSize)
@@ -234,8 +212,7 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 	removeBtn:SetScript("OnClick", function()
 		local equipSlot = this.equipSlot
 		local isIdol = this.isIdol
-		local currentLink = GetInventoryItemLink("player", equipSlot)
-		if currentLink then
+		if GetInventoryItemLink("player", equipSlot) then
 			local emptyBag, emptySlot = FindEmptyBagSlot()
 			if emptyBag and emptySlot then
 				PickupInventoryItem(equipSlot)
@@ -244,46 +221,30 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 				VE.iprint("No empty bag slot to unequip")
 			end
 		end
-		
 		HideFlyout()
-		
 		if isIdol then
-			VE.executeWithDelay(0.1, function()
-				UpdateIdolSlot("Idol1", module.config.slots.idol1)
-			end)
+			VE.executeWithDelay(0.1, function() UpdateIdolSlot("Idol1", module.config.slots.idol1) end)
 		else
 			VE.executeWithDelay(0.1, function()
-				if equipSlot == 13 then
-					UpdateTrinketSlot("Trinket1", 13)
-				elseif equipSlot == 14 then
-					UpdateTrinketSlot("Trinket2", 14)
-				end
+				if equipSlot == 13 then UpdateTrinketSlot("Trinket1", 13)
+				elseif equipSlot == 14 then UpdateTrinketSlot("Trinket2", 14) end
 			end)
 		end
 	end)
-	
 	removeBtn:Show()
 	
-	flyoutFrame:Show()
 	currentFlyoutTarget = targetButton
 	currentFlyoutItems = items
 end
 
 local function ToggleFlyout(button, equipSlot, isIdol)
-	local items
-	if isIdol then
-		items = ScanBagsForType("Idol", nil)
-	else
-		items = ScanBagsForType(nil, "INVTYPE_TRINKET")
-	end
+	local items = isIdol and ScanBagsForType("Idol", nil) or ScanBagsForType(nil, "INVTYPE_TRINKET")
 	
-	-- Max number of items in flyout menu should be 8 (7 trinkets + 1 remove button)
-	if VE.count(items) > 7 then
-		local limitedItems = {}
-		for i = 1, 7 do
-			tinsert(limitedItems, items[i])
-		end
-		items = limitedItems
+	-- Limit to max 8 buttons total (7 items + 1 remove)
+	if table.getn(items) > 7 then
+		local limited = {}
+		for i = 1, 7 do table.insert(limited, items[i]) end
+		items = limited
 	end
 
 	if flyoutFrame and flyoutFrame:IsVisible() and currentFlyoutTarget == button then
