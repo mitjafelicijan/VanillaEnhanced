@@ -27,7 +27,6 @@ local function CopyURL(url)
 	if not StaticPopupDialogs["VE_COPY_URL"] then
 		StaticPopupDialogs["VE_COPY_URL"] = {
 			text = "Copy URL (Ctrl+C)",
-			button2 = CLOSE,
 			hasEditBox = 1,
 			hasWideEditBox = 1,
 			timeout = 0,
@@ -46,6 +45,7 @@ local function CopyURL(url)
 	if dialog then
 		local editBox = getglobal(dialog:GetName() .. "WideEditBox") or getglobal(dialog:GetName() .. "EditBox")
 		if editBox then
+			editBox:SetWidth(270)
 			editBox:SetText(url)
 			editBox:SetFocus()
 			editBox:HighlightText()
