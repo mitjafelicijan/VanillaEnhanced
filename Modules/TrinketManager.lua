@@ -22,6 +22,7 @@ local print = VE.print
 
 local function ScanBagsForType(itemType, equipLoc)
 	local items = {}
+	-- VE.print("Scanning bags for: " .. tostring(itemType) .. " / " .. tostring(equipLoc))
 	for bag = 0, 4 do
 		local numSlots = GetContainerNumSlots(bag)
 		if numSlots and numSlots > 0 then
@@ -29,25 +30,29 @@ local function ScanBagsForType(itemType, equipLoc)
 				local link = GetContainerItemLink(bag, slot)
 				if link then
 					local _, _, itemString = string.find(link, "|H(.+)|h")
-					local name, _, _, _, _, itemSubType, _, itemEquipLoc, texture, _ = GetItemInfo(itemString)
-					local isValid = false
-					if equipLoc and equipLoc ~= "" then
-						if itemEquipLoc == equipLoc then
-							isValid = true
+					if itemString then
+						local name, _, _, _, _, itemSubType, _, itemEquipLoc, texture = GetItemInfo(itemString)
+						-- VE.print("Found " .. tostring(name) .. " (" .. tostring(itemEquipLoc) .. ")")
+						
+						local isValid = false
+						if equipLoc and equipLoc ~= "" then
+							if itemEquipLoc == equipLoc then
+								isValid = true
+							end
+						elseif itemType then
+							if itemSubType == itemType then
+								isValid = true
+							end
 						end
-					elseif itemType then
-						if itemSubType == itemType then
-							isValid = true
+						if isValid and texture then
+							tinsert(items, {
+								bag = bag,
+								slot = slot,
+								link = link,
+								texture = texture,
+								name = name
+							})
 						end
-					end
-					if isValid and texture then
-						tinsert(items, {
-							bag = bag,
-							slot = slot,
-							link = link,
-							texture = texture,
-							name = name
-						})
 					end
 				end
 			end
@@ -145,14 +150,15 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 			flyoutButtons[i]:SetFrameLevel(flyoutFrame:GetFrameLevel() + 10)
 			flyoutButtons[i]:SetWidth(iconSize)
 			flyoutButtons[i]:SetHeight(iconSize)
-			flyoutButtons[i]:SetNormalTexture(item.texture)
-			flyoutButtons[i]:SetPushedTexture(item.texture)
 			flyoutButtons[i]:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
 			flyoutButtons[i]:GetHighlightTexture():SetAllPoints()
 			flyoutButtons[i]:GetHighlightTexture():SetBlendMode("ADD")
 		end
 		
 		local btn = flyoutButtons[i]
+		btn:SetNormalTexture(item.texture)
+		btn:SetPushedTexture(item.texture)
+		btn:SetAlpha(1.0)
 		btn.item = item
 		btn.equipSlot = equipSlot
 		btn.isIdol = isIdol
@@ -205,18 +211,20 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 	
 	local removeIndex = VE.count(items) + 1
 	if not flyoutButtons[removeIndex] then
-		flyoutButtons[removeIndex] = CreateFrame("Button", "VE_FlyoutBtnRemove", flyoutFrame)
+		flyoutButtons[removeIndex] = CreateFrame("Button", "VE_FlyoutBtn" .. removeIndex, flyoutFrame)
+		flyoutButtons[removeIndex]:SetFrameStrata("TOOLTIP")
+		flyoutButtons[removeIndex]:SetFrameLevel(flyoutFrame:GetFrameLevel() + 10)
 		flyoutButtons[removeIndex]:SetWidth(iconSize)
 		flyoutButtons[removeIndex]:SetHeight(iconSize)
-		flyoutButtons[removeIndex]:SetNormalTexture("Interface\\Buttons\\UI-StopButton")
-		flyoutButtons[removeIndex]:SetPushedTexture("Interface\\Buttons\\UI-StopButton")
 		flyoutButtons[removeIndex]:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
 		flyoutButtons[removeIndex]:GetHighlightTexture():SetAllPoints()
 		flyoutButtons[removeIndex]:GetHighlightTexture():SetBlendMode("ADD")
-		flyoutButtons[removeIndex]:SetAlpha(0.7)
 	end
 	
 	local removeBtn = flyoutButtons[removeIndex]
+	removeBtn:SetNormalTexture("Interface\\Buttons\\UI-StopButton")
+	removeBtn:SetPushedTexture("Interface\\Buttons\\UI-StopButton")
+	removeBtn:SetAlpha(0.7)
 	removeBtn.equipSlot = equipSlot
 	removeBtn.isIdol = isIdol
 	
@@ -269,6 +277,15 @@ local function ToggleFlyout(button, equipSlot, isIdol)
 		items = ScanBagsForType(nil, "INVTYPE_TRINKET")
 	end
 	
+	-- Max number of items in flyout menu should be 8 (7 trinkets + 1 remove button)
+	if VE.count(items) > 7 then
+		local limitedItems = {}
+		for i = 1, 7 do
+			tinsert(limitedItems, items[i])
+		end
+		items = limitedItems
+	end
+
 	if flyoutFrame and flyoutFrame:IsVisible() and currentFlyoutTarget == button then
 		HideFlyout()
 	else
