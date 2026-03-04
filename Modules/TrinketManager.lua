@@ -108,7 +108,7 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 	end
 	
 	local iconSize = module.config.iconSize * module.config.iconScale
-	local numItems = itemCount + 1
+	local numItems = itemCount
 	
 	if not flyoutFrame then
 		flyoutFrame = CreateFrame("Frame", nil, UIParent)
@@ -174,53 +174,6 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 		btn:Show()
 	end
 	
-	-- Show remove button
-	local removeIndex = itemCount + 1
-	if not flyoutButtons[removeIndex] then
-		flyoutButtons[removeIndex] = CreateFrame("Button", nil, flyoutFrame)
-		flyoutButtons[removeIndex]:SetFrameStrata("TOOLTIP")
-		flyoutButtons[removeIndex]:SetFrameLevel(flyoutFrame:GetFrameLevel() + 10)
-		flyoutButtons[removeIndex]:SetWidth(iconSize)
-		flyoutButtons[removeIndex]:SetHeight(iconSize)
-		flyoutButtons[removeIndex]:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
-		flyoutButtons[removeIndex]:GetHighlightTexture():SetAllPoints()
-		flyoutButtons[removeIndex]:GetHighlightTexture():SetBlendMode("ADD")
-	end
-	
-	local removeBtn = flyoutButtons[removeIndex]
-	removeBtn:SetNormalTexture("Interface\\Buttons\\UI-StopButton")
-	removeBtn:SetPushedTexture("Interface\\Buttons\\UI-StopButton")
-	removeBtn:SetAlpha(0.7)
-	removeBtn.equipSlot = equipSlot
-	removeBtn.isIdol = isIdol
-	
-	removeBtn:ClearAllPoints()
-	removeBtn:SetPoint("BOTTOM", flyoutFrame, "BOTTOM", 0, (removeIndex - 1) * (iconSize + 2))
-	
-	removeBtn:SetScript("OnClick", function()
-		local equipSlot = this.equipSlot
-		local isIdol = this.isIdol
-		if GetInventoryItemLink("player", equipSlot) then
-			local emptyBag, emptySlot = FindEmptyBagSlot()
-			if emptyBag and emptySlot then
-				PickupInventoryItem(equipSlot)
-				PickupContainerItem(emptyBag, emptySlot)
-			else
-				VE.iprint("No empty bag slot to unequip")
-			end
-		end
-		HideFlyout()
-		if isIdol then
-			VE.executeWithDelay(0.1, function() UpdateIdolSlot("Idol1", module.config.slots.idol1) end)
-		else
-			VE.executeWithDelay(0.1, function()
-				if equipSlot == 13 then UpdateTrinketSlot("Trinket1", 13)
-				elseif equipSlot == 14 then UpdateTrinketSlot("Trinket2", 14) end
-			end)
-		end
-	end)
-	removeBtn:Show()
-	
 	currentFlyoutTarget = targetButton
 	currentFlyoutItems = items
 end
@@ -234,10 +187,10 @@ local function ToggleFlyout(button, equipSlot, isIdol)
 		items = ScanBagsForType("INVTYPE_TRINKET")
 	end
 	
-	-- Limit to max 8 buttons total (7 items + 1 remove)
-	if table.getn(items) > 7 then
+	-- Limit to max 8 items
+	if table.getn(items) > 8 then
 		local limited = {}
-		for i = 1, 7 do table.insert(limited, items[i]) end
+		for i = 1, 8 do table.insert(limited, items[i]) end
 		items = limited
 	end
 
