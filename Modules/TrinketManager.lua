@@ -166,31 +166,11 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 			local equipSlot = this.equipSlot
 			local isIdol = this.isIdol
 			local bag, slot = item.bag, item.slot
-			local currentLink = GetInventoryItemLink("player", equipSlot)
 			
-			if currentLink then
-				local emptyBag, emptySlot = FindEmptyBagSlot()
-				if emptyBag and emptySlot then
-					PickupInventoryItem(equipSlot)
-					PickupContainerItem(emptyBag, emptySlot)
-					if CursorHasItem() then
-						PickupContainerItem(bag, slot)
-						PickupInventoryItem(equipSlot)
-						if CursorHasItem() then
-							PickupContainerItem(emptyBag, emptySlot)
-						end
-					else
-						PickupContainerItem(bag, slot)
-						PickupInventoryItem(equipSlot)
-					end
-				else
-					VE.iprint("No empty bag slot to swap items")
-					HideFlyout()
-					return
-				end
-			else
+			PickupContainerItem(bag, slot)
+			PickupInventoryItem(equipSlot)
+			if CursorHasItem() then
 				PickupContainerItem(bag, slot)
-				PickupInventoryItem(equipSlot)
 			end
 			
 			HideFlyout()
