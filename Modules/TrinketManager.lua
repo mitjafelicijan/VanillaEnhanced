@@ -20,6 +20,293 @@ local module = VE.registerModule({
 
 local print = VE.print
 
+local function ScanBagsForType(itemType, equipLoc)
+	local items = {}
+	for bag = 0, 4 do
+		local numSlots = GetContainerNumSlots(bag)
+		if numSlots and numSlots > 0 then
+			for slot = 1, numSlots do
+				local link = GetContainerItemLink(bag, slot)
+				if link then
+					local _, _, itemString = string.find(link, "|H(.+)|h")
+					local name, _, _, _, _, itemSubType, _, itemEquipLoc, texture, _ = GetItemInfo(itemString)
+					local isValid = false
+					if equipLoc and equipLoc ~= "" then
+						if itemEquipLoc == equipLoc then
+							isValid = true
+						end
+					elseif itemType then
+						if itemSubType == itemType then
+							isValid = true
+						end
+					end
+					if isValid and texture then
+						tinsert(items, {
+							bag = bag,
+							slot = slot,
+							link = link,
+							texture = texture,
+							name = name
+						})
+					end
+				end
+			end
+		end
+	end
+	return items
+end
+
+local function FindEmptyBagSlot()
+	for bag = 0, 4 do
+		local numSlots = GetContainerNumSlots(bag)
+		if numSlots and numSlots > 0 then
+			for slot = 1, numSlots do
+				if not GetContainerItemLink(bag, slot) then
+					return bag, slot
+				end
+			end
+		end
+	end
+	return nil, nil
+end
+
+local flyoutFrame = nil
+local flyoutButtons = {}
+local currentFlyoutTarget = nil
+local currentFlyoutItems = nil
+
+local function HideFlyout()
+	if flyoutFrame then
+		flyoutFrame:Hide()
+		for _, btn in ipairs(flyoutButtons) do
+			btn:Hide()
+		end
+		currentFlyoutTarget = nil
+		currentFlyoutItems = nil
+	end
+	if flyoutClickFrame then
+		flyoutClickFrame:Hide()
+	end
+end
+
+if not flyoutClickFrame then
+	flyoutClickFrame = CreateFrame("Button", "VE_TrinketFlyoutClickFrame", UIParent)
+	flyoutClickFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+	flyoutClickFrame:SetAllPoints(UIParent)
+	flyoutClickFrame:Hide()
+	flyoutClickFrame:SetScript("OnClick", function()
+		VE.print("Clicked outside - hiding flyout")
+		HideFlyout()
+	end)
+	flyoutClickFrame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+end
+
+local function ShowFlyout(targetButton, items, equipSlot, isIdol)
+	HideFlyout()
+	
+	if VE.count(items) == 0 then
+		return
+	end
+	
+	local iconSize = module.config.iconSize * module.config.iconScale
+	local numItems = VE.count(items) + 1
+	
+	if not flyoutFrame then
+		flyoutFrame = CreateFrame("Frame", "VE_TrinketFlyout", UIParent)
+		flyoutFrame:SetFrameStrata("TOOLTIP")
+	end
+	
+	local flyoutWidth = iconSize + 20
+	local flyoutHeight = (iconSize + 2) * numItems + 10
+	
+	local uiScale = UIParent:GetEffectiveScale()
+	local targetX = targetButton:GetCenter()
+	local targetTop = targetButton:GetTop()
+	
+	if not targetX or not targetTop then
+		return
+	end
+	
+	-- Convert to UIParent coordinate space
+	local x = targetX / uiScale
+	local y = targetTop / uiScale
+	
+	-- Center horizontally relative to button
+	x = x - (flyoutWidth / 2)
+	-- Position above button with some padding
+	y = y + 5
+	
+	flyoutFrame:ClearAllPoints()
+	flyoutFrame:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", x, y)
+	
+	flyoutFrame:SetWidth(flyoutWidth)
+	flyoutFrame:SetHeight(flyoutHeight)
+	flyoutFrame:SetFrameStrata("TOOLTIP")
+	flyoutFrame:SetFrameLevel(200)
+	
+	flyoutFrame:SetBackdrop({
+		bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+		tile = true, tileSize = 32, edgeSize = 32,
+		insets = { left = 11, right = 12, top = 12, bottom = 11 }
+	})
+	
+	flyoutFrame:Show()
+	
+	flyoutClickFrame:ClearAllPoints()
+	flyoutClickFrame:SetAllPoints(UIParent)
+	flyoutClickFrame:Show()
+	
+	for i, item in ipairs(items) do
+		if not flyoutButtons[i] then
+			flyoutButtons[i] = CreateFrame("Button", "VE_FlyoutBtn" .. i, flyoutFrame)
+			flyoutButtons[i]:SetFrameStrata("TOOLTIP")
+			flyoutButtons[i]:SetFrameLevel(flyoutFrame:GetFrameLevel() + 10)
+			flyoutButtons[i]:SetWidth(iconSize)
+			flyoutButtons[i]:SetHeight(iconSize)
+			flyoutButtons[i]:SetNormalTexture(item.texture)
+			flyoutButtons[i]:SetPushedTexture(item.texture)
+			flyoutButtons[i]:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
+			flyoutButtons[i]:GetHighlightTexture():SetAllPoints()
+			flyoutButtons[i]:GetHighlightTexture():SetBlendMode("ADD")
+		end
+		
+		local btn = flyoutButtons[i]
+		btn.item = item
+		btn.equipSlot = equipSlot
+		btn.isIdol = isIdol
+		
+		btn:ClearAllPoints()
+		btn:SetPoint("TOP", flyoutFrame, "TOP", 0, -(i - 1) * (iconSize + 2) - 5)
+		
+		btn:SetScript("OnClick", function()
+			VE.print("Clicked flyout item: " .. tostring(item.name))
+			local bag, slot = item.bag, item.slot
+			local currentLink = GetInventoryItemLink("player", equipSlot)
+			
+			if currentLink then
+				local emptyBag, emptySlot = FindEmptyBagSlot()
+				if emptyBag and emptySlot then
+					PickupInventoryItem(equipSlot)
+					PickupContainerItem(emptyBag, emptySlot)
+					if CursorHasItem() then
+						PickupContainerItem(bag, slot)
+						PickupInventoryItem(equipSlot)
+						if CursorHasItem() then
+							PickupContainerItem(emptyBag, emptySlot)
+						end
+					else
+						PickupContainerItem(bag, slot)
+						PickupInventoryItem(equipSlot)
+					end
+				else
+					VE.iprint("No empty bag slot to swap items")
+					HideFlyout()
+					return
+				end
+			else
+				PickupContainerItem(bag, slot)
+				PickupInventoryItem(equipSlot)
+			end
+			
+			HideFlyout()
+			
+			if isIdol then
+				VE.executeWithDelay(0.1, function()
+					UpdateIdolSlot("Idol1", module.config.slots.idol1)
+				end)
+			else
+				VE.executeWithDelay(0.1, function()
+					if equipSlot == 13 then
+						UpdateTrinketSlot("Trinket1", 13)
+					elseif equipSlot == 14 then
+						UpdateTrinketSlot("Trinket2", 14)
+					end
+				end)
+			end
+		end)
+		
+		btn:SetScript("OnEnter", function()
+			GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
+			GameTooltip:SetBagItem(item.bag, item.slot)
+			GameTooltip:Show()
+		end)
+		
+		btn:SetScript("OnLeave", function()
+			GameTooltip:Hide()
+		end)
+		
+		btn:Show()
+	end
+	
+	local removeIndex = VE.count(items) + 1
+	if not flyoutButtons[removeIndex] then
+		flyoutButtons[removeIndex] = CreateFrame("Button", "VE_FlyoutBtnRemove", flyoutFrame)
+		flyoutButtons[removeIndex]:SetWidth(iconSize)
+		flyoutButtons[removeIndex]:SetHeight(iconSize)
+		flyoutButtons[removeIndex]:SetNormalTexture("Interface\\Buttons\\UI-StopButton")
+		flyoutButtons[removeIndex]:SetPushedTexture("Interface\\Buttons\\UI-StopButton")
+		flyoutButtons[removeIndex]:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
+		flyoutButtons[removeIndex]:GetHighlightTexture():SetAllPoints()
+		flyoutButtons[removeIndex]:GetHighlightTexture():SetBlendMode("ADD")
+		flyoutButtons[removeIndex]:SetAlpha(0.7)
+	end
+	
+	local removeBtn = flyoutButtons[removeIndex]
+	removeBtn:ClearAllPoints()
+	removeBtn:SetPoint("TOP", flyoutFrame, "TOP", 0, -(removeIndex - 1) * (iconSize + 2) - 5)
+	
+	removeBtn:SetScript("OnClick", function()
+		local currentLink = GetInventoryItemLink("player", equipSlot)
+		if currentLink then
+			local emptyBag, emptySlot = FindEmptyBagSlot()
+			if emptyBag and emptySlot then
+				PickupInventoryItem(equipSlot)
+				PickupContainerItem(emptyBag, emptySlot)
+			else
+				VE.iprint("No empty bag slot to unequip")
+			end
+		end
+		
+		HideFlyout()
+		
+		if isIdol then
+			VE.executeWithDelay(0.1, function()
+				UpdateIdolSlot("Idol1", module.config.slots.idol1)
+			end)
+		else
+			VE.executeWithDelay(0.1, function()
+				if equipSlot == 13 then
+					UpdateTrinketSlot("Trinket1", 13)
+				elseif equipSlot == 14 then
+					UpdateTrinketSlot("Trinket2", 14)
+				end
+			end)
+		end
+	end)
+	
+	removeBtn:Show()
+	
+	flyoutFrame:Show()
+	currentFlyoutTarget = targetButton
+	currentFlyoutItems = items
+end
+
+local function ToggleFlyout(button, equipSlot, isIdol)
+	local items
+	if isIdol then
+		items = ScanBagsForType("Idol", nil)
+	else
+		items = ScanBagsForType(nil, "INVTYPE_TRINKET")
+	end
+	
+	if flyoutFrame and flyoutFrame:IsVisible() and currentFlyoutTarget == button then
+		HideFlyout()
+	else
+		ShowFlyout(button, items, equipSlot, isIdol)
+	end
+end
+
 -- Check for SuperWoW dependency.
 if not VE.superWoWCheck(module) then
 	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
@@ -111,8 +398,15 @@ local function CreateTrinketSlot(parent, name, offset, slot)
 		UpdateTrinketSlot(name, slot)
 	end)
 
-	module.plug.frame[name]:SetScript("OnClick", function()
-		UseInventoryItem(slot)
+	module.plug.frame[name]:SetScript("OnMouseDown", function()
+		local button = arg1
+		VE.print("Click: " .. tostring(button))
+		if button == "LeftButton" then
+			UseInventoryItem(slot)
+		elseif button == "RightButton" then
+			VE.print("Opening flyout...")
+			ToggleFlyout(this, slot, false)
+		end
 	end)
 end
 
@@ -151,8 +445,15 @@ local function CreateIdolSlot(parent, name, offset, slot)
 		UpdateIdolSlot(name, slot)
 	end)
 
-	module.plug.frame[name]:SetScript("OnClick", function()
-		UseInventoryItem(slot)
+	module.plug.frame[name]:SetScript("OnMouseDown", function()
+		local button = arg1
+		VE.print("Click: " .. tostring(button))
+		if button == "LeftButton" then
+			UseInventoryItem(slot)
+		elseif button == "RightButton" then
+			VE.print("Opening flyout...")
+			ToggleFlyout(this, slot, true)
+		end
 	end)
 end
 
@@ -181,6 +482,7 @@ end
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("UNIT_INVENTORY_CHANGED")
+
 -- module.plug:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 
 module.plug:SetScript("OnEvent", function()
