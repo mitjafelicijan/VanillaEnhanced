@@ -13,6 +13,7 @@ local module = VE.registerModule({
 			RAID      = true,
 			WORLDBOSS = true,
 			TRANSPORT = true,
+			GRIND     = true,
 		}
 	},
 	data = {
@@ -30,6 +31,7 @@ local module = VE.registerModule({
 			TRAM      = "Interface\\AddOns\\VanillaEnhanced\\Assets\\tram",
 			WORLDBOSS = "Interface\\AddOns\\VanillaEnhanced\\Assets\\worldboss",
 			FLIGHT    = "Interface\\AddOns\\VanillaEnhanced\\Assets\\flight",
+			GRIND     = "Interface\\AddOns\\VanillaEnhanced\\Assets\\grind",
 		},
 		continentNames = {
 			[1] = "Kalimdor",
@@ -125,6 +127,68 @@ local function buildData()
 		end
 	end
 
+	-- Process Grind Data
+	if GrindSpotsData then
+		local zoneToContinent = {}
+		if module.data.zoneCache then
+			for cID, zList in pairs(module.data.zoneCache) do
+				if zList then
+					for _, zName in pairs(zList) do
+						zoneToContinent[zName] = cID
+					end
+				end
+			end
+		end
+
+		for _, m in ipairs(GrindSpotsData) do
+			if m.x and m.y then
+				local zoneName = m.zone
+				local contID = zoneToContinent[zoneName]
+				
+				if not contID then
+					if zoneName == "Barrens" then contID = 1; zoneName = "The Barrens"
+					elseif zoneName == "Durotar/Barrens" then contID = 1; zoneName = "Durotar"
+					elseif zoneName == "Stonetalon Mountains" then contID = 1
+					elseif zoneName == "Desolace" then contID = 1
+					elseif zoneName == "Feralas" then contID = 1
+					elseif zoneName == "Thousand Needles" then contID = 1
+					elseif zoneName == "Tanaris" then contID = 1
+					elseif zoneName == "Un'Goro Crater" or zoneName == "Un’Goro Crater" then contID = 1; zoneName = "Un'Goro Crater"
+					elseif zoneName == "Felwood" then contID = 1
+					elseif zoneName == "Winterspring" then contID = 1
+					elseif zoneName == "Azshara" then contID = 1
+					elseif zoneName == "Dustwallow Marsh" then contID = 1
+					elseif zoneName == "Westfall" then contID = 2
+					elseif zoneName == "Redridge" then contID = 2; zoneName = "Redridge Mountains"
+					elseif zoneName == "Duskwood" then contID = 2
+					elseif zoneName == "Badlands" then contID = 2
+					elseif zoneName == "Deadwind Pass" then contID = 2
+					elseif zoneName == "Western Plaguelands" then contID = 2
+					end
+				end
+
+				if contID then
+					module.data.zoneMarkers[contID] = module.data.zoneMarkers[contID] or {}
+					module.data.zoneMarkers[contID][zoneName] = module.data.zoneMarkers[contID][zoneName] or {}
+
+					local markerData = {
+						continent   = contID,
+						zoneName    = zoneName,
+						x           = m.x,
+						y           = m.y,
+						name        = m.location,
+						type        = "GRIND",
+						description = string.format("Level: %d-%d\nMobs: %s\nXP: %s\n%s", m.minLevel, m.maxLevel, m.mobs or "", m.xp or "", m.notes or ""),
+						atlasID     = nil,
+						id          = index
+					}
+					table.insert(module.data.zoneMarkers[contID][zoneName], markerData)
+					index = index + 1
+				end
+			end
+		end
+	end
+
 	module.data.dataBuilt = true
 end
 
@@ -195,7 +259,7 @@ local function drawMarker(markerIndex, data, x, y, isContinent)
 	if data.type == "DUNGEON" or data.type == "RAID" or data.type == "WORLDBOSS" then
 		marker:SetWidth(32)
 		marker:SetHeight(32)
-	elseif data.type == "FLIGHT" then
+	elseif data.type == "FLIGHT" or data.type == "GRIND" then
 		marker:SetWidth(16)
 		marker:SetHeight(16)
 	elseif isContinent and (data.type == "BOAT" or data.type == "ZEPPELIN") then
@@ -267,6 +331,8 @@ local function refreshMarkers()
 					showMarker = false
 				elseif (mType == "BOAT" or mType == "ZEPPELIN" or mType == "TRAM") and not module.config.filters.TRANSPORT then
 					showMarker = false
+				elseif mType == "GRIND" and not module.config.filters.GRIND then
+					showMarker = false
 				end
 
 				if showMarker and (mType == "BOAT" or mType == "ZEPPELIN" or mType == "TRAM") then
@@ -303,6 +369,8 @@ local function refreshMarkers()
 						elseif mType == "WORLDBOSS" and not module.config.filters.WORLDBOSS then
 							showMarker = false
 						elseif (mType == "BOAT" or mType == "ZEPPELIN" or mType == "TRAM") and not module.config.filters.TRANSPORT then
+							showMarker = false
+						elseif mType == "GRIND" and not module.config.filters.GRIND then
 							showMarker = false
 						end
 
@@ -390,6 +458,15 @@ local function createDropdown()
 		info.checked = module.config.filters.TRANSPORT
 		info.func = function()
 			module.config.filters.TRANSPORT = not module.config.filters.TRANSPORT
+			saveFilters()
+			refreshMarkers()
+		end
+		UIDropDownMenu_AddButton(info)
+
+		info.text = "Grind Spots"
+		info.checked = module.config.filters.GRIND
+		info.func = function()
+			module.config.filters.GRIND = not module.config.filters.GRIND
 			saveFilters()
 			refreshMarkers()
 		end
