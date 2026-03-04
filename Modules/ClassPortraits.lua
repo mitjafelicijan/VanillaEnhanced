@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "ClassPortraits",
 	meta = {
 		label = "Class Portraits",
-		description = "Displays class icons on unit frames.",
+		description = "Displays class icons instead of default portraits on unit frames.",
 	},
 	plug = nil,
 	superWoWRequired = false,
