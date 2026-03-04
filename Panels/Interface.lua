@@ -102,6 +102,13 @@ VE.panels.Interface = function(parent)
 			if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
 		end, option.superWoWRequired)
 	end
+	
+	do
+		local module = VE.getModule("ClassPortraits")
+		VE.elements.Checkbox(frame, 20, -420, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+		end, module.superWoWRequired)
+	end
 
 	-- Right column
 
