@@ -20,32 +20,19 @@ local module = VE.registerModule({
 
 local print = VE.print
 
-local function ScanBagsForType(itemType, equipLoc)
+local function ScanBagsForType(equipLoc)
 	local items = {}
-	-- VE.print("Scanning bags for: " .. tostring(itemType) .. " / " .. tostring(equipLoc))
 	for bag = 0, 4 do
 		local numSlots = GetContainerNumSlots(bag)
 		if numSlots and numSlots > 0 then
 			for slot = 1, numSlots do
 				local link = GetContainerItemLink(bag, slot)
 				if link then
-						local _, _, itemString = string.find(link, "|H(.+)|h")
+					local _, _, itemString = string.find(link, "|H(.+)|h")
 					if itemString then
 						local name, _, _, _, _, iType, iSubType, iEquipLoc = GetItemInfo(itemString)
 						local texture = GetContainerItemInfo(bag, slot)
-						-- VE.print("Found " .. tostring(name) .. " (" .. tostring(iEquipLoc) .. ")")
-						
-						local isValid = false
-						if equipLoc and equipLoc ~= "" then
-							if iEquipLoc == equipLoc or iSubType == equipLoc then
-								isValid = true
-							end
-						elseif itemType then
-							if iSubType == itemType or iType == itemType then
-								isValid = true
-							end
-						end
-						if isValid and texture then
+						if iEquipLoc == equipLoc then
 							tinsert(items, {
 								bag = bag,
 								slot = slot,
@@ -239,7 +226,13 @@ local function ShowFlyout(targetButton, items, equipSlot, isIdol)
 end
 
 local function ToggleFlyout(button, equipSlot, isIdol)
-	local items = isIdol and ScanBagsForType(nil, "INVTYPE_RELIC") or ScanBagsForType(nil, "INVTYPE_TRINKET")
+	local items = {}
+	
+	if isIdol then
+		items = ScanBagsForType("INVTYPE_RELIC")
+	else
+		items = ScanBagsForType("INVTYPE_TRINKET")
+	end
 	
 	-- Limit to max 8 buttons total (7 items + 1 remove)
 	if table.getn(items) > 7 then
