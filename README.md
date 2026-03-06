@@ -114,10 +114,17 @@ WoW/
       Fizzle/    -> Mutes error sounds.
 ```
 
-### Game AOE MPQ
+### AOE MPQ
 
 ![Raid Visuals](Promo/RaidVisuals.png)
 
 Copy `GameAssets/Data/patch-O.mpq` to the `Data` folder in your WoW directory. This patch adds visual indicators (circles) around mobs during AOE.
 
 https://github.com/MarcelineVQ/twow-raid-visuals
+
+### Auto-login MPQ
+
+
+Copy `GameAssets/Data/patch-Y.mpq` to the `Data` folder in your WoW directory. This patch adds auto login option to login screen.
+
+https://github.com/Haaxor1689/turtle-autologin
