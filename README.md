@@ -124,7 +124,6 @@ https://github.com/MarcelineVQ/twow-raid-visuals
 
 ### Auto-login MPQ
 
-
 Copy `GameAssets/Data/patch-Y.mpq` to the `Data` folder in your WoW directory. This patch adds auto login option to login screen.
 
 https://github.com/Haaxor1689/turtle-autologin
