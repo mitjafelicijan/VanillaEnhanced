@@ -107,16 +107,16 @@ VE.panels.Controls = function(parent)
 	end
 	
 	do
-		local module = VE.getModule("MailboxEnhancements")
+		local module = VE.getModule("ExtendedMacros")
 		if module then
-			VE.elements.Checkbox(frame, 270, -230, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -220, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
 	end
-
+	
 	do
-		local module = VE.getModule("ChatEnhancements")
+		local module = VE.getModule("MailboxEnhancements")
 		if module then
 			VE.elements.Checkbox(frame, 270, -260, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
@@ -125,9 +125,18 @@ VE.panels.Controls = function(parent)
 	end
 
 	do
-		local module = VE.getModule("AuctionEnhancements")
+		local module = VE.getModule("ChatEnhancements")
 		if module then
 			VE.elements.Checkbox(frame, 270, -290, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("AuctionEnhancements")
+		if module then
+			VE.elements.Checkbox(frame, 270, -320, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -136,7 +145,7 @@ VE.panels.Controls = function(parent)
 	do
 		local module = VE.getModule("OutfitManager")
 		if module then
-			VE.elements.Checkbox(frame, 270, -330, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -360, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end

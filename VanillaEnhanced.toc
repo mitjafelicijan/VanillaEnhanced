@@ -55,6 +55,7 @@ Modules\DruidOneButton.lua
 Modules\EnergyManaTick.lua
 Modules\EnhancedAuraButtons.lua
 Modules\ExtendedCommands.lua
+Modules\ExtendedMacros.lua
 Modules\FreeBagSlots.lua
 Modules\HideBGF.lua
 Modules\HideEBC.lua
