@@ -168,11 +168,14 @@ module.plug:SetScript("OnEvent", function()
 			end
 		end
 
-		-- Priest Shadowform aura.
-		for i = 1, 15 do
+		-- Priest Shadowform and Shaman Spirit Wolf aura.
+		for i = 0, 15 do
 			buffTexture = GetPlayerBuffTexture(i)
 			if buffTexture ~= nil then
 				startPos, endPos = string.find(buffTexture, "Spell_Shadow_Shadowform")
+				if startPos ~= nil and endPos ~= nil then CancelPlayerBuff(i) end
+				
+				startPos, endPos = string.find(buffTexture, "Spell_Nature_SpiritWolf")
 				if startPos ~= nil and endPos ~= nil then CancelPlayerBuff(i) end
 			end
 		end
