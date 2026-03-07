@@ -59,6 +59,14 @@ VE.iprint = function(message)
 	DEFAULT_CHAT_FRAME:AddMessage("|cffff00ff[info] |cffffff00" .. tostring(message))
 end
 
+VE.printf = function(format, ...)
+	if type(arg) == "table" then
+		DEFAULT_CHAT_FRAME:AddMessage(string.format(format, unpack(arg)))
+	else
+		DEFAULT_CHAT_FRAME:AddMessage(format)
+	end
+end
+
 VE.formattedTime = function()
 	local currentTime = GetTime()
 	local hours = mod(floor(currentTime / 3600), 24)
@@ -150,6 +158,18 @@ end
 VE.find = function(str, pattern)
 	local all = VE.findAll(str, pattern)
 	return unpack(all[1])
+end
+
+VE.startsWith = function(str, word)
+	return string.find(str, "^" .. word) == 1
+end
+
+VE.removePrefix = function(str, prefix)
+	local prefix_len = string.len(prefix)
+	if string.sub(str, 1, prefix_len) == prefix then
+		return string.sub(str, prefix_len + 1)  -- Remove prefix and following space
+	end
+	return str
 end
 
 VE.dframe = function(node, r, g, b, a)
