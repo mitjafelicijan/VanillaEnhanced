@@ -20,7 +20,7 @@ local config = {
 	sidebarWidth = 150,
 	hoverAlpha = 0.2,
 	addonLoaded = false,
-	overrideMenu = true,
+	overrideMenu = false,
 	hideOnLoad = true,
 	startPanel = "controls",
 }
@@ -196,12 +196,12 @@ frame:SetScript("OnEvent", function()
 		frame.panel.panels[config.startPanel]:Show()
 
 		-- Legacy Interface Options button.
-		frame.apply = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-		frame.apply:SetPoint("BottomLeft", 18, 18)
-		frame.apply:SetWidth(90)
-		frame.apply:SetHeight(22)
-		frame.apply:SetText("Legacy")
-		frame.apply:SetScript("OnClick", function(self)
+		frame.legacy = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+		frame.legacy:SetPoint("BottomLeft", 18, 18)
+		frame.legacy:SetWidth(90)
+		frame.legacy:SetHeight(22)
+		frame.legacy:SetText("Legacy")
+		frame.legacy:SetScript("OnClick", function(self)
 			PlaySound("igMainMenuOptionCheckBoxOn")
 			frame:Hide()
 			ShowUIPanel(UIOptionsFrame)
