@@ -102,7 +102,7 @@ local function rotation(filler, finisher, powershift)
 	end
 
 	-- Cast Rake when the old one expires.
-	if IsSpellInRange("Rake", "target") == 1 then
+	if CheckInteractDistance("target", 3) then
 		local now = GetTime()
 		local elapsed = now - module.data.queue.rake
 		local timeout = module.config.spellTimeout.rake
@@ -143,7 +143,7 @@ local function rotation(filler, finisher, powershift)
 
 	-- Execute the rest of rotation.
 	-- Check's if mele in range at all.
-	if IsSpellInRange("Claw", "target") == 1 then
+	if CheckInteractDistance("target", 3) then
 		local points = GetComboPoints()
 		if points == 5 then
 			-- Always do Rip. And do Ferocious Bite manually.
