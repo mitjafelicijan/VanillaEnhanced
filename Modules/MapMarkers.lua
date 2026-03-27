@@ -1,3 +1,5 @@
+-- Data from: https://github.com/tilare/ModernMapMarkers
+
 local module = VE.registerModule({
 	identifier = "MapMarkers",
 	meta = {
