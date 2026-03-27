@@ -32,18 +32,18 @@ end
 
 local function ScanMarkers()
 	local found = false
-	VE.print("|cff00ff00Scanning for Raid Markers...|r")
+	-- VE.print("|cff00ff00Scanning for Raid Markers...|r")
 	for i = 1, 8 do
 		local unit = "mark" .. i
 		if UnitExists(unit) then
 			local name = UnitName(unit)
 			local color = "|cffffff00" -- Default yellow
-			VE.print(string.format(" [%s]: %s%s|r", markerNames[i], color, name))
+			-- VE.print(string.format(" [%s]: %s%s|r", markerNames[i], color, name))
 			found = true
 		end
 	end
 	if not found then
-		VE.print("No marked targets found nearby.")
+		-- VE.print("No marked targets found nearby.")
 	end
 end
 
@@ -87,9 +87,9 @@ local function CreateMarkerFrame()
 			local unit = "mark" .. this.index
 			if UnitExists(unit) then
 				TargetUnit(unit)
-				VE.print(string.format("Targeted %s: %s", markerNames[this.index], UnitName(unit)))
+				-- VE.print(string.format("Targeted %s: %s", markerNames[this.index], UnitName(unit)))
 			else
-				VE.print(string.format("No unit found with %s marker.", markerNames[this.index]))
+				-- VE.print(string.format("No unit found with %s marker.", markerNames[this.index]))
 			end
 		end)
 
