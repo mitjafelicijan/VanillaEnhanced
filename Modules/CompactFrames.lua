@@ -7,7 +7,7 @@ local module = VE.registerModule({
 	plug = nil,
 	superWoWRequired = true,
 	config = {
-		debug = false,    -- Enable this to show frames / for debugging.
+		debug = true,    -- Enable this to show frames / for debugging.
 		spellEffectiveness = {
 			["Healing Touch"] = { [1] = 37, [2] = 88, [3] = 195, [4] = 363, [5] = 572, [6] = 742, [7] = 936, [8] = 1199, [9] = 1516, [10] = 1890, [11] = 2267 },
 			["Regrowth"] = { [1] = 84, [2] = 164, [3] = 240, [4] = 318, [5] = 405, [6] = 511, [7] = 646, [8] = 809, [9] = 1003 },
@@ -59,6 +59,117 @@ local module = VE.registerModule({
 local print = VE.print
 local iprint = VE.iprint
 local dprint = VE.dprint
+
+local function GetButtonTexture(button)
+	if button.__veTexture then return button.__veTexture end
+	for _, region in pairs({ button:GetRegions() }) do
+		if region and region.GetObjectType and region:GetObjectType() == "Texture" then
+			button.__veTexture = region
+			return region
+		end
+	end
+	return nil
+end
+
+local function GetMemberFrameParts(frame)
+	if frame.__veParts then return frame.__veParts end
+
+	local parts = {}
+	local baseName = frame:GetName()
+	if baseName then
+		parts.nameText = getglobal(baseName .. "NameText")
+		parts.deadText = getglobal(baseName .. "DeadText")
+		parts.healthBar = getglobal(baseName .. "HealthBar")
+		parts.healthBarPrediction = getglobal(baseName .. "HealthBarPrediction")
+		parts.powerBar = getglobal(baseName .. "PowerBar")
+		parts.disconnectIcon = getglobal(baseName .. "DisconnectIcon")
+		parts.leaderIcon = getglobal(baseName .. "LeaderIcon")
+		parts.assistantIcon = getglobal(baseName .. "AssistantIcon")
+		parts.highlight = getglobal(baseName .. "Highlight")
+	end
+
+	local statusBars = {}
+	local childFrames = {}
+	for _, child in pairs({ frame:GetChildren() }) do
+		local objectType = child:GetObjectType()
+		if objectType == "StatusBar" then
+			table.insert(statusBars, child)
+		elseif objectType == "Frame" then
+			table.insert(childFrames, child)
+		end
+	end
+
+	if not parts.powerBar or not parts.healthBar then
+		local healthBars = {}
+		for _, bar in pairs(statusBars) do
+			local height = bar:GetHeight() or 0
+			if height <= 10 then
+				parts.powerBar = parts.powerBar or bar
+			else
+				table.insert(healthBars, bar)
+			end
+		end
+
+		if VE.count(healthBars) == 1 then
+			parts.healthBar = parts.healthBar or healthBars[1]
+		elseif VE.count(healthBars) >= 2 then
+			local a = healthBars[1]
+			local b = healthBars[2]
+			if a:GetFrameLevel() >= b:GetFrameLevel() then
+				parts.healthBar = parts.healthBar or a
+				parts.healthBarPrediction = parts.healthBarPrediction or b
+			else
+				parts.healthBar = parts.healthBar or b
+				parts.healthBarPrediction = parts.healthBarPrediction or a
+			end
+		end
+	end
+
+	if not (parts.auraFrame and parts.dispellFrame) then
+		for _, child in pairs(childFrames) do
+			local buttons = {}
+			for _, btn in pairs({ child:GetChildren() }) do
+				if btn:GetObjectType() == "Button" then
+					table.insert(buttons, btn)
+				end
+			end
+			local count = table.getn(buttons)
+			if count > 0 then
+				table.sort(buttons, function(a, b)
+					local an = a:GetName() or ""
+					local bn = b:GetName() or ""
+					return an < bn
+				end)
+				local btnHeight = buttons[1]:GetHeight() or 0
+				if count == 5 and btnHeight <= 13 then
+					parts.auraFrame = child
+					parts.auraButtons = buttons
+				elseif count == 4 and btnHeight >= 13 then
+					parts.dispellFrame = child
+					parts.dispellButtons = buttons
+				end
+			end
+		end
+	end
+
+	if not (parts.nameText and parts.deadText) then
+		for _, region in pairs({ frame:GetRegions() }) do
+			if region and region.GetObjectType and region:GetObjectType() == "FontString" then
+				local regionName = region:GetName()
+				if not parts.nameText and regionName and string.find(regionName, "NameText") then
+					parts.nameText = region
+				elseif not parts.deadText and regionName and string.find(regionName, "DeadText") then
+					parts.deadText = region
+				elseif not parts.nameText and region:GetText() and region:GetText() ~= "" then
+					parts.nameText = region
+				end
+			end
+		end
+	end
+
+	frame.__veParts = parts
+	return parts
+end
 
 -- Set up default value of no Auras displayed on unit frames.
 if not VanillaEnhancedOptions["CompactFramesAuras"] then
@@ -354,38 +465,66 @@ end
 local function UpdateMemberFrame(unitInfo, frameName)
 	if not unitInfo or type(unitInfo) ~= "table" then return end
 
-	local healthBar = getglobal(string.format("%sHealthBar", frameName))
-	local powerBar = getglobal(string.format("%sPowerBar", frameName))
-	local nameText = getglobal(string.format("%sNameText", frameName))
-	local deadText = getglobal(string.format("%sDeadText", frameName))
-	local disconnectIcon = getglobal(string.format("%sDisconnectIcon", frameName))
+	local frame = getglobal(frameName)
+	if not frame then return end
 
-	getglobal(frameName).info = unitInfo
+	local parts = GetMemberFrameParts(frame)
+	local healthBar = parts.healthBar
+	local powerBar = parts.powerBar
+	local nameText = parts.nameText
+	local deadText = parts.deadText
+	local disconnectIcon = parts.disconnectIcon
 
+	if not nameText then
+		nameText = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		nameText:SetPoint("TOPLEFT", frame, "TOPLEFT", 14, -3)
+		parts.nameText = nameText
+	end
+	if healthBar then
+		nameText:SetParent(healthBar)
+	end
+	if nameText.SetDrawLayer then
+		nameText:SetDrawLayer("OVERLAY", 7)
+	end
+	nameText:SetTextColor(1.0, 1.0, 1.0)
+
+	if not (healthBar and powerBar) then return end
+
+	frame.info = unitInfo
+
+	nameText:Show()
 	if string.len(unitInfo.name) > 9 then
 		nameText:SetText(string.format("%s...", string.sub(unitInfo.name, 1, 8)))
 	else
 		nameText:SetText(unitInfo.name)
 	end
 
+
 	if unitInfo.isDead == 1 then
-		this:SetAlpha(1.0)
-		deadText:SetText("DEAD")
-		deadText:Show()
+		frame:SetAlpha(1.0)
+		if deadText then
+			deadText:SetText("DEAD")
+			deadText:Show()
+		end
 	else
-		deadText:Hide()
+		if deadText then
+			deadText:Hide()
+		end
 	end
 
 	if IsRaid() then
-		local leaderIcon = getglobal(string.format("%sLeaderIcon", frameName))
-		local assistantIcon = getglobal(string.format("%sAssistantIcon", frameName))
-		if unitInfo.rank == 2 then leaderIcon:Show() else leaderIcon:Hide() end
-		if unitInfo.rank == 1 then assistantIcon:Show() else assistantIcon:Hide() end
+		if parts.leaderIcon then
+			if unitInfo.rank == 2 then parts.leaderIcon:Show() else parts.leaderIcon:Hide() end
+		end
+		if parts.assistantIcon then
+			if unitInfo.rank == 1 then parts.assistantIcon:Show() else parts.assistantIcon:Hide() end
+		end
 	end
 
 	if IsParty() then
-		local leaderIcon = getglobal(string.format("%sLeaderIcon", frameName))
-		if unitInfo.lead then leaderIcon:Show() else leaderIcon:Hide() end
+		if parts.leaderIcon then
+			if unitInfo.lead then parts.leaderIcon:Show() else parts.leaderIcon:Hide() end
+		end
 	end
 
 	-- In range detection.
@@ -402,8 +541,10 @@ local function UpdateMemberFrame(unitInfo, frameName)
 		powerBar:SetStatusBarColor(0.2, 0.2, 0.2)
 		powerBar:SetMinMaxValues(0, 1)
 		powerBar:SetValue(1)
-		disconnectIcon:Show()
-		this:SetAlpha(1.0)
+		if disconnectIcon then
+			disconnectIcon:Show()
+		end
+		frame:SetAlpha(1.0)
 	else
 		local powerColor = VE.config.PowerColors[unitInfo.power.name]
 		local healthColor = VE.config.ClassColors[unitInfo.class]
@@ -414,10 +555,12 @@ local function UpdateMemberFrame(unitInfo, frameName)
 			powerBar:SetStatusBarColor(powerColor.r, powerColor.g, powerColor.b)
 			powerBar:SetMinMaxValues(0, unitInfo.power.max)
 			powerBar:SetValue(unitInfo.power.current)
-			disconnectIcon:Hide()
+			if disconnectIcon then
+				disconnectIcon:Hide()
+			end
 
 			-- Update heal prediction white health is getting lower.
-			local healthBarPrediction = getglobal(string.format("%sHealthBarPrediction", frameName))
+			local healthBarPrediction = parts.healthBarPrediction or getglobal(string.format("%sHealthBarPrediction", frameName))
 			if healthBarPrediction and healthBarPrediction.spellEffectiveness then
 				healthBarPrediction:SetValue(unitInfo.health.current + healthBarPrediction.spellEffectiveness)
 			end
@@ -425,28 +568,43 @@ local function UpdateMemberFrame(unitInfo, frameName)
 	end
 
 	-- Update HOTs.
-	if VanillaEnhancedOptions["CompactFramesAuras"] and VanillaEnhancedOptions["CompactFramesAuras"] > 0 then
+	if VanillaEnhancedOptions["CompactFramesAuras"] and VanillaEnhancedOptions["CompactFramesAuras"] > 0 and parts.auraButtons then
 		for i = 1, 5 do
 			local _aura = nil
 			if VanillaEnhancedOptions["CompactFramesAuras"] == 1 then _aura = unitInfo.buffs[i] end
 			if VanillaEnhancedOptions["CompactFramesAuras"] == 2 then _aura = unitInfo.debuffs[i] end
 			if VanillaEnhancedOptions["CompactFramesAuras"] == 3 then _aura = unitInfo.hots[i] end
 
-			local auraFrame = getglobal(string.format("%sAura%s", frameName, i))
-			if _aura then
-				local auraTexture = getglobal(string.format("%sAura%sTexture", frameName, i))
-				auraTexture:SetTexture(_aura.texture)
-				auraFrame:Show()
-			else
-				auraFrame:Hide()
+			local auraButton = parts.auraButtons[i]
+			if auraButton then
+				if _aura then
+					local auraTexture = GetButtonTexture(auraButton)
+					if auraTexture then
+						auraTexture:SetTexture(_aura.texture)
+					end
+					auraButton:Show()
+				else
+					auraButton:Hide()
+				end
 			end
 		end
 	end
 
 	-- Update dispellable debuffs.
 
-	for i = 1, 4 do
-		getglobal(string.format("%sDispell%s", frameName, i)):Hide()
+	if parts.dispellButtons then
+		for i = 1, 4 do
+			if parts.dispellButtons[i] then
+				parts.dispellButtons[i]:Hide()
+			end
+		end
+	else
+		for i = 1, 4 do
+			local dispellFrame = getglobal(string.format("%sDispell%s", frameName, i))
+			if dispellFrame then
+				dispellFrame:Hide()
+			end
+		end
 	end
 
 	local nextDispellAura = 1
@@ -454,12 +612,24 @@ local function UpdateMemberFrame(unitInfo, frameName)
 		local dispellValue = unitInfo.dispell[dispellType]
 
 		if dispellValue > 0 then
-			local dispellFrame = getglobal(string.format("%sDispell%s", frameName, nextDispellAura))
-			local dispellTexture = getglobal(string.format("%sDispell%sTexture", frameName, nextDispellAura))
-			dispellTexture:SetTexture(string.format("Interface\\AddOns\\VanillaEnhanced\\Assets\\RaidFrame-Debuff%s", dispellType))
-			dispellFrame:Show()
-			nextDispellAura = nextDispellAura + 1
-		end	
+			if parts.dispellButtons and parts.dispellButtons[nextDispellAura] then
+				local dispellButton = parts.dispellButtons[nextDispellAura]
+				local dispellTexture = GetButtonTexture(dispellButton)
+				if dispellTexture then
+					dispellTexture:SetTexture(string.format("Interface\\AddOns\\VanillaEnhanced\\Assets\\RaidFrame-Debuff%s", dispellType))
+				end
+				dispellButton:Show()
+				nextDispellAura = nextDispellAura + 1
+			else
+				local dispellFrame = getglobal(string.format("%sDispell%s", frameName, nextDispellAura))
+				local dispellTexture = getglobal(string.format("%sDispell%sTexture", frameName, nextDispellAura))
+				if dispellFrame and dispellTexture then
+					dispellTexture:SetTexture(string.format("Interface\\AddOns\\VanillaEnhanced\\Assets\\RaidFrame-Debuff%s", dispellType))
+					dispellFrame:Show()
+					nextDispellAura = nextDispellAura + 1
+				end
+			end
+		end
 	end
 end
 
@@ -629,8 +799,8 @@ function CompactFrames_OnLoad()
 	this:RegisterEvent("PARTY_LEADER_CHANGED")
 	this:RegisterEvent("PARTY_MEMBER_DISABLE")
 	this:RegisterEvent("PLAYER_TARGET_CHANGED")
-	this:RegisterEvent("UNIT_CASTEVENT")
-	this:RegisterEvent("UPDATE_MASTER_LOOT_LIST")
+	-- this:RegisterEvent("UNIT_CASTEVENT")
+	-- this:RegisterEvent("UPDATE_MASTER_LOOT_LIST")
 end
 
 function CompactFrames_OnEvent()

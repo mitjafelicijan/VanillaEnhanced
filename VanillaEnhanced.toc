@@ -46,7 +46,6 @@ Modules\ChatEnhancements.lua
 Modules\ClassPortraits.lua
 Modules\CombatCursor.lua
 Modules\CompactActionBars.lua
-Modules\CompactFrames.xml
 Modules\CompareTooltip.lua
 Modules\ConsumablesPanel.lua
 Modules\CooldownTimers.lua
@@ -87,11 +86,15 @@ Modules\SoloSelfFound.lua
 Modules\TargetCastingBar.lua
 Modules\TravelJournal.lua
 Modules\TrinketManager.lua
-Modules\TargetChangeStopAttack.lua
+Modules\CompactRaidFrames.lua
 
 # Work in progress
 # Modules\NearbyTargets.xml
 # Modules\CharacterStats.lua
+# Modules\TargetChangeStopAttack.lua
+
+# Retired
+# Modules\CompactFrames.xml
 
 # Control panels
 Panels\Controls.lua
