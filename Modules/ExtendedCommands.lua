@@ -211,6 +211,57 @@ module.plug:SetScript("OnEvent", function()
 		end
 	end
 
+	-- 1 = Head
+	-- 2 = Neck
+	-- 3 = Shoulder
+	-- 5 = Chest
+	-- 6 = Waist
+	-- 7 = Legs
+	-- 8 = Feet
+	-- 9 = Wrist
+	-- 10 = Hands
+	-- 11 = Finger 1
+	-- 12 = Finger 2
+	-- 13 = Trinket 1
+	-- 14 = Trinket 2
+	-- 15 = Back
+	-- 16 = Main Hand
+	-- 17 = Off Hand
+	-- 18 = Ranged
+	SLASH_EQUIP1 = "/equip"
+	SlashCmdList["EQUIP"] = function(msg, editbox)
+		local _, _, slotText, itemName = string.find(msg, "^(%d+)%s+(.+)$")
+
+		if not slotText or not itemName then
+			DEFAULT_CHAT_FRAME:AddMessage("Usage: /equip slotid item name")
+			return
+		end
+
+		local equipSlot = tonumber(slotText)
+		if not equipSlot then
+			DEFAULT_CHAT_FRAME:AddMessage("Invalid slot id: " .. slotText)
+			return
+		end
+
+		local searchName = string.lower(itemName)
+
+		for bagID = 0, NUM_BAG_SLOTS do
+			for slotIndex = 1, GetContainerNumSlots(bagID) do
+				local link = GetContainerItemLink(bagID, slotIndex)
+
+				if link then
+					local itemText = string.lower(link)
+					if string.find(itemText, searchName, 1, 1) then
+						PickupContainerItem(bagID, slotIndex)
+						PickupInventoryItem(equipSlot)
+						return
+					end
+				end
+			end
+		end
+		VE.printf("Item not found: %s", itemName)
+	end
+
 	-- OBSOLETE: This is replaced with macros now.
 	SLASH_MCAST1 = "/mcast"
 	SlashCmdList["MCAST"] = function(msg)
