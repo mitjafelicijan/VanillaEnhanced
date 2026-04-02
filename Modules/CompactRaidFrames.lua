@@ -8,7 +8,7 @@ local module = VE.registerModule({
 	superWoWRequired = true,
 	config = {
 		unitFrame = {
-			width = 80,
+			width = 82,
 			height = 40,
 			powerBarHeight = 8,
 		},
@@ -139,7 +139,7 @@ local function CreateUnitFrame(unit, groupIdx, unitIdx, parent)
 	end)
 
 	-- This is a black background of a frame.
-	VE.dframe(unitFrame, 0, 0, 0, 1)
+	VE.dframe(unitFrame, 0.05, 0.05, 0.05, 1)
 
 	-- Health Bar.
 	unitFrame.healthBar = CreateFrame("StatusBar", "$parentHealthBar", unitFrame)
@@ -165,24 +165,34 @@ local function CreateUnitFrame(unit, groupIdx, unitIdx, parent)
 	unitFrame.overlay:SetFrameLevel(unitFrame:GetFrameLevel() + 10)
 	unitFrame.overlay:Show()
 
+	-- Border square around unit frame.
+	unitFrame.border = unitFrame.overlay:CreateTexture("$parentHighlight", "OVERLAY")
+	unitFrame.border:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\RaidFrame-UnitBorder")
+	unitFrame.border:SetAllPoints(unitFrame.overlay)
+	unitFrame.border:SetDrawLayer("OVERLAY", 4)
+	unitFrame.border:Show()
+
+	-- Unit name.
+	unitFrame.name = unitFrame.overlay:CreateFontString("$parentNameText", "OVERLAY", "GameFontHighlightSmall")
+	unitFrame.name:SetPoint("TOPLEFT", unitFrame.overlay, "TOPLEFT", 3, -3)
+	unitFrame.name:SetDrawLayer("OVERLAY", 5)
+	unitFrame.name:SetText("Player " .. tostring(unitIdx))
+
+	-- Dead label.
+	unitFrame.dead = unitFrame.overlay:CreateFontString("$parentNameText", "OVERLAY", "GameFontHighlightSmall")
+	unitFrame.dead:SetPoint("CENTER", unitFrame.overlay, "CENTER", 0, -3)
+	unitFrame.dead:SetDrawLayer("OVERLAY", 5)
+	unitFrame.dead:SetText("Dead")
+	unitFrame.dead:Hide()
+
 	-- Highlight square around unit frame.
 	unitFrame.highlight = unitFrame.overlay:CreateTexture("$parentHighlight", "OVERLAY")
 	unitFrame.highlight:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\RaidFrame-Highlight")
 	unitFrame.highlight:SetAllPoints(unitFrame.overlay)
-	unitFrame.highlight:SetDrawLayer("OVERLAY", 5)
+	unitFrame.highlight:SetDrawLayer("OVERLAY", 7)
+	unitFrame.highlight:SetVertexColor(1, 1, 1, 1)
+	unitFrame.highlight:SetBlendMode("BLEND")
 	unitFrame.highlight:Hide()
-
-	-- Unit name.
-	unitFrame.nameText = unitFrame.overlay:CreateFontString("$parentNameText", "OVERLAY", "GameFontHighlightSmall")
-	unitFrame.nameText:SetPoint("TOPLEFT", unitFrame.overlay, "TOPLEFT", 3, -3)
-	unitFrame.nameText:SetDrawLayer("OVERLAY", 6)
-	unitFrame.nameText:SetText("Player " .. tostring(unitIdx))
-
-	-- Setting Demo Values
-	unitFrame.healthBar:SetMinMaxValues(0, 100)
-	unitFrame.healthBar:SetValue(math.random(50, 100))
-	unitFrame.powerBar:SetMinMaxValues(0, 100)
-	unitFrame.powerBar:SetValue(math.random(20, 100))
 
 	local unitInfo = GetUnitInfo(unit)
 	local powerColor = VE.config.PowerColors[unitInfo.power.name]
@@ -192,14 +202,17 @@ local function CreateUnitFrame(unit, groupIdx, unitIdx, parent)
 		unitFrame.healthBar:SetStatusBarColor(healthColor.r, healthColor.g, healthColor.b)
 		unitFrame.healthBar:SetMinMaxValues(0, unitInfo.health.max)
 		unitFrame.healthBar:SetValue(unitInfo.health.current)
+		-- unitFrame.healthBar:SetValue(300)
 
 		unitFrame.powerBar:SetStatusBarColor(powerColor.r, powerColor.g, powerColor.b)
 		unitFrame.powerBar:SetMinMaxValues(0, unitInfo.power.max)
-		unitFrame.powerBar:SetValue(unitInfo.power.current)
+		-- unitFrame.powerBar:SetValue(500)
 	end
 
 	table.insert(module.plug.placeholder.groups[groupIdx].units, unitIdx, unitFrame)
 	unitFrame:Show()
+
+	-- Register events and hook into events.
 end
 
 local function CreateGroupFrame(groupIdx)
@@ -218,7 +231,7 @@ local function CreateGroupFrame(groupIdx)
 	groupFrame.nameText:SetPoint("TOPLEFT", groupFrame, "TOPLEFT", 3, -3)
 	groupFrame.nameText:SetText("Group "..tostring(groupIdx))
 
-	VE.dframe(groupFrame, 0, 1, 0, 0.5)
+	-- VE.dframe(groupFrame, 0, 1, 0, 0.5)
 	table.insert(module.plug.placeholder.groups, groupIdx, groupFrame)
 
 	groupFrame.units = {}
@@ -234,7 +247,7 @@ local function CreateAllFrames()
 	module.plug.placeholder:SetHeight(module.config.unitFrame.height * 10)   -- rows: 2 groups by 5 members
 	module.plug.placeholder:SetPoint("TOPLEFT", 10, -200)
 	module.plug.placeholder.groups = {}
-	VE.dframe(module.plug.placeholder, 1, 0, 0, 1)
+	-- VE.dframe(module.plug.placeholder, 1, 0, 0, 1)
 
 	for groupIdx = 1, 8 do
 		CreateGroupFrame(groupIdx)
