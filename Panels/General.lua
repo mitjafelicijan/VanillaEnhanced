@@ -20,10 +20,18 @@ VE.panels.General = function(parent)
 		VE.SetUVar("SHOW_NEWBIE_TIPS", checked)
 	end)
 
+	VE.elements.Checkbox(frame, 20, -150, 140, SHOW_CLOAK, OPTION_TOOLTIP_SHOW_CLOAK, nil, ShowingCloak(), function(checked)
+		ShowCloak(checked)
+	end)
+
+	VE.elements.Checkbox(frame, 20, -180, 140, SHOW_HELM, OPTION_TOOLTIP_SHOW_HELM, nil, ShowingHelm(), function(checked)
+		ShowHelm(checked)
+	end)
+
 	do
 		local module = VE.getModule("MinimapClock")
 		if module then
-			VE.elements.Checkbox(frame, 20, -160, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 20, -220, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -32,27 +40,11 @@ VE.panels.General = function(parent)
 	do
 		local module = VE.getModule("QuestTracker")
 		if module then
-			VE.elements.Checkbox(frame, 20, -200, 170, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 20, -260, 170, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 
 			local option = VE.getOption("QuestTrackerShowTrivial")
-			if option then
-				VE.elements.Checkbox(frame, 40, -230, 170, option.meta.label, option.meta.label, option.meta.description, option.enabled, function(checked)
-					if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
-					if option.callback then option.callback(checked) end
-				end, option.superWoWRequired)
-			end
-
-			local option = VE.getOption("QuestTrackerShowEvents")
-			if option then
-				VE.elements.Checkbox(frame, 40, -260, 170, option.meta.label, option.meta.label, option.meta.description, option.enabled, function(checked)
-					if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
-					if option.callback then option.callback(checked) end
-				end, option.superWoWRequired)
-			end
-
-			local option = VE.getOption("QuestTrackerShowPvP")
 			if option then
 				VE.elements.Checkbox(frame, 40, -290, 170, option.meta.label, option.meta.label, option.meta.description, option.enabled, function(checked)
 					if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
@@ -60,9 +52,25 @@ VE.panels.General = function(parent)
 				end, option.superWoWRequired)
 			end
 
-			local option = VE.getOption("QuestTrackerShowTooltips")
+			local option = VE.getOption("QuestTrackerShowEvents")
 			if option then
 				VE.elements.Checkbox(frame, 40, -320, 170, option.meta.label, option.meta.label, option.meta.description, option.enabled, function(checked)
+					if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
+					if option.callback then option.callback(checked) end
+				end, option.superWoWRequired)
+			end
+
+			local option = VE.getOption("QuestTrackerShowPvP")
+			if option then
+				VE.elements.Checkbox(frame, 40, -350, 170, option.meta.label, option.meta.label, option.meta.description, option.enabled, function(checked)
+					if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
+					if option.callback then option.callback(checked) end
+				end, option.superWoWRequired)
+			end
+
+			local option = VE.getOption("QuestTrackerShowTooltips")
+			if option then
+				VE.elements.Checkbox(frame, 40, -380, 170, option.meta.label, option.meta.label, option.meta.description, option.enabled, function(checked)
 					if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
 					if option.callback then option.callback(checked) end
 				end, option.superWoWRequired)

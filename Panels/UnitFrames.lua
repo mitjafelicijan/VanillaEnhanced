@@ -7,24 +7,16 @@ VE.panels.UnitFrames = function(parent)
 		VE.SetUVar("SHOW_BUFF_DURATIONS", checked)
 	end)
 
-	VE.elements.Checkbox(frame, 20, -50, 140, SHOW_CLOAK, OPTION_TOOLTIP_SHOW_CLOAK, nil, ShowingCloak(), function(checked)
-		ShowCloak(checked)
-	end)
-
-	VE.elements.Checkbox(frame, 20, -80, 140, SHOW_HELM, OPTION_TOOLTIP_SHOW_HELM, nil, ShowingHelm(), function(checked)
-		ShowHelm(checked)
-	end)
-
 	do
 		local module = VE.getModule("BigPlayerFrame")
 		if module then
-			VE.elements.Checkbox(frame, 20, -120, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 20, -60, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 
 			local option = VE.getOption("BigPlayerFrameClassColors")
 			if option then
-				VE.elements.Checkbox(frame, 40, -150, 140, option.meta.label, option.meta.description, nil, option.enabled, function(checked)
+				VE.elements.Checkbox(frame, 40, -90, 140, option.meta.label, option.meta.description, nil, option.enabled, function(checked)
 					if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
 				end, option.superWoWRequired)
 			end
@@ -34,7 +26,7 @@ VE.panels.UnitFrames = function(parent)
 	do
 		local module = VE.getModule("ClassPortraits")
 		if module then
-			VE.elements.Checkbox(frame, 20, -190, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 20, -130, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -43,7 +35,7 @@ VE.panels.UnitFrames = function(parent)
 	do
 		local module = VE.getModule("ManaBarColor")
 		if module then
-			VE.elements.Checkbox(frame, 20, -230, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 20, -170, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -52,7 +44,7 @@ VE.panels.UnitFrames = function(parent)
 	do
 		local module = VE.getModule("DruidManaBar")
 		if module then
-			VE.elements.Checkbox(frame, 20, -260, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 20, -200, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -61,7 +53,7 @@ VE.panels.UnitFrames = function(parent)
 	do
 		local module = VE.getModule("EnergyManaTick")
 		if module then
-			VE.elements.Checkbox(frame, 20, -290, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 20, -230, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -70,7 +62,7 @@ VE.panels.UnitFrames = function(parent)
 	do
 		local module = VE.getModule("MiniPlayerFrame")
 		if module then
-			VE.elements.Checkbox(frame, 20, -330, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 20, -270, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -79,7 +71,7 @@ VE.panels.UnitFrames = function(parent)
 	do
 		local module = VE.getModule("MiniPowerFrame")
 		if module then
-			VE.elements.Checkbox(frame, 20, -360, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 20, -300, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
