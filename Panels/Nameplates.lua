@@ -24,15 +24,6 @@ VE.panels.Nameplates = function(parent)
 		VE.SetCVar("UnitNameOwn", checked)
 	end)
 
-	do
-		local module = VE.getModule("RaidTargetMarkers")
-		if module then
-			VE.elements.Checkbox(frame, 20, -190, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
 	-- Right column
 
 	do

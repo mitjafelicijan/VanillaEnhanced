@@ -99,7 +99,7 @@ VE.panels.Social = function(parent)
 	do
 		local module = VE.getModule("PullBreakTimer")
 		if module then
-			VE.elements.Checkbox(frame, 270, -190, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -180, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -108,7 +108,7 @@ VE.panels.Social = function(parent)
 	do
 		local module = VE.getModule("BulletinBoard")
 		if module then
-			VE.elements.Checkbox(frame, 270, -230, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -210, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
