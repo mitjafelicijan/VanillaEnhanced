@@ -290,7 +290,7 @@ local function collectAvailableQuests(mapIDs)
 	for i = 1, numEntries do
 		local title, level, _, isHeader = GetQuestLogTitle(i)
 		if title and not isHeader then
-			activeQuests[normalizeKey(title)] = true
+			activeQuests[VE.normalizeKey(title)] = true
 		end
 	end
 
@@ -353,7 +353,7 @@ local function collectAvailableQuests(mapIDs)
 				local withinLevelRange = (q.level >= minLevel and q.level <= maxLevel)
 
 				-- Filter out active, completed, and under-leveled quests.
-				if withinLevelRange and not activeQuests[normalizeKey(q.title)] and not completedQuests[q.questID] and playerLevel >= (q.minLevel or 0) then
+				if withinLevelRange and not activeQuests[VE.normalizeKey(q.title)] and not completedQuests[q.questID] and playerLevel >= (q.minLevel or 0) then
 					-- Filter by faction (1: Alliance, 2: Horde, 3: Neutral).
 					local eligible = (q.faction == 3 or q.faction == factionID)
 
@@ -648,7 +648,7 @@ module.plug:SetScript("OnEvent", function()
 		-- Remember which quest is being completed.
 		local title = GetTitleText()
 		if title then
-			module.data.lastCompletingQuest = normalizeKey(title)
+			module.data.lastCompletingQuest = VE.normalizeKey(title)
 		end
 	elseif event == "QUEST_FINISHED" then
 		-- Confirm completion and record it.
@@ -657,7 +657,7 @@ module.plug:SetScript("OnEvent", function()
 			module.data.lastCompletingQuest = nil
 
 			-- Look for quest ID by title and mark it as completed in our history.
-			local matches = findQuestIDsByTitle(title)
+			local matches = VE.findQuestIDsByTitle(title)
 			if matches then
 				if not VanillaEnhancedData.completedQuests then
 					VanillaEnhancedData.completedQuests = {}
