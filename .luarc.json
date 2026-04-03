@@ -14,5 +14,9 @@
    ],
    "runtime.version": "Lua 5.1",
    "type.inferParamType": true,
-   "workspace.library": ["WoWAPI"]
+	"type.maxUnionVariants": 0,
+   "workspace.library": [
+		"WoWAPI/Client",
+		"WoWAPI/UI_Turtle"
+	]
 }
