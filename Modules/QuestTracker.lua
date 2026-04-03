@@ -33,9 +33,6 @@ local module = VE.registerModule({
 	},
 })
 
--- Forward declarations.
-local refreshQuestAreas
-
 -- Check for SuperWoW dependency.
 if not VE.superWoWCheck(module) then
 	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
@@ -446,7 +443,7 @@ local function getOrCreateAvailableFrame(index)
 				for _, questData in ipairs(this.quests) do
 					VanillaEnhancedData.completedQuests[questData.questID] = true
 				end
-				refreshQuestAreas()
+				module.refreshQuestAreas()
 			end
 		end)
 
@@ -500,7 +497,7 @@ local function drawAvailableQuest(index, availableData)
 	return index + 1
 end
 
-refreshQuestAreas = function()
+module.refreshQuestAreas = function()
 	for _, area in ipairs(module.data.areaFrames) do
 		area:Hide()
 	end
@@ -550,7 +547,7 @@ local function hookWorldMapUpdate()
 			originalWorldMapFrameUpdate()
 		end
 
-		refreshQuestAreas()
+		module.refreshQuestAreas()
 	end
 
 	module.data.hooked = true
@@ -562,9 +559,9 @@ module.plug:SetScript("OnEvent", function()
 	if event == "PLAYER_ENTERING_WORLD" then
 		ensureMapData()
 		hookWorldMapUpdate()
-		refreshQuestAreas()
+		module.refreshQuestAreas()
 	elseif event == "QUEST_LOG_UPDATE" then
-		refreshQuestAreas()
+		module.refreshQuestAreas()
 	elseif event == "QUEST_COMPLETE" then
 		-- Remember which quest is being completed.
 		local title = GetTitleText()
@@ -588,6 +585,6 @@ module.plug:SetScript("OnEvent", function()
 				end
 			end
 		end
-		refreshQuestAreas()
+		module.refreshQuestAreas()
 	end
 end)
