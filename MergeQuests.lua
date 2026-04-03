@@ -29,6 +29,7 @@ local DATA_DBS = {
 	"zones",
 	"areatrigger",
 	"refloot",
+	"meta",
 }
 
 local ENGLISH_DBS = {
@@ -593,14 +594,37 @@ end
 		end
 	end
 
+	local isPvP = nil
+	if quest["start"] and quest["start"]["U"] then
+		for _, unit_id in ipairs(quest["start"]["U"]) do
+			if battlemasters[unit_id] then isPvP = 1 break end
+		end
+	end
+	if not isPvP and quest["end"] and quest["end"]["U"] then
+		for _, unit_id in ipairs(quest["end"]["U"]) do
+			if battlemasters[unit_id] then isPvP = 1 break end
+		end
+	end
+
+	local title = quest_names[quest_id] and quest_names[quest_id].T or nil
+	if not isPvP and title then
+		local t = string.lower(title)
+		if string.find(t, "mark of honor") or string.find(t, "warsong gulch") or 
+		   string.find(t, "arathi basin") or string.find(t, "alterac valley") or 
+		   string.find(t, "concerted efforts") or string.find(t, "battleground") then
+			isPvP = 1
+		end
+	end
+
 	local entry = {
-		title = quest_names[quest_id] and quest_names[quest_id].T or nil,
+		title = title,
 		objText = quest_names[quest_id] and quest_names[quest_id].O or nil,
 		lvl = quest["lvl"],
 		min = quest["min"],
 		faction = faction,
 		class = classReq,
 		isEvent = (quest["event"] and quest["event"] > 0) and 1 or nil,
+		isPvP = isPvP,
 	}
 
 if objective_out then
@@ -629,6 +653,7 @@ local function build_output()
 	refloot = pfDB["refloot"]["data"] or {}
 	areatrigger = pfDB["areatrigger"]["data"] or {}
 	quest_itemreq = pfDB["quests-itemreq"]["data"] or {}
+	battlemasters = pfDB["meta"]["battlemaster"] or {}
 
 	local out = {
 		meta = {
