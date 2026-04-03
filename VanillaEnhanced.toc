@@ -14,6 +14,7 @@ Data\MarkerData.lua
 Data\GrindSpotsData.lua
 Data\FlightData.lua
 Data\ZoneGeometry.lua
+Data\QuestZoneData.lua
 
 # Essentials
 Core.lua
