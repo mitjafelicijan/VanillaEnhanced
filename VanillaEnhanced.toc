@@ -87,10 +87,10 @@ Modules\TargetCastingBar.lua
 Modules\TravelJournal.lua
 Modules\TrinketManager.lua
 Modules\CompactRaidFrames.lua
+Modules\QuestTracker.lua
 
 # Work in progress
 # Modules\NearbyTargets.xml
-# Modules\CharacterStats.lua
 # Modules\TargetChangeStopAttack.lua
 
 # Retired

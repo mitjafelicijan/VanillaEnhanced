@@ -7,10 +7,18 @@ Compatible with World of Warcraft Client v1.12.
 > This was tested with the Turtle WoW Client, which is modified. It may not work properly on a clean 1.12 client.
 
 > [!IMPORTANT]
-> None of the additional tweaks are enabled by default. You must enable them manually to avoid conflicts with existing addons.
+> None of the additional tweaks are enabledo by default. You must enable them manually to avoid conflicts with existing addons.
 
 > [!IMPORTANT]
 > Some modules require [SuperWoW](https://github.com/balakethetlock/SuperWoW) to function correctly.
+
+## Data from other addons
+
+This should be updated on new releases.
+
+- https://github.com/The-Kludge-Bureau/pfQuest
+- https://github.com/The-Kludge-Bureau/pfQuest-turtle
+- https://github.com/tilare/ModernMapMarkers
 
 ## Feature Descriptions
 
