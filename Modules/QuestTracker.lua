@@ -20,6 +20,22 @@ local module = VE.registerModule({
 			texture = "Interface\\AddOns\\VanillaEnhanced\\Assets\\QuestTracker-Objective",
 			size = 64,
 		},
+		showTrivial = false,
+	},
+	options = {
+		{
+			identifier = "QuestTrackerShowTrivial",
+			label = "Show trivial quests",
+			tooltipTitle = "Show Trivial Quests",
+			tooltipDescription = "Show quests that are more than 9 levels below your current level (grey quests).",
+			callback = function(checked)
+				local m = VE.getModule("QuestTracker")
+				if m then
+					m.config.showTrivial = checked
+					m.refreshQuestAreas()
+				end
+			end,
+		},
 	},
 	data = {
 		hooked = false,
@@ -309,6 +325,10 @@ local function collectAvailableQuests(mapIDs)
 	local playerLevel = UnitLevel("player")
 	local playerFaction = UnitFactionGroup("player")
 	local factionID = (playerFaction == "Alliance" and 1 or 2)
+
+	local minLevel = module.config.showTrivial and 0 or (playerLevel - 9)
+	local maxLevel = playerLevel + 4
+
 	local markers = {}
 	local markersByLocation = {}
 
@@ -316,8 +336,11 @@ local function collectAvailableQuests(mapIDs)
 		local quests = module.data.questsByMap[mapID]
 		if quests then
 			for _, q in ipairs(quests) do
+				-- Filter by level range.
+				local withinLevelRange = (q.level >= minLevel and q.level <= maxLevel)
+
 				-- Filter out active, completed, and under-leveled quests.
-				if not activeQuests[normalizeKey(q.title)] and not completedQuests[q.questID] and playerLevel >= (q.minLevel or 0) then
+				if withinLevelRange and not activeQuests[normalizeKey(q.title)] and not completedQuests[q.questID] and playerLevel >= (q.minLevel or 0) then
 					-- Filter by faction (1: Alliance, 2: Horde, 3: Neutral).
 					local eligible = (q.faction == 3 or q.faction == factionID)
 
@@ -581,6 +604,9 @@ module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 
 	if event == "PLAYER_ENTERING_WORLD" then
+		-- Sync options with config.
+		module.config.showTrivial = VE.isOptionEnabled("QuestTrackerShowTrivial")
+
 		ensureMapData()
 		hookWorldMapUpdate()
 		module.refreshQuestAreas()

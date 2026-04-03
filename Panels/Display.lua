@@ -35,6 +35,13 @@ VE.panels.Display = function(parent)
 	VE.elements.Checkbox(frame, 20, -260, 140, SHOW_HELM, OPTION_TOOLTIP_SHOW_HELM, nil, ShowingHelm(), function(checked)
 		ShowHelm(checked)
 	end)
+	
+	do
+		local module = VE.getModule("QuestTracker")
+		VE.elements.Checkbox(frame, 20, -300, 170, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+		end, module.superWoWRequired)
+	end
 
 	-- Right column
 
@@ -111,16 +118,7 @@ VE.panels.Display = function(parent)
 			end, module.superWoWRequired)
 		end
 	end
-
-	do
-		local module = VE.getModule("QuestTracker")
-		if module then
-			VE.elements.Checkbox(frame, 270, -400, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
+	
 	if VE.config.Debug then VE.dframe(frame, 0.0, 1.0, 1.0, 0.2) end
 
 	-- Hide the frame before sending it back.
