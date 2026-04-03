@@ -33,6 +33,9 @@ local module = VE.registerModule({
 	},
 })
 
+-- Forward declarations.
+local refreshQuestAreas
+
 -- Check for SuperWoW dependency.
 if not VE.superWoWCheck(module) then
 	VE.iprint(string.format("No SuperWoW detected. %s is NOT enabled.", module.meta.label))
@@ -426,12 +429,25 @@ local function getOrCreateAvailableFrame(index)
 					WorldMapTooltip:AddLine(string.format("[%d] %s", this.quests[1].level, this.quests[1].title), 1, 0.82, 0)
 				end
 				WorldMapTooltip:AddLine("Available quest givers", 0.9, 0.9, 0.9)
+				WorldMapTooltip:AddLine("<Shift+Click to mark as completed>", 0.5, 0.5, 0.5)
 			end
 			WorldMapTooltip:Show()
 		end)
 
 		marker:SetScript("OnLeave", function()
 			WorldMapTooltip:Hide()
+		end)
+
+		marker:SetScript("OnClick", function()
+			if IsShiftKeyDown() and this.quests then
+				if not VanillaEnhancedData.completedQuests then
+					VanillaEnhancedData.completedQuests = {}
+				end
+				for _, questData in ipairs(this.quests) do
+					VanillaEnhancedData.completedQuests[questData.questID] = true
+				end
+				refreshQuestAreas()
+			end
 		end)
 
 		module.data.availableFrames[index] = marker
@@ -484,7 +500,7 @@ local function drawAvailableQuest(index, availableData)
 	return index + 1
 end
 
-local function refreshQuestAreas()
+refreshQuestAreas = function()
 	for _, area in ipairs(module.data.areaFrames) do
 		area:Hide()
 	end
