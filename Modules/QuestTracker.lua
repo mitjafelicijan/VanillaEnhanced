@@ -11,6 +11,10 @@ local module = VE.registerModule({
 			texture = "Interface\\AddOns\\VanillaEnhanced\\Assets\\QuestTracker-Complete",
 			size = 18,
 		},
+		available = {
+			texture = "Interface\\AddOns\\VanillaEnhanced\\Assets\\QuestTracker-Available",
+			size = 18,
+		},
 		objective = {
 			texture = "Interface\\AddOns\\VanillaEnhanced\\Assets\\QuestTracker-Objective",
 			size = 64,
@@ -22,8 +26,10 @@ local module = VE.registerModule({
 		questMatchCache = {},
 		mapDataReady = false,
 		mapIDsByZoneName = {},
+		questsByMap = {},
 		areaFrames = {},
 		turninFrames = {},
+		availableFrames = {},
 	},
 })
 
@@ -36,6 +42,8 @@ end
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("QUEST_LOG_UPDATE")
+module.plug:RegisterEvent("QUEST_FINISHED")
+module.plug:RegisterEvent("QUEST_COMPLETE")
 
 local function normalizeKey(value)
 	if not value then return nil end
@@ -59,6 +67,22 @@ local function ensureMapData()
 		if zoneKey then
 			module.data.mapIDsByZoneName[zoneKey] = module.data.mapIDsByZoneName[zoneKey] or {}
 			table.insert(module.data.mapIDsByZoneName[zoneKey], mapID)
+		end
+	end
+
+	for questID, questData in pairs(QuestZoneData.quests) do
+		if questData.available and questData.available.maps then
+			for mapID, startData in pairs(questData.available.maps) do
+				module.data.questsByMap[mapID] = module.data.questsByMap[mapID] or {}
+				table.insert(module.data.questsByMap[mapID], {
+					questID = questID,
+					title = questData.title,
+					level = questData.lvl,
+					minLevel = questData.min,
+					x = startData.x,
+					y = startData.y,
+				})
+			end
 		end
 	end
 
@@ -237,6 +261,82 @@ local function collectQuestTurnins(mapIDs)
 	return turnins
 end
 
+local function collectAvailableQuests(mapIDs)
+	if not mapIDs or not mapIDs[1] then return {} end
+
+	local activeQuests = {}
+	local numEntries = GetNumQuestLogEntries()
+	for i = 1, numEntries do
+		local title, level, _, isHeader = GetQuestLogTitle(i)
+		if title and not isHeader then
+			activeQuests[normalizeKey(title)] = true
+		end
+	end
+
+	-- Try to get completed quests from multiple sources.
+	local completedQuests = {}
+	if type(GetQuestsCompleted) == "function" then
+		local temp = GetQuestsCompleted() or {}
+		if temp[1] and type(temp[1]) == "number" then
+			for _, id in ipairs(temp) do completedQuests[id] = true end
+		else
+			completedQuests = temp
+		end
+	elseif type(GetCompletedQuests) == "function" then
+		local temp = GetCompletedQuests() or {}
+		if temp[1] and type(temp[1]) == "number" then
+			for _, id in ipairs(temp) do completedQuests[id] = true end
+		else
+			completedQuests = temp
+		end
+	elseif pfQuest_history then
+		completedQuests = pfQuest_history
+	end
+
+	-- Check VanillaEnhanced's own tracking.
+	if not VanillaEnhancedData.completedQuests then
+		VanillaEnhancedData.completedQuests = {}
+	end
+	for id, _ in pairs(VanillaEnhancedData.completedQuests) do
+		completedQuests[id] = true
+	end
+
+	local playerLevel = UnitLevel("player")
+	local markers = {}
+	local markersByLocation = {}
+
+	for _, mapID in ipairs(mapIDs) do
+		local quests = module.data.questsByMap[mapID]
+		if quests then
+			for _, q in ipairs(quests) do
+				-- Filter out active, completed, and under-leveled quests.
+				if not activeQuests[normalizeKey(q.title)] and not completedQuests[q.questID] and playerLevel >= (q.minLevel or 0) then
+					local markerKey = string.format("%s|%s|%s", mapID, q.x, q.y)
+					local marker = markersByLocation[markerKey]
+
+					if not marker then
+						marker = {
+							x = q.x,
+							y = q.y,
+							quests = {},
+						}
+						markers[VE.count(markers) + 1] = marker
+						markersByLocation[markerKey] = marker
+					end
+
+					marker.quests[VE.count(marker.quests) + 1] = {
+						questID = q.questID,
+						title = q.title,
+						level = q.level,
+					}
+				end
+			end
+		end
+	end
+
+	return markers
+end
+
 local function getOrCreateAreaFrame(index)
 	if not module.data.areaFrames[index] then
 		local area = CreateFrame("Button", "VE_QuestTrackerArea" .. index, WorldMapButton)
@@ -303,6 +403,43 @@ local function getOrCreateTurninFrame(index)
 	return module.data.turninFrames[index]
 end
 
+local function getOrCreateAvailableFrame(index)
+	if not module.data.availableFrames[index] then
+		local marker = CreateFrame("Button", "VE_QuestTrackerAvailable" .. index, WorldMapButton)
+		marker:SetWidth(module.config.available.size)
+		marker:SetHeight(module.config.available.size)
+		marker:SetFrameLevel(WorldMapButton:GetFrameLevel() + 5)
+
+		marker.texture = marker:CreateTexture(nil, "OVERLAY")
+		marker.texture:SetAllPoints(marker)
+		marker.texture:SetTexture(module.config.available.texture)
+
+		marker:SetScript("OnEnter", function()
+			WorldMapTooltip:SetOwner(this, "ANCHOR_RIGHT")
+			if this.quests and this.quests[1] then
+				if this.quests[2] then
+					WorldMapTooltip:AddLine("Available quests", 1, 0.82, 0)
+					for _, questData in ipairs(this.quests) do
+						WorldMapTooltip:AddLine(string.format("[%d] %s", questData.level, questData.title), 1, 1, 1)
+					end
+				else
+					WorldMapTooltip:AddLine(string.format("[%d] %s", this.quests[1].level, this.quests[1].title), 1, 0.82, 0)
+				end
+				WorldMapTooltip:AddLine("Available quest givers", 0.9, 0.9, 0.9)
+			end
+			WorldMapTooltip:Show()
+		end)
+
+		marker:SetScript("OnLeave", function()
+			WorldMapTooltip:Hide()
+		end)
+
+		module.data.availableFrames[index] = marker
+	end
+
+	return module.data.availableFrames[index]
+end
+
 local function drawQuestArea(index, areaData)
 	local area = getOrCreateAreaFrame(index)
 	local mapWidth = WorldMapDetailFrame:GetWidth()
@@ -334,12 +471,29 @@ local function drawQuestTurnin(index, turninData)
 	return index + 1
 end
 
+local function drawAvailableQuest(index, availableData)
+	local marker = getOrCreateAvailableFrame(index)
+	local mapWidth = WorldMapDetailFrame:GetWidth()
+	local mapHeight = WorldMapDetailFrame:GetHeight()
+
+	marker:ClearAllPoints()
+	marker:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", mapWidth * (availableData.x / 100), -mapHeight * (availableData.y / 100))
+	marker.quests = availableData.quests
+	marker:Show()
+
+	return index + 1
+end
+
 local function refreshQuestAreas()
 	for _, area in ipairs(module.data.areaFrames) do
 		area:Hide()
 	end
 
 	for _, marker in ipairs(module.data.turninFrames) do
+		marker:Hide()
+	end
+
+	for _, marker in ipairs(module.data.availableFrames) do
 		marker:Hide()
 	end
 
@@ -353,8 +507,10 @@ local function refreshQuestAreas()
 
 	local areas = collectQuestAreas(mapIDs)
 	local turnins = collectQuestTurnins(mapIDs)
+	local available = collectAvailableQuests(mapIDs)
 	local areaIndex = 1
 	local turninIndex = 1
+	local availableIndex = 1
 
 	for _, areaData in ipairs(areas) do
 		areaIndex = drawQuestArea(areaIndex, areaData)
@@ -362,6 +518,10 @@ local function refreshQuestAreas()
 
 	for _, turninData in ipairs(turnins) do
 		turninIndex = drawQuestTurnin(turninIndex, turninData)
+	end
+
+	for _, availableData in ipairs(available) do
+		availableIndex = drawAvailableQuest(availableIndex, availableData)
 	end
 end
 
@@ -388,6 +548,30 @@ module.plug:SetScript("OnEvent", function()
 		hookWorldMapUpdate()
 		refreshQuestAreas()
 	elseif event == "QUEST_LOG_UPDATE" then
+		refreshQuestAreas()
+	elseif event == "QUEST_COMPLETE" then
+		-- Remember which quest is being completed.
+		local title = GetTitleText()
+		if title then
+			module.data.lastCompletingQuest = normalizeKey(title)
+		end
+	elseif event == "QUEST_FINISHED" then
+		-- Confirm completion and record it.
+		if module.data.lastCompletingQuest then
+			local title = module.data.lastCompletingQuest
+			module.data.lastCompletingQuest = nil
+
+			-- Look for quest ID by title and mark it as completed in our history.
+			local matches = findQuestIDsByTitle(title)
+			if matches then
+				if not VanillaEnhancedData.completedQuests then
+					VanillaEnhancedData.completedQuests = {}
+				end
+				for _, questID in ipairs(matches) do
+					VanillaEnhancedData.completedQuests[questID] = true
+				end
+			end
+		end
 		refreshQuestAreas()
 	end
 end)

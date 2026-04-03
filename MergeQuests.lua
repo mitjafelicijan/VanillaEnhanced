@@ -526,13 +526,20 @@ end
 local function build_quest_entry(quest_id, quest)
 	local objective = new_location_group()
 	local turnin = new_location_group()
+	local start = new_location_group()
+
+	if quest["start"] then
+		collect_units(start, quest["start"]["U"])
+		collect_objects(start, quest["start"]["O"])
+		collect_items(start, quest["start"]["I"])
+	end
 
 	if quest["end"] then
-	collect_units(turnin, quest["end"]["U"])
-	collect_objects(turnin, quest["end"]["O"])
-end
+		collect_units(turnin, quest["end"]["U"])
+		collect_objects(turnin, quest["end"]["O"])
+	end
 
-if quest["obj"] then
+	if quest["obj"] then
 	collect_units(objective, quest["obj"]["U"])
 	collect_objects(objective, quest["obj"]["O"])
 	collect_areatriggers(objective, quest["obj"]["A"])
@@ -541,14 +548,15 @@ if quest["obj"] then
 	collect_explicit_areas(objective, quest["obj"]["Z"])
 end
 
-local objective_out = finalize_group(objective)
-local turnin_out = finalize_group(turnin)
+	local objective_out = finalize_group(objective)
+	local turnin_out = finalize_group(turnin)
+	local start_out = finalize_group(start)
 
-if not objective_out and not turnin_out then
-	return nil
-end
+	if not objective_out and not turnin_out and not start_out then
+		return nil
+	end
 
-local entry = {
+	local entry = {
 	title = quest_names[quest_id] and quest_names[quest_id].T or nil,
 	lvl = quest["lvl"],
 	min = quest["min"],
@@ -558,11 +566,15 @@ if objective_out then
 	entry.objective = objective_out
 end
 
-if turnin_out then
-	entry.turnin = turnin_out
-end
+	if turnin_out then
+		entry.turnin = turnin_out
+	end
 
-return entry
+	if start_out then
+		entry.available = start_out
+	end
+
+	return entry
 end
 
 local function build_output()
