@@ -6,7 +6,16 @@ local module = VE.registerModule({
 	},
 	plug = nil,
 	superWoWRequired = false,
-	config = {},
+	config = {
+		turnin = {
+			texture = "Interface\\AddOns\\VanillaEnhanced\\Assets\\QuestTracker-Complete",
+			size = 18,
+		},
+		objective = {
+			texture = "Interface\\AddOns\\VanillaEnhanced\\Assets\\QuestTracker-Objective",
+			size = 64,
+		},
+	},
 	data = {
 		hooked = false,
 		zoneCache = {},
@@ -27,9 +36,6 @@ end
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("QUEST_LOG_UPDATE")
-
-local TURNIN_TEXTURE = "Interface\\AddOns\\VanillaEnhanced\\Assets\\QuestTracker-Complete"
-local TURNIN_MARKER_SIZE = 18
 
 local function normalizeKey(value)
 	if not value then return nil end
@@ -231,43 +237,14 @@ local function collectQuestTurnins(mapIDs)
 	return turnins
 end
 
-local function printQuestLog()
-	local numEntries = GetNumQuestLogEntries()
-	local foundQuest = false
-
-	VE.print("Quest log:")
-
-	for index = 1, numEntries do
-		local title, level, _, isHeader = GetQuestLogTitle(index)
-		if title and not isHeader and level and level > 0 then
-			VE.print(string.format("[%d] %s", level, title))
-			foundQuest = true
-		end
-	end
-
-	if not foundQuest then
-		VE.print("Quest log is empty.")
-	end
-end
-
 local function getOrCreateAreaFrame(index)
 	if not module.data.areaFrames[index] then
 		local area = CreateFrame("Button", "VE_QuestTrackerArea" .. index, WorldMapButton)
 		area:SetFrameLevel(WorldMapButton:GetFrameLevel() + 2)
 
-		area.fill = area:CreateTexture(nil, "ARTWORK")
-		area.fill:SetAllPoints(area)
-		area.fill:SetTexture(1, 0.82, 0, 0.18)
-
-		area.borderTop = area:CreateTexture(nil, "OVERLAY")
-		area.borderBottom = area:CreateTexture(nil, "OVERLAY")
-		area.borderLeft = area:CreateTexture(nil, "OVERLAY")
-		area.borderRight = area:CreateTexture(nil, "OVERLAY")
-
-		area.borderTop:SetTexture(1, 0.82, 0, 0.85)
-		area.borderBottom:SetTexture(1, 0.82, 0, 0.85)
-		area.borderLeft:SetTexture(1, 0.82, 0, 0.85)
-		area.borderRight:SetTexture(1, 0.82, 0, 0.85)
+		area.texture = area:CreateTexture(nil, "ARTWORK")
+		area.texture:SetAllPoints(area)
+		area.texture:SetTexture(module.config.objective.texture)
 
 		area:SetScript("OnEnter", function()
 			WorldMapTooltip:SetOwner(this, "ANCHOR_RIGHT")
@@ -292,13 +269,13 @@ end
 local function getOrCreateTurninFrame(index)
 	if not module.data.turninFrames[index] then
 		local marker = CreateFrame("Button", "VE_QuestTrackerTurnin" .. index, WorldMapButton)
-		marker:SetWidth(TURNIN_MARKER_SIZE)
-		marker:SetHeight(TURNIN_MARKER_SIZE)
+		marker:SetWidth(module.config.turnin.size)
+		marker:SetHeight(module.config.turnin.size)
 		marker:SetFrameLevel(WorldMapButton:GetFrameLevel() + 6)
 
 		marker.texture = marker:CreateTexture(nil, "OVERLAY")
 		marker.texture:SetAllPoints(marker)
-		marker.texture:SetTexture(TURNIN_TEXTURE)
+		marker.texture:SetTexture(module.config.turnin.texture)
 
 		marker:SetScript("OnEnter", function()
 			WorldMapTooltip:SetOwner(this, "ANCHOR_RIGHT")
@@ -330,32 +307,11 @@ local function drawQuestArea(index, areaData)
 	local area = getOrCreateAreaFrame(index)
 	local mapWidth = WorldMapDetailFrame:GetWidth()
 	local mapHeight = WorldMapDetailFrame:GetHeight()
-	local borderSize = 2
 
 	area:ClearAllPoints()
-	area:SetWidth(mapWidth * (areaData.width / 100))
-	area:SetHeight(mapHeight * (areaData.height / 100))
+	area:SetWidth(module.config.objective.size)
+	area:SetHeight(module.config.objective.size)
 	area:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", mapWidth * (areaData.x / 100), -mapHeight * (areaData.y / 100))
-
-	area.borderTop:ClearAllPoints()
-	area.borderTop:SetPoint("TOPLEFT", area, "TOPLEFT", 0, 0)
-	area.borderTop:SetPoint("TOPRIGHT", area, "TOPRIGHT", 0, 0)
-	area.borderTop:SetHeight(borderSize)
-
-	area.borderBottom:ClearAllPoints()
-	area.borderBottom:SetPoint("BOTTOMLEFT", area, "BOTTOMLEFT", 0, 0)
-	area.borderBottom:SetPoint("BOTTOMRIGHT", area, "BOTTOMRIGHT", 0, 0)
-	area.borderBottom:SetHeight(borderSize)
-
-	area.borderLeft:ClearAllPoints()
-	area.borderLeft:SetPoint("TOPLEFT", area, "TOPLEFT", 0, 0)
-	area.borderLeft:SetPoint("BOTTOMLEFT", area, "BOTTOMLEFT", 0, 0)
-	area.borderLeft:SetWidth(borderSize)
-
-	area.borderRight:ClearAllPoints()
-	area.borderRight:SetPoint("TOPRIGHT", area, "TOPRIGHT", 0, 0)
-	area.borderRight:SetPoint("BOTTOMRIGHT", area, "BOTTOMRIGHT", 0, 0)
-	area.borderRight:SetWidth(borderSize)
 
 	area.questTitle = areaData.title
 	area.questLevel = areaData.level
@@ -430,7 +386,6 @@ module.plug:SetScript("OnEvent", function()
 	if event == "PLAYER_ENTERING_WORLD" then
 		ensureMapData()
 		hookWorldMapUpdate()
-		printQuestLog()
 		refreshQuestAreas()
 	elseif event == "QUEST_LOG_UPDATE" then
 		refreshQuestAreas()
