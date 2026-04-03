@@ -73,6 +73,16 @@ VE.panels.Display = function(parent)
 		end
 	end
 
+	do
+		local option = VE.getOption("QuestTrackerShowTooltips")
+		if option then
+			VE.elements.Checkbox(frame, 40, -420, 170, option.meta.label, option.meta.label, option.meta.description, option.enabled, function(checked)
+				if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
+				if option.callback then option.callback(checked) end
+			end, option.superWoWRequired)
+		end
+	end
+
 	-- Right column
 
 	VE.elements.Checkbox(frame, 270, -20, 140, USE_UBERTOOLTIPS, OPTION_TOOLTIP_USE_UBERTOOLTIPS, nil, VE.GetCVarAsBoolean("UberTooltips"), function(checked)
@@ -117,15 +127,6 @@ VE.panels.Display = function(parent)
 		local module = VE.getModule("HideLuaErrors")
 		if module then
 			VE.elements.Checkbox(frame, 270, -270, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
-	do
-		local module = VE.getModule("QuestItemTooltip")
-		if module then
-			VE.elements.Checkbox(frame, 270, -310, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
