@@ -96,11 +96,6 @@ module.plug:RegisterEvent("QUEST_LOG_UPDATE")
 module.plug:RegisterEvent("QUEST_FINISHED")
 module.plug:RegisterEvent("QUEST_COMPLETE")
 
-local function normalizeKey(value)
-	if not value then return nil end
-	return string.lower(value)
-end
-
 local function getZoneNames(continentID)
 	if continentID <= 0 then return nil end
 	if not module.data.zoneCache[continentID] then
@@ -114,7 +109,7 @@ local function ensureMapData()
 	if not QuestZoneData or not QuestZoneData.maps then return end
 
 	for mapID, zoneName in pairs(QuestZoneData.maps) do
-		local zoneKey = normalizeKey(zoneName)
+		local zoneKey = VE.normalizeKey(zoneName)
 		if zoneKey then
 			module.data.mapIDsByZoneName[zoneKey] = module.data.mapIDsByZoneName[zoneKey] or {}
 			table.insert(module.data.mapIDsByZoneName[zoneKey], mapID)
@@ -145,38 +140,6 @@ local function ensureMapData()
 	module.data.mapDataReady = true
 end
 
-local function findQuestIDsByTitle(title, level)
-	if not QuestZoneData or not QuestZoneData.quests then return nil end
-
-	local titleKey = normalizeKey(title)
-	if not titleKey then return nil end
-
-	local cacheKey = level and string.format("%s|%d", titleKey, level) or titleKey
-	local cached = module.data.questMatchCache[cacheKey]
-	if cached ~= nil then
-		return cached or nil
-	end
-
-	local matches = {}
-
-	for questID, questData in pairs(QuestZoneData.quests) do
-		if normalizeKey(questData.title) == titleKey and (not level or questData.lvl == level) then
-			matches[VE.count(matches) + 1] = questID
-		end
-	end
-
-	if level and not matches[1] then
-		for questID, questData in pairs(QuestZoneData.quests) do
-			if normalizeKey(questData.title) == titleKey then
-				matches[VE.count(matches) + 1] = questID
-			end
-		end
-	end
-
-	module.data.questMatchCache[cacheKey] = matches[1] and matches or false
-	return matches[1] and matches or nil
-end
-
 local function getQuestIDFromLink(questLogIndex)
 	if not GetQuestLink then return nil end
 
@@ -193,7 +156,7 @@ local function getQuestCandidates(title, level, questLogIndex)
 		return { questID }
 	end
 
-	return findQuestIDsByTitle(title, level)
+	return VE.findQuestIDsByTitle(title, level)
 end
 
 local function getCurrentMapIDs()
@@ -205,7 +168,7 @@ local function getCurrentMapIDs()
 	local currentZoneName = zoneNames and zoneNames[currentZone]
 	if not currentZoneName then return nil end
 
-	return module.data.mapIDsByZoneName[normalizeKey(currentZoneName)]
+	return module.data.mapIDsByZoneName[VE.normalizeKey(currentZoneName)]
 end
 
 local function collectQuestAreas(mapIDs)

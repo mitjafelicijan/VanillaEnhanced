@@ -482,6 +482,36 @@ VE.BoolToNumber = function(value)
 	return value and 1 or 0
 end
 
+VE.normalizeKey = function(value)
+	if not value then return nil end
+	return string.lower(value)
+end
+
+VE.findQuestIDsByTitle = function(title, level)
+	if not QuestZoneData or not QuestZoneData.quests then return nil end
+
+	local titleKey = VE.normalizeKey(title)
+	if not titleKey then return nil end
+
+	local matches = {}
+
+	for questID, questData in pairs(QuestZoneData.quests) do
+		if VE.normalizeKey(questData.title) == titleKey and (not level or questData.lvl == level) then
+			table.insert(matches, questID)
+		end
+	end
+
+	if level and table.getn(matches) == 0 then
+		for questID, questData in pairs(QuestZoneData.quests) do
+			if VE.normalizeKey(questData.title) == titleKey then
+				table.insert(matches, questID)
+			end
+		end
+	end
+
+	return table.getn(matches) > 0 and matches or nil
+end
+
 VE.GetCVarAsBoolean = function(key)
 	return tonumber(GetCVar(key)) ~= 0
 end

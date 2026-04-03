@@ -627,9 +627,42 @@ end
 		isPvP = isPvP,
 	}
 
-if objective_out then
-	entry.objective = objective_out
-end
+	if quest["obj"] then
+		entry.objU = {}
+		local seenU = {}
+		
+		-- Direct unit objectives
+		if quest["obj"]["U"] then
+			for _, uID in ipairs(quest["obj"]["U"]) do
+				if not seenU[uID] then
+					table.insert(entry.objU, uID)
+					seenU[uID] = true
+				end
+			end
+		end
+		
+		-- Loot unit objectives (units that drop objective items)
+		if quest["obj"]["I"] then
+			for _, itemID in ipairs(quest["obj"]["I"]) do
+				local loot = refloot[itemID]
+				if loot and loot["U"] then
+					for uID, _ in pairs(loot["U"]) do
+						if not seenU[uID] then
+							table.insert(entry.objU, uID)
+							seenU[uID] = true
+						end
+					end
+				end
+			end
+		end
+		
+		if #entry.objU == 0 then entry.objU = nil end
+		if quest["obj"]["O"] then entry.objO = quest["obj"]["O"] end
+	end
+
+	if objective_out then
+		entry.objective = objective_out
+	end
 
 	if turnin_out then
 		entry.turnin = turnin_out
