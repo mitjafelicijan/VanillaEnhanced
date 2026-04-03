@@ -1,4 +1,5 @@
 -- Faction IDs: 1=Alliance, 2=Horde, 3=Neutral
+-- Class IDs: 0=All, 1=Warrior, 2=Paladin, 3=Hunter, 4=Rogue, 5=Priest, 6=Shaman, 7=Mage, 8=Warlock, 9=Druid
 local module = VE.registerModule({
 	identifier = "QuestTracker",
 	meta = {
@@ -98,6 +99,7 @@ local function ensureMapData()
 					level = questData.lvl,
 					minLevel = questData.min,
 					faction = questData.faction,
+					classID = questData.class,
 					objective = questData.objText,
 					x = startData.x,
 					y = startData.y,
@@ -327,6 +329,19 @@ local function collectAvailableQuests(mapIDs)
 	local playerFaction = UnitFactionGroup("player")
 	local factionID = (playerFaction == "Alliance" and 1 or 2)
 
+	local _, playerClass = UnitClass("player")
+	local playerClassID = 0
+	if playerClass == "WARRIOR" then playerClassID = 1
+	elseif playerClass == "PALADIN" then playerClassID = 2
+	elseif playerClass == "HUNTER" then playerClassID = 3
+	elseif playerClass == "ROGUE" then playerClassID = 4
+	elseif playerClass == "PRIEST" then playerClassID = 5
+	elseif playerClass == "SHAMAN" then playerClassID = 6
+	elseif playerClass == "MAGE" then playerClassID = 7
+	elseif playerClass == "WARLOCK" then playerClassID = 8
+	elseif playerClass == "DRUID" then playerClassID = 9
+	end
+
 	local minLevel = module.config.showTrivial and 0 or (playerLevel - 9)
 	local maxLevel = playerLevel + 4
 
@@ -344,6 +359,13 @@ local function collectAvailableQuests(mapIDs)
 				if withinLevelRange and not activeQuests[normalizeKey(q.title)] and not completedQuests[q.questID] and playerLevel >= (q.minLevel or 0) then
 					-- Filter by faction (1: Alliance, 2: Horde, 3: Neutral).
 					local eligible = (q.faction == 3 or q.faction == factionID)
+
+					-- Filter by class (0: All, 1-9: Specific class).
+					if eligible and q.classID and q.classID > 0 then
+						if q.classID ~= playerClassID then
+							eligible = false
+						end
+					end
 
 					if eligible then
 						local markerKey = string.format("%s|%s|%s", mapID, q.x, q.y)
