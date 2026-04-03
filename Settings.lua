@@ -37,16 +37,7 @@ tinsert(UISpecialFrames, frame:GetName())
 do
 	SLASH_VE1 = "/ve"
 	SlashCmdList["VE"] = function(cmd)
-		if cmd == "" then
-			if frame:IsVisible() then frame:Hide() else frame:Show() end
-		else
-			if cmd == "list" then
-				VE.listModules()
-			end
-			if cmd == "legacy" then
-				ShowUIPanel(UIOptionsFrame)
-			end
-		end
+		if frame:IsVisible() then frame:Hide() else frame:Show() end
 	end
 end
 
@@ -196,18 +187,6 @@ frame:SetScript("OnEvent", function()
 		frame.panel.panels["auratracking"] = VE.panels.AuraTracking(frame.panel)
 		frame.panel.panels["addons"] = VE.panels.Addons(frame.panel)
 		frame.panel.panels[config.startPanel]:Show()
-
-		-- Legacy Interface Options button.
-		frame.legacy = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-		frame.legacy:SetPoint("BottomLeft", 18, 18)
-		frame.legacy:SetWidth(90)
-		frame.legacy:SetHeight(22)
-		frame.legacy:SetText("Legacy")
-		frame.legacy:SetScript("OnClick", function(self)
-			PlaySound("igMainMenuOptionCheckBoxOn")
-			frame:Hide()
-			ShowUIPanel(UIOptionsFrame)
-		end)
 
 		-- Main buttons (cancel or apply).
 		frame.apply = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
