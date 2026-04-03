@@ -16,7 +16,7 @@ TODO
 local module = VE.registerModule({
 	identifier = "ExtendedMacros",
 	meta = {
-		label = "Extended Macros",
+		label = "Extended Macrosi |cFFFF0000(WIP)|r",
 		description = "Extends the default macro system with support for #showtooltip directives, allowing macros to dynamically update their icons and display correct tooltips based on their content.",
 	},
 	plug = nil,

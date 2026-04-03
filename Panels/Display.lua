@@ -135,7 +135,7 @@ VE.panels.Display = function(parent)
 	do
 		local module = VE.getModule("ConsumablesPanel")
 		if module then
-			VE.elements.Checkbox(frame, 270, -340, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -310, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -144,7 +144,7 @@ VE.panels.Display = function(parent)
 	do
 		local module = VE.getModule("MapMarkers")
 		if module then
-			VE.elements.Checkbox(frame, 270, -370, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -340, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end

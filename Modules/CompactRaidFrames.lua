@@ -1,7 +1,7 @@
 local module = VE.registerModule({
 	identifier = "CompactRaidFrames",
 	meta = {
-		label = "Compact Raid Frames v2",
+		label = "Compact Raid Frames |cFFFF0000(WIP)|r",
 		description = "",
 	},
 	plug = nil,

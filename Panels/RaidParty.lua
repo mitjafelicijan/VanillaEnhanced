@@ -24,51 +24,19 @@ VE.panels.RaidParty = function(parent)
 		VE.SetUVar("SHOW_CASTABLE_BUFFS", checked)
 	end)
 
-	-- do
-	-- 	local module = VE.getModule("CompactFrames")
-	-- 	if module then
-	-- 		VE.elements.Checkbox(frame, 20, -180, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-	-- 			if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-	-- 		end, module.superWoWRequired)
-	-- 	end
-	-- end
-
-	-- VE.elements.DropDown(frame, 50, -210, 160, nil, VanillaEnhancedOptions["CompactFramesAuras"], {
-	-- 	{ key = 0, text = "No Auras on Unit Frames", tooltip = "Do not show auras" },
-	-- 	{ key = 1, text = "Show Only Buffs", tooltip = "Show only party buffs" },
-	-- 	{ key = 2, text = "Show Only Debuffs", tooltip = "Show only party debuffs" },
-	-- 	{ key = 3, text = "Show Only HOT's", tooltip = "Show only party HOT's" },
-	-- }, function(key)
-	-- 	VanillaEnhancedOptions["CompactFramesAuras"] = key
-	-- end)
-
-	-- do
-	-- 	local option = VE.getOption("CompactFramesShowPets")
-	-- 	VE.elements.Checkbox(frame, 50, -245, 140, option.meta.label, option.meta.description, nil, option.enabled, function(checked)
-	-- 		if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
-	-- 	end, option.superWoWRequired)
-	-- end
-
-	-- do
-	-- 	local option = VE.getOption("CompactFramesShowFocusFrames")
-	-- 	VE.elements.Checkbox(frame, 50, -275, 140, option.meta.label, option.meta.description, nil, option.enabled, function(checked)
-	-- 		if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
-	-- 	end, option.superWoWRequired)
-	-- end
-	
 	do
 		local module = VE.getModule("RaidTargetMarkers")
 		if module then
-			VE.elements.Checkbox(frame, 20, -310, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 20, -180, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
 	end
-	
+
 	do
 		local module = VE.getModule("CompactRaidFrames")
 		if module then
-			VE.elements.Checkbox(frame, 20, -340, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 20, -210, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end

@@ -89,13 +89,6 @@ Modules\TrinketManager.lua
 Modules\CompactRaidFrames.lua
 Modules\QuestTracker.lua
 
-# Work in progress
-# Modules\NearbyTargets.xml
-# Modules\TargetChangeStopAttack.lua
-
-# Retired
-# Modules\CompactFrames.xml
-
 # Control panels
 Panels\Controls.lua
 Panels\Display.lua

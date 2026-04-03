@@ -66,9 +66,11 @@ VE.panels.Combat = function(parent)
 	-- Right column
 	do
 		local module = VE.getModule("NameplateThreat")
-		VE.elements.Checkbox(frame, 270, -20, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-			if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-		end, module.superWoWRequired)
+		if module then
+			VE.elements.Checkbox(frame, 270, -20, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
 	end
 
 	do
@@ -93,24 +95,6 @@ VE.panels.Combat = function(parent)
 		local module = VE.getModule("DruidOneButton")
 		if module then
 			VE.elements.Checkbox(frame, 270, -110, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
-	do
-		local module = VE.getModule("TargetChangeStopAttack")
-		if module then
-			VE.elements.Checkbox(frame, 270, -140, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
-	do
-		local module = VE.getModule("NearbyTargets")
-		if module then
-			VE.elements.Checkbox(frame, 270, -140, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end

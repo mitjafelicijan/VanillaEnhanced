@@ -32,11 +32,7 @@ VE.panels.ChatSocial = function(parent)
 		VE.SetCVar("showLootSpam", checked)
 	end)
 
-	VE.elements.Checkbox(frame, 20, -240, 210, DISABLE_SPAM_FILTER, OPTION_TOOLTIP_DISABLE_SPAM_FILTER, nil, VE.GetCVarAsBoolean("spamFilter"), function(checked)
-		VE.SetCVar("spamFilter", checked)
-	end)
-
-	VE.elements.Checkbox(frame, 20, -270, 210, PROFANITY_FILTER, OPTION_TOOLTIP_PROFANITY_FILTER, nil, VE.GetCVarAsBoolean("profanityFilter"), function(checked)
+	VE.elements.Checkbox(frame, 20, -230, 210, PROFANITY_FILTER, OPTION_TOOLTIP_PROFANITY_FILTER, nil, VE.GetCVarAsBoolean("profanityFilter"), function(checked)
 		VE.SetCVar("profanityFilter", checked)
 	end)
 
