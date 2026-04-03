@@ -40,7 +40,7 @@ local module = VE.registerModule({
 				local m = VE.getModule("QuestTracker")
 				if m then
 					m.config.showTrivial = checked
-					m.refreshQuestAreas()
+					m.refreshQuestAreas(true)
 				end
 			end,
 		},
@@ -54,7 +54,7 @@ local module = VE.registerModule({
 				local m = VE.getModule("QuestTracker")
 				if m then
 					m.config.showEvents = checked
-					m.refreshQuestAreas()
+					m.refreshQuestAreas(true)
 				end
 			end,
 		},
@@ -68,7 +68,7 @@ local module = VE.registerModule({
 				local m = VE.getModule("QuestTracker")
 				if m then
 					m.config.showPvP = checked
-					m.refreshQuestAreas()
+					m.refreshQuestAreas(true)
 				end
 			end,
 		},
@@ -102,6 +102,12 @@ local module = VE.registerModule({
 		activeObjectives = {},
 		activeIDs = {},
 		isUpdating = false,
+		needsRefresh = false,
+		needsObjectiveRefresh = false,
+		lastRefresh = 0,
+		completedCache = nil,
+		lastContinent = -1,
+		lastZone = -1,
 	},
 })
 
@@ -304,14 +310,15 @@ local function ensureMapData()
 		end
 
 		local processed = 0
-		local chunk = 100 -- Process 100 quests per frame
+		local chunk = 30 -- Process fewer quests per frame to reduce hitching
 		
 		while processed < chunk do
 			local k, v = next(QuestZoneData.quests, module.data.mapDataCurrentKey)
 			if not k then
 				-- We're done
 				module.data.mapDataReady = true
-				module.refreshQuestAreas()
+				refreshActiveObjectives()
+				module.refreshQuestAreas(true)
 				this:SetScript("OnUpdate", nil)
 				return
 			end
@@ -333,6 +340,7 @@ local function ensureMapData()
 					module.data.questsByMap[mapID] = module.data.questsByMap[mapID] or {}
 					table.insert(module.data.questsByMap[mapID], {
 						questID = questID,
+						titleKey = titleKey,
 						x = startData.x,
 						y = startData.y,
 					})
@@ -497,31 +505,34 @@ local function collectAvailableQuests(mapIDs)
 	end
 
 	-- Try to get completed quests from multiple sources.
-	local completedQuests = {}
-	if type(GetQuestsCompleted) == "function" then
-		local temp = GetQuestsCompleted() or {}
-		if temp[1] and type(temp[1]) == "number" then
-			for _, id in ipairs(temp) do completedQuests[id] = true end
-		else
-			completedQuests = temp
+	local completedQuests = module.data.completedCache
+	if not completedQuests then
+		completedQuests = {}
+		if type(GetQuestsCompleted) == "function" then
+			local temp = GetQuestsCompleted() or {}
+			if temp[1] and type(temp[1]) == "number" then
+				for _, id in ipairs(temp) do completedQuests[id] = true end
+			else
+				for id, val in pairs(temp) do completedQuests[id] = val end
+			end
+		elseif type(GetCompletedQuests) == "function" then
+			local temp = GetCompletedQuests() or {}
+			if temp[1] and type(temp[1]) == "number" then
+				for _, id in ipairs(temp) do completedQuests[id] = true end
+			else
+				for id, val in pairs(temp) do completedQuests[id] = val end
+			end
+		elseif pfQuest_history then
+			for id, val in pairs(pfQuest_history) do completedQuests[id] = val end
 		end
-	elseif type(GetCompletedQuests) == "function" then
-		local temp = GetCompletedQuests() or {}
-		if temp[1] and type(temp[1]) == "number" then
-			for _, id in ipairs(temp) do completedQuests[id] = true end
-		else
-			completedQuests = temp
-		end
-	elseif pfQuest_history then
-		completedQuests = pfQuest_history
-	end
 
-	-- Check VanillaEnhanced's own tracking.
-	if not VanillaEnhancedData.completedQuests then
-		VanillaEnhancedData.completedQuests = {}
-	end
-	for id, _ in pairs(VanillaEnhancedData.completedQuests) do
-		completedQuests[id] = true
+		-- Check VanillaEnhanced's own tracking.
+		if VanillaEnhancedData.completedQuests then
+			for id, _ in pairs(VanillaEnhancedData.completedQuests) do
+				completedQuests[id] = true
+			end
+		end
+		module.data.completedCache = completedQuests
 	end
 
 	local playerLevel = UnitLevel("player")
@@ -553,20 +564,18 @@ local function collectAvailableQuests(mapIDs)
 			for _, q in ipairs(quests) do
 				local qData = QuestZoneData.quests[q.questID]
 				if qData then
-					local qTitle = qData.title
 					local qLevel = qData.lvl
 					local qMinLevel = qData.min or 0
 					local qFaction = qData.faction
 					local qClassID = qData.class
 					local qIsEvent = qData.isEvent
 					local qIsPvP = qData.isPvP
-					local qObjective = qData.objText
 
 					-- Filter by level range.
 					local withinLevelRange = (qLevel >= minLevel and qLevel <= maxLevel)
 
 					-- Filter out active, completed, and under-leveled quests.
-					if withinLevelRange and not activeQuests[VE.normalizeKey(qTitle)] and not completedQuests[q.questID] and playerLevel >= qMinLevel then
+					if withinLevelRange and not activeQuests[q.titleKey or ""] and not completedQuests[q.questID] and playerLevel >= qMinLevel then
 						-- Filter by faction (1: Alliance, 2: Horde, 3: Neutral).
 						local eligible = (qFaction == 3 or qFaction == factionID)
 
@@ -603,9 +612,9 @@ local function collectAvailableQuests(mapIDs)
 
 							table.insert(marker.quests, {
 								questID = q.questID,
-								title = qTitle,
+								title = qData.title,
 								level = qLevel,
-								objective = qObjective,
+								objective = qData.objText,
 							})
 						end
 					end
@@ -733,7 +742,8 @@ local function getOrCreateAvailableFrame(index)
 				for _, questData in ipairs(this.quests) do
 					VanillaEnhancedData.completedQuests[questData.questID] = true
 				end
-				module.refreshQuestAreas()
+				module.data.completedCache = nil
+				module.refreshQuestAreas(true)
 			end
 		end)
 
@@ -788,8 +798,18 @@ local function drawAvailableQuest(index, availableData)
 	return index + 1
 end
 
-module.refreshQuestAreas = function()
+module.refreshQuestAreas = function(forced)
 	if module.data.isUpdating then return end
+	
+	local currentContinent = GetCurrentMapContinent()
+	local currentZone = GetCurrentMapZone()
+	
+	if not forced and currentContinent == module.data.lastContinent and currentZone == module.data.lastZone then
+		return
+	end
+	
+	module.data.lastContinent = currentContinent
+	module.data.lastZone = currentZone
 	module.data.isUpdating = true
 
 	for _, area in ipairs(module.data.areaFrames) do
@@ -872,18 +892,34 @@ module.plug:SetScript("OnEvent", function()
 		hookWorldMapUpdate()
 		
 		-- Start map data processing and initial cache refresh after a delay
-		module.plug.refreshTime = GetTime() + 3
+		module.data.initialDelay = GetTime() + 10 -- 10s delay after login
 		module.plug:SetScript("OnUpdate", function()
-			if GetTime() >= this.refreshTime then
+			local now = GetTime()
+			
+			-- Handle initial delayed processing
+			if module.data.initialDelay and now >= module.data.initialDelay then
 				ensureMapData()
-				refreshActiveObjectives()
-				module.refreshQuestAreas()
-				this:SetScript("OnUpdate", nil)
+				module.data.initialDelay = nil
+				module.data.needsObjectiveRefresh = true
+				module.data.needsRefresh = true
+			end
+
+			-- Handle throttled refreshes
+			if (module.data.needsRefresh or module.data.needsObjectiveRefresh) and now >= module.data.lastRefresh + 0.5 then
+				if module.data.needsObjectiveRefresh then
+					refreshActiveObjectives()
+					module.data.needsObjectiveRefresh = false
+				end
+				if module.data.needsRefresh then
+					module.refreshQuestAreas(true)
+					module.data.needsRefresh = false
+				end
+				module.data.lastRefresh = now
 			end
 		end)
 	elseif event == "QUEST_LOG_UPDATE" then
-		refreshActiveObjectives()
-		module.refreshQuestAreas()
+		module.data.needsObjectiveRefresh = true
+		module.data.needsRefresh = true
 	elseif event == "QUEST_COMPLETE" then
 		-- Remember which quest is being completed.
 		local title = GetTitleText()
@@ -905,10 +941,11 @@ module.plug:SetScript("OnEvent", function()
 				for _, questID in ipairs(matches) do
 					VanillaEnhancedData.completedQuests[questID] = true
 				end
+				module.data.completedCache = nil -- Invalidate cache
 			end
 		end
-		refreshActiveObjectives()
-		module.refreshQuestAreas()
+		module.data.needsObjectiveRefresh = true
+		module.data.needsRefresh = true
 	end
 end)
 
