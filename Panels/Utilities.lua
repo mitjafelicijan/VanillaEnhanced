@@ -32,7 +32,7 @@ VE.panels.Utilities = function(parent)
 	end
 
 	do
-		local module = VE.getModule("TrinketManager")
+		local module = VE.getModule("MaintainDruidForms")
 		if module then
 			VE.elements.Checkbox(frame, 20, -130, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
@@ -41,7 +41,7 @@ VE.panels.Utilities = function(parent)
 	end
 
 	do
-		local module = VE.getModule("ItemLevel")
+		local module = VE.getModule("MaintainHunterAspects")
 		if module then
 			VE.elements.Checkbox(frame, 20, -160, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
@@ -50,9 +50,27 @@ VE.panels.Utilities = function(parent)
 	end
 
 	do
+		local module = VE.getModule("TrinketManager")
+		if module then
+			VE.elements.Checkbox(frame, 20, -200, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("ItemLevel")
+		if module then
+			VE.elements.Checkbox(frame, 20, -230, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
 		local module = VE.getModule("HunterTargetDistance")
 		if module then
-			VE.elements.Checkbox(frame, 20, -190, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 20, -260, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
