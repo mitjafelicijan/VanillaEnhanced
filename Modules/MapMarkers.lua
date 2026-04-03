@@ -414,18 +414,8 @@ local function createDropdown()
 	filterBtn:SetHeight(24)
 	filterBtn:SetText("Map Filters")
 	filterBtn:SetFrameLevel(WorldMapButton:GetFrameLevel() + 10)
-
 	filterBtn:SetPoint("TOPRIGHT", WorldMapButton, "TOPRIGHT", -16, -12)
-
-	-- NOTE: This is only here if pfQuest button is enabled on WorldMap
-	--       which I don't like so why even bother.
-
-	-- if IsAddOnLoaded("pfQuest") then
-	-- 	filterBtn:SetPoint("TOPRIGHT", WorldMapButton, "TOPRIGHT", -16, -40)
-	-- else
-	-- 	filterBtn:SetPoint("TOPRIGHT", WorldMapButton, "TOPRIGHT", -16, -12)
-	-- end
-
+	
 	local menuFrame = CreateFrame("Frame", "VE_MapMarkerFilterMenu", filterBtn, "UIDropDownMenuTemplate")
 
 	UIDropDownMenu_Initialize(menuFrame, function()
