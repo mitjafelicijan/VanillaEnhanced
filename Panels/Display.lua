@@ -43,6 +43,16 @@ VE.panels.Display = function(parent)
 		end, module.superWoWRequired)
 	end
 
+	do
+		local option = VE.getOption("QuestTrackerShowTrivial")
+		if option then
+			VE.elements.Checkbox(frame, 40, -330, 170, option.meta.label, option.meta.label, option.meta.description, option.enabled, function(checked)
+				if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
+				if option.callback then option.callback(checked) end
+			end, option.superWoWRequired)
+		end
+	end
+
 	-- Right column
 
 	VE.elements.Checkbox(frame, 270, -20, 140, USE_UBERTOOLTIPS, OPTION_TOOLTIP_USE_UBERTOOLTIPS, nil, VE.GetCVarAsBoolean("UberTooltips"), function(checked)

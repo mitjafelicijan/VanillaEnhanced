@@ -25,9 +25,10 @@ local module = VE.registerModule({
 	options = {
 		{
 			identifier = "QuestTrackerShowTrivial",
-			label = "Show trivial quests",
-			tooltipTitle = "Show Trivial Quests",
-			tooltipDescription = "Show quests that are more than 9 levels below your current level (grey quests).",
+			meta = {
+				label = "Show trivial quests",
+				description = "Show quests that are more than 9 levels below your current level (grey quests).",
+			},
 			callback = function(checked)
 				local m = VE.getModule("QuestTracker")
 				if m then
