@@ -337,7 +337,7 @@ local function refreshMarkers()
 					showMarker = false
 				end
 
-				if showMarker and (mType == "BOAT" or mType == "ZEPPELIN" or mType == "TRAM") then
+				if showMarker and (mType == "FLIGHT" or mType == "BOAT" or mType == "ZEPPELIN" or mType == "TRAM") then
 					if data.description ~= "Neutral" and data.description ~= playerFaction then
 						showMarker = false
 					end
@@ -376,7 +376,7 @@ local function refreshMarkers()
 							showMarker = false
 						end
 
-						if showMarker and (mType == "BOAT" or mType == "ZEPPELIN" or mType == "TRAM") then
+						if showMarker and (mType == "FLIGHT" or mType == "BOAT" or mType == "ZEPPELIN" or mType == "TRAM") then
 							if data.description ~= "Neutral" and data.description ~= playerFaction then
 								showMarker = false
 							end
