@@ -34,7 +34,7 @@ local module = VE.registerModule({
 			identifier = "QuestTrackerShowTrivial",
 			meta = {
 				label = "Show trivial quests",
-				description = "Show quests that are more than 9 levels below your current level (grey quests).",
+				description = "Shows quests that are more than 9 levels below your current level (grey quests).",
 			},
 			callback = function(checked)
 				local m = VE.getModule("QuestTracker")
@@ -48,7 +48,7 @@ local module = VE.registerModule({
 			identifier = "QuestTrackerShowEvents",
 			meta = {
 				label = "Show event quests",
-				description = "Show quests related to festivals and world events.",
+				description = "Shows quests related to festivals and world events.",
 			},
 			callback = function(checked)
 				local m = VE.getModule("QuestTracker")
@@ -62,7 +62,7 @@ local module = VE.registerModule({
 			identifier = "QuestTrackerShowPvP",
 			meta = {
 				label = "Show PvP quests",
-				description = "Show quests related to battlegrounds and PvP objectives.",
+				description = "Shows quests related to battlegrounds and PvP objectives.",
 			},
 			callback = function(checked)
 				local m = VE.getModule("QuestTracker")

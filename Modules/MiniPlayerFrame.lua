@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "MiniPlayerFrame",
 	meta = {
 		label = "Mini Player Frame",
-		description = "Adds additional player unit frame with also combo points and target health bar (only shown when in combat).",
+		description = "Adds a combat-only player frame that displays combo points and target health.",
 	},
 	plug = nil,
 	superWoWRequired = false,

@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "TravelJournal",
 	meta = {
 		label = "Travel Journal",
-		description = "Add pins to map with custom notes.",
+		description = "Adds custom pins and notes to the World Map.",
 	},
 	plug = nil,
 	superWoWRequired = false,

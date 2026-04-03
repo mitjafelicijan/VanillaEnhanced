@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "DruidOneButton",
 	meta = {
 		label = "Druid One Button Rotation",
-		description = "Tries to to a good job with cat form rotation.",
+		description = "Optimizes combat rotations for Druid cat form.",
 	},
 	plug = nil,
 	superWoWRequired = false,

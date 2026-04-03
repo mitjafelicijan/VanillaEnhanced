@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "CompactRaidFrames",
 	meta = {
 		label = "Compact Raid Frames |cFFFF0000(WIP)|r",
-		description = "",
+		description = "Adds compact, customizable raid frames for party and raid groups.",
 	},
 	plug = nil,
 	superWoWRequired = true,

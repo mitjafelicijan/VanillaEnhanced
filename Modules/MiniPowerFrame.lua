@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "MiniPowerFrame",
 	meta = {
 		label = "Mini Power Frame",
-		description = "Adds additional power player frame with power bar (energy, rage, mana and debuffs).",
+		description = "Adds an additional power bar frame for energy, rage, mana, and debuffs.",
 	},
 	plug = nil,
 	superWoWRequired = false,

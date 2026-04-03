@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "NameplateThreat",
 	meta = {
 		label = "Nameplate Threat",
-		description = "Colors nameplates of targets that are attacking player in green.",
+		description = "Colors nameplates of targets that are attacking the player in green.",
 	},
 	plug = nil,
 	superWoWRequired = true,

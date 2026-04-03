@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "AlignGrid",
 	meta = {
 		label = "Draw Align Grid",
-		description = "Draws an align grid on a screen if Ctrl+Alt+Shift is being pressed.",
+		description = "Displays an alignment grid on the screen when Ctrl+Alt+Shift is pressed.",
 	},
 	plug = nil,
 	superWoWRequired = false,

@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "ConsumablesPanel",
 	meta = {
 		label = "Consumables Panel",
-		description = "",
+		description = "Adds a panel for easy access to consumables in your bags.",
 	},
 	plug = nil,
 	superWoWRequired = false,

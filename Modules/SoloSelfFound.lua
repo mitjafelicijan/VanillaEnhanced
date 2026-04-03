@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "SoloSelfFound",
 	meta = {
 		label = "Solo Self Found",
-		description = "Solo Self Found disables grouping, auction house.",
+		description = "Disables grouping and auction house access for the Solo Self Found challenge.",
 	},
 	plug = nil,
 	superWoWRequired = false,

@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "AuraTracker",
 	meta = {
 		label = "Aura Tracker",
-		description = "Tracks missing or existing auras set to a player in the middle of the screen.",
+		description = "Tracks and displays player auras in the center of the screen.",
 	},
 	plug = nil,
 	superWoWRequired = false,

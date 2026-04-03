@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "AutoDismount",
 	meta = {
 		label = "Automatic Dismount",
-		description = "Automatically dismounts if shapeshifting etc. occurs (depends on Extended Commands).",
+		description = "Automatically dismounts the player when shapeshifting or casting spells (requires Extended Commands).",
 	},
 	plug = nil,
 	superWoWRequired = false,

@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "HideBGF",
 	meta = {
 		label = "Hide Battleground Finder",
-		description = "Hides the minimap button for Battlegrouns.",
+		description = "Hides the minimap button for Battlegrounds.",
 	},
 	plug = nil,
 	superWoWRequired = false,

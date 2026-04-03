@@ -2,7 +2,7 @@ local module = VE.registerModule({
 	identifier = "AuctionEnhancements",
 	meta = {
 		label = "Auction Enhancements",
-		description = "Adds new post form to the auction house, and a new tab for viewing items in your bags.",
+		description = "Adds a new post form to the Auction House and a new tab for viewing items in your bags.",
 	},
 	plug = nil,
 	superWoWRequired = false,
