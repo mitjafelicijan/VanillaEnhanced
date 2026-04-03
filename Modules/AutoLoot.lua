@@ -21,26 +21,22 @@ end
 -- Negate SuperWoW default auto loot.
 if SUPERWOW_VERSION then
 	SetAutoloot(0)
+
+	module.frame = CreateFrame("Frame", module.identifier, UIParent)
+	module.frame:RegisterEvent("PLAYER_LOGIN")
+	module.frame:EnableKeyboard(true)
+
+	module.frame:SetScript("OnUpdate", function()
+		local a = VE.isModuleEnabled(module.identifier) and 1 or 0
+		local b = (a == 0) and 1 or 0
+		local isShiftKeyDown = IsShiftKeyDown()
+
+		if isShiftKeyDown and not module.data.wasShiftKeyDown then
+			SetAutoloot(b)
+		elseif not isShiftKeyDown and module.data.wasShiftKeyDown then
+			SetAutoloot(a)
+		end
+
+		module.data.wasShiftKeyDown = isShiftKeyDown
+	end)
 end
-
-module.frame = CreateFrame("Frame", module.identifier, UIParent)
-module.frame:RegisterEvent("PLAYER_LOGIN")
-module.frame:EnableKeyboard(true)
-
-module.frame:SetScript("OnEvent", function()
-	if not VE.isModuleEnabled(module.identifier) then return end
-	SetAutoloot(1)
-end)
-
-module.frame:SetScript("OnUpdate", function()
-	if not VE.isModuleEnabled(module.identifier) then return end
-
-	local isShiftKeyDown = IsShiftKeyDown()
-	if isShiftKeyDown and not module.data.wasShiftKeyDown then
-		SetAutoloot(0)
-	elseif not isShiftKeyDown and module.data.wasShiftKeyDown then
-		SetAutoloot(1)
-	end
-
-	module.data.wasShiftKeyDown = isShiftKeyDown
-end)
