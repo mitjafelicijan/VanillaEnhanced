@@ -238,9 +238,9 @@ end
 
 local function HideOtherUI()
 	-- Hide the micro button Performance.
-	if getglobal("MainMenuBarPerformanceBar") then
-		MainMenuBarPerformanceBar:Hide()
-	end
+	-- if getglobal("MainMenuBarPerformanceBar") then
+	-- 	MainMenuBarPerformanceBar:Hide()
+	-- end
 
 	if MainMenuExpBar then
 		if MainMenuExpBarLeftCap then MainMenuExpBarLeftCap:Hide() end
@@ -358,6 +358,24 @@ local function RepositionMicroMenu()
 	end
 end
 
+local function RepositionFramerateDisplay()
+	if FramerateLabel and FramerateText then
+		if UIPARENT_MANAGED_FRAME_POSITIONS then
+			UIPARENT_MANAGED_FRAME_POSITIONS["FramerateLabel"] = nil
+		end
+
+		FramerateLabel:ClearAllPoints()
+		FramerateLabel:SetPoint("BOTTOM", UIParent, "BOTTOM", -20, 200)
+
+		FramerateText:ClearAllPoints()
+		FramerateText:SetPoint("LEFT", FramerateLabel, "RIGHT", 4, 0)
+
+		-- Lock position by overriding SetPoint
+		FramerateLabel.SetPoint = function() end
+		FramerateText.SetPoint = function() end
+	end
+end
+
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
@@ -378,6 +396,7 @@ module.plug:SetScript("OnEvent", function()
 		RepositionExperienceBar()
 		RepositionReputationBar()
 		RepositionMicroMenu()
+		RepositionFramerateDisplay()
 		HideOtherUI()
 
 		-- Fixes strange behaviour of main xp bar.
