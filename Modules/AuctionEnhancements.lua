@@ -1414,7 +1414,7 @@ function AuctionEnhancements_OnEvent()
 
 	if event == "AUCTION_HOUSE_SHOW" then
 		-- Open this tab when Auction House is opened.
-		AuctionFrameTab_OnClick(module.data.tabIndex)
+		-- AuctionFrameTab_OnClick(module.data.tabIndex)
 		OpenAllBags()
 	end
 
