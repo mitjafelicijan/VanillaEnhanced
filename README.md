@@ -141,6 +141,7 @@ Casts Flash Heal normally, but Greater Heal if Shift is held.
 | `/catform` | | Enters Druid Cat Form. |
 | `/travelform` | | Enters Druid Travel Form. |
 | `/use [item]` | | Searches bags for an item by name and uses it. |
+| `/equip [id] [item]` | | Equips an item by name into a specific slot ID. |
 | `/feedpet [food]` | | Feeds the specified food to your hunter pet. |
 | `/cleartarget` | | Clears your current selection. |
 | `/stopattack` | | Stops attacking and re-targets the last target. |
@@ -149,6 +150,15 @@ Casts Flash Heal normally, but Greater Heal if Shift is held.
 | `/mcast [spell]` | | Casts a spell on your mouseover unit (Legacy). |
 | `/dcast [spell]` | | Casts a spell with a short delay (Legacy). |
 | `/sa` | `/sandbox` | Debugging tool (currently empty). |
+
+#### Equip Slot IDs
+| ID | Slot | ID | Slot | ID | Slot | ID | Slot |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | Head | 2 | Neck | 3 | Shoulder | 5 | Chest |
+| 6 | Waist | 7 | Legs | 8 | Feet | 9 | Wrist |
+| 10 | Hands | 11 | Finger 1 | 12 | Finger 2 | 13 | Trinket 1 |
+| 14 | Trinket 2 | 15 | Back | 16 | Main Hand | 17 | Off Hand |
+| 18 | Ranged | | | | | | |
 
 ## UI Preview
 
