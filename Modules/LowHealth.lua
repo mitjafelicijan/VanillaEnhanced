@@ -39,6 +39,7 @@ module.plug:SetScript("OnEvent", function()
 		module.plug.frame.tex:SetAllPoints()
 		module.plug.frame.tex:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\LowHealth-Border")
 		module.plug.frame.tex:SetAlpha(0)
+		module.plug.frame.tex:SetBlendMode("ADD")
 	end
 
 	if event == "UNIT_HEALTH" and not UnitIsDeadOrGhost("player") then
