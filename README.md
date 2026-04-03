@@ -85,11 +85,13 @@ The **Extended Macros** module allows you to use Retail/Classic-style macro synt
 | `stealth` | You are stealthed or in Prowl/Shadowform. |
 | `mounted` | You are on a mount. |
 | `pet` | You have a pet active. |
+| `group` / `group:party` | You are in a party or raid. |
+| `group:raid` | You are specifically in a raid. |
 | `mod:shift/ctrl/alt` | Specific modifier key is held. |
 | `mod` | Any modifier key is held. |
 | `form:n` / `stance:n` | You are in a specific shapeshift form or warrior stance. |
 | `@unit` / `target=unit`| Directs the action at a specific unit (e.g., `@mouseover`, `@player`). |
-| `no[condition]` | Inverts specific conditions (`nodead`, `nocombat`, `noexists`, `nostealth`, `nopet`, `nomounted`). |
+| `no[condition]` | Inverts specific conditions (`nodead`, `nocombat`, `noexists`, `nostealth`, `nopet`, `nomounted`, `nogroup`). |
 
 ### Examples
 
@@ -127,6 +129,13 @@ Casts Flash Heal normally, but Greater Heal if Shift is held.
 ```lua
 #showtooltip
 /cast [mod:shift] Greater Heal; Flash Heal
+```
+
+#### 6. Group Utility
+Uses Arcane Intellect on target normally, but Arcane Brilliance if in a party or raid.
+```lua
+#showtooltip
+/cast [group] Arcane Brilliance; Arcane Intellect
 ```
 
 ## Slash Commands (Extended Commands)

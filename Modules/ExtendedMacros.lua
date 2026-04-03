@@ -71,7 +71,7 @@ local function checkCondition(cond, target)
 	local neg = false
 	if string.sub(cond, 1, 2) == "no" then
 		local sub = string.sub(cond, 3)
-		if sub == "dead" or sub == "combat" or sub == "exists" or sub == "stealth" or sub == "pet" or sub == "mounted" then
+		if sub == "dead" or sub == "combat" or sub == "exists" or sub == "stealth" or sub == "pet" or sub == "mounted" or string.find(sub, "^group") then
 			neg = true
 			cond = sub
 		end
@@ -119,6 +119,13 @@ local function checkCondition(cond, target)
 			if active then current = i; break end
 		end
 		res = (tonumber(f) == current)
+	elseif cond == "group" or string.sub(cond, 1, 6) == "group:" then
+		local g = string.sub(cond, 7)
+		if g == "raid" then
+			res = (GetNumRaidMembers() > 0)
+		else
+			res = (GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0)
+		end
 	end
 
 	if neg then return not res else return res end
