@@ -209,94 +209,19 @@ local function updateMacroCache()
 				body = body,
 				parsed = parseMacro(body)
 			}
-			VE.printf("Cached macro [%d]: %s", i, name)
 		end
 	end
-end
-
-local function getMacroByName(name)
-	if not name or name == "" then return nil end
-	local trimmedName = VE.trim(name)
-	for i, macro in pairs(module.data.macroCache) do
-		if macro.name == trimmedName then
-			return macro
-		end
-	end
-	return nil
-end
-
-local function getEvaluatedAction(macro)
-	if not macro or not macro.parsed then return nil end
-	for _, line in ipairs(macro.parsed) do
-		if not line.isDirective and not line.isText then
-			if line.command == "cast" or line.command == "use" or line.command == "castsequence" then
-				for _, opt in ipairs(line.options) do
-					local ok, target = evaluateConditions(opt.conditions)
-					if ok then
-						local action = opt.action
-						if line.command == "castsequence" then
-							local spellsText = string.gsub(action, "reset=[%w/]+%s*", "")
-							local spells = VE.split(spellsText, ",")
-							local state = module.data.sequenceState[macro.name] or { index = 1 }
-							action = spells[state.index] or spells[1]
-						end
-						return line.command, action, target
-					end
-				end
-			end
-		end
-	end
-	return nil
-end
-
-local function getEvaluatedIcon(macro)
-	if not macro then return nil end
-	for _, line in ipairs(macro.parsed) do
-		if line.isDirective and (line.command == "showtooltip" or line.command == "show") then
-			if line.arg and line.arg ~= "" then
-				return GetSpellTextureByName(line.arg) or GetItemTextureByName(line.arg)
-			else
-				local _, action = getEvaluatedAction(macro)
-				if action then
-					return GetSpellTextureByName(action) or GetItemTextureByName(action)
-				end
-			end
-		end
-	end
-	if macro.icon and string.find(macro.icon, "QuestionMark") then
-		local _, action = getEvaluatedAction(macro)
-		if action then
-			return GetSpellTextureByName(action) or GetItemTextureByName(action)
-		end
-	end
-	return nil
-end
-
-local function runSlashCommand(cmd, arg)
-	for key, value in pairs(SlashCmdList) do
-		local i = 1
-		while getglobal("SLASH_" .. key .. i) do
-			if getglobal("SLASH_" .. key .. i) == "/" .. cmd then
-				value(arg)
-				return true
-			end
-			i = i + 1
-		end
-	end
-	return false
 end
 
 local function executeMacro(macro, onSelf)
 	if not macro then return end
 	local numLines = table.getn(macro.parsed)
-	VE.printf("Executing macro: %s (%d lines)", macro.name, numLines)
 	for i = 1, numLines do
 		local line = macro.parsed[i]
 		if line.isDirective then
 			-- ignore
 		elseif line.isText then
 			if RunLine then 
-				VE.printf("RunLine (text): %s", line.raw)
 				RunLine(line.raw) 
 			else
 				ChatFrameEditBox:SetText(line.raw)
@@ -305,7 +230,6 @@ local function executeMacro(macro, onSelf)
 		else
 			local cmd = line.command
 			if RunLine and cmd ~= "castsequence" then
-				VE.printf("RunLine (cmd): %s", line.raw)
 				RunLine(line.raw)
 			elseif cmd == "cast" or cmd == "use" or cmd == "castsequence" then
 				for _, opt in ipairs(line.options) do
@@ -321,7 +245,6 @@ local function executeMacro(macro, onSelf)
 							local state = module.data.sequenceState[macro.name] or { index = 1, lastTarget = UnitName("target") }
 							
 							local spell = spells[state.index] or spells[1]
-							VE.printf("CastSpellByName (seq): %s on %s", spell, finalTarget or "target")
 							CastSpellByName(spell, finalTarget)
 							
 							state.index = state.index + 1
@@ -329,7 +252,6 @@ local function executeMacro(macro, onSelf)
 							state.lastTarget = UnitName("target")
 							module.data.sequenceState[macro.name] = state
 						else
-							VE.printf("CastSpellByName: %s on %s", action, finalTarget or "target")
 							CastSpellByName(action, finalTarget)
 						end
 						break
@@ -353,7 +275,6 @@ local function executeMacro(macro, onSelf)
 				local arg = (line.options[1] and line.options[1].action or "")
 				if not runSlashCommand(cmd, arg) then
 					if RunLine then
-						VE.printf("RunLine (fallback): /%s %s", cmd, arg)
 						RunLine("/" .. cmd .. " " .. arg)
 					else
 						ChatFrameEditBox:SetText("/" .. cmd .. " " .. arg)
@@ -418,11 +339,9 @@ module.plug:SetScript("OnEvent", function()
 		local old_UseAction = UseAction
 		_G["UseAction"] = function(slot, checkCursor, onSelf)
 			local text = GetActionText(slot)
-			-- VE.printf("UseAction slot %d, text: '%s'", slot, text or "nil")
 			if text then
 				local macro = getMacroByName(text)
 				if macro then
-					-- VE.printf("Macro found: %s", macro.name)
 					executeMacro(macro, onSelf)
 					return
 				end
