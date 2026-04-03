@@ -304,7 +304,7 @@ local function ensureMapData()
 		end
 
 		local processed = 0
-		local chunk = 400 -- Process 400 quests per frame
+		local chunk = 100 -- Process 100 quests per frame
 		
 		while processed < chunk do
 			local k, v = next(QuestZoneData.quests, module.data.mapDataCurrentKey)
@@ -333,14 +333,6 @@ local function ensureMapData()
 					module.data.questsByMap[mapID] = module.data.questsByMap[mapID] or {}
 					table.insert(module.data.questsByMap[mapID], {
 						questID = questID,
-						title = questData.title,
-						level = questData.lvl,
-						minLevel = questData.min,
-						faction = questData.faction,
-						classID = questData.class,
-						isEvent = questData.isEvent,
-						isPvP = questData.isPvP,
-						objective = questData.objText,
 						x = startData.x,
 						y = startData.y,
 					})
@@ -559,51 +551,63 @@ local function collectAvailableQuests(mapIDs)
 		local quests = module.data.questsByMap[mapID]
 		if quests then
 			for _, q in ipairs(quests) do
-				-- Filter by level range.
-				local withinLevelRange = (q.level >= minLevel and q.level <= maxLevel)
+				local qData = QuestZoneData.quests[q.questID]
+				if qData then
+					local qTitle = qData.title
+					local qLevel = qData.lvl
+					local qMinLevel = qData.min or 0
+					local qFaction = qData.faction
+					local qClassID = qData.class
+					local qIsEvent = qData.isEvent
+					local qIsPvP = qData.isPvP
+					local qObjective = qData.objText
 
-				-- Filter out active, completed, and under-leveled quests.
-				if withinLevelRange and not activeQuests[VE.normalizeKey(q.title)] and not completedQuests[q.questID] and playerLevel >= (q.minLevel or 0) then
-					-- Filter by faction (1: Alliance, 2: Horde, 3: Neutral).
-					local eligible = (q.faction == 3 or q.faction == factionID)
+					-- Filter by level range.
+					local withinLevelRange = (qLevel >= minLevel and qLevel <= maxLevel)
 
-					-- Filter by class (0: All, 1-9: Specific class).
-					if eligible and q.classID and q.classID > 0 then
-						if q.classID ~= playerClassID then
+					-- Filter out active, completed, and under-leveled quests.
+					if withinLevelRange and not activeQuests[VE.normalizeKey(qTitle)] and not completedQuests[q.questID] and playerLevel >= qMinLevel then
+						-- Filter by faction (1: Alliance, 2: Horde, 3: Neutral).
+						local eligible = (qFaction == 3 or qFaction == factionID)
+
+						-- Filter by class (0: All, 1-9: Specific class).
+						if eligible and qClassID and qClassID > 0 then
+							if qClassID ~= playerClassID then
+								eligible = false
+							end
+						end
+
+						-- Filter by event status.
+						if eligible and qIsEvent == 1 and not module.config.showEvents then
 							eligible = false
 						end
-					end
 
-					-- Filter by event status.
-					if eligible and q.isEvent == 1 and not module.config.showEvents then
-						eligible = false
-					end
-
-					-- Filter by PvP status.
-					if eligible and q.isPvP == 1 and not module.config.showPvP then
-						eligible = false
-					end
-
-					if eligible then
-						local markerKey = string.format("%s|%s|%s", mapID, q.x, q.y)
-						local marker = markersByLocation[markerKey]
-
-						if not marker then
-							marker = {
-								x = q.x,
-								y = q.y,
-								quests = {},
-							}
-							markers[table.getn(markers) + 1] = marker
-							markersByLocation[markerKey] = marker
+						-- Filter by PvP status.
+						if eligible and qIsPvP == 1 and not module.config.showPvP then
+							eligible = false
 						end
 
-						table.insert(marker.quests, {
-							questID = q.questID,
-							title = q.title,
-							level = q.level,
-							objective = q.objective,
-						})
+						if eligible then
+							local markerKey = string.format("%s|%s|%s", mapID, q.x, q.y)
+							local marker = markersByLocation[markerKey]
+
+							if not marker then
+								marker = {
+									x = q.x,
+									y = q.y,
+									quests = {},
+								}
+								markers[table.getn(markers) + 1] = marker
+								markersByLocation[markerKey] = marker
+							end
+
+							table.insert(marker.quests, {
+								questID = q.questID,
+								title = qTitle,
+								level = qLevel,
+								objective = qObjective,
+							})
+						end
 					end
 				end
 			end
@@ -865,13 +869,13 @@ module.plug:SetScript("OnEvent", function()
 		module.config.showPvP = VE.isOptionEnabled("QuestTrackerShowPvP")
 		module.config.showTooltips = VE.isOptionEnabled("QuestTrackerShowTooltips")
 
-		ensureMapData()
 		hookWorldMapUpdate()
 		
-		-- Initial cache refresh with delay
-		module.plug.refreshTime = GetTime() + 0.5
+		-- Start map data processing and initial cache refresh after a delay
+		module.plug.refreshTime = GetTime() + 3
 		module.plug:SetScript("OnUpdate", function()
 			if GetTime() >= this.refreshTime then
+				ensureMapData()
 				refreshActiveObjectives()
 				module.refreshQuestAreas()
 				this:SetScript("OnUpdate", nil)
