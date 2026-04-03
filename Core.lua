@@ -96,9 +96,7 @@ VE.randomKey = function(obj)
 end
 
 VE.count = function(t)
-	local c = 0
-	for _ in pairs(t) do c = c + 1 end
-	return c
+	return table.getn(t)
 end
 
 VE.split = function(str, pattern)
@@ -157,7 +155,10 @@ end
 -- Example: local a, b = VE.find(link, "item:(%d+):%d*:.*|h%[(.-)%]|h")
 VE.find = function(str, pattern)
 	local all = VE.findAll(str, pattern)
-	return unpack(all[1])
+	if all and all[1] then
+		return unpack(all[1])
+	end
+	return nil
 end
 
 VE.startsWith = function(str, word)
@@ -220,7 +221,7 @@ VE.getCoinText = function(money)
 	if silver > 0 then table.insert(parts, string.format("%ds", silver)) end
 	if copper > 0 then table.insert(parts, string.format("%dc", copper)) end
 
-	return table.concat(parts, " ")
+	return table.getn(parts) > 0 and table.concat(parts, " ") or "0c"
 end
 
 VE.moneyStringToCopper = function(text)
@@ -490,6 +491,23 @@ end
 VE.findQuestIDsByTitle = function(title, level)
 	if not QuestZoneData or not QuestZoneData.quests then return nil end
 
+	-- Optimization: Check if the QuestTracker cache exists first
+	local qt = VE.getModule("QuestTracker")
+	if qt and qt.data and qt.data.questsByTitle and qt.data.mapDataReady then
+		local titleKey = VE.normalizeKey(title)
+		if not titleKey or not qt.data.questsByTitle[titleKey] then return nil end
+
+		local matches = {}
+		for _, questID in ipairs(qt.data.questsByTitle[titleKey]) do
+			local questData = QuestZoneData.quests[questID]
+			if not level or (questData and questData.lvl == level) then
+				table.insert(matches, questID)
+			end
+		end
+		return table.getn(matches) > 0 and matches or nil
+	end
+
+	-- Fallback to slow search if cache not ready
 	local titleKey = VE.normalizeKey(title)
 	if not titleKey then return nil end
 
@@ -510,6 +528,44 @@ VE.findQuestIDsByTitle = function(title, level)
 	end
 
 	return table.getn(matches) > 0 and matches or nil
+end
+
+VE.GetCVarAsBoolean = function(key)
+	return tonumber(GetCVar(key)) ~= 0
+end
+
+VE.GetCVarAsNumber = function(key)
+	return tonumber(GetCVar(key))
+end
+
+VE.GetCVarAsString = function(key)
+	return tostring(GetCVar(key))
+end
+
+VE.SetCVar = function(key, value)
+	if type(value) == "boolean" then
+		value = value and 1 or 0
+	end
+	SetCVar(key, value)
+end
+
+VE.GetUVarAsBoolean = function(key)
+	return tonumber(getglobal(key)) ~= 0
+end
+
+VE.GetUVarAsNumber = function(key)
+	return tonumber(getglobal(key))
+end
+
+VE.GetUVarAsString = function(key)
+	return tostring(getglobal(key))
+end
+
+VE.SetUVar = function(key, value)
+	if type(value) == "boolean" then
+		value = value and 1 or 0
+	end
+	setglobal(key, value)
 end
 
 VE.GetCVarAsBoolean = function(key)

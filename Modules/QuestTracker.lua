@@ -21,7 +21,7 @@ local module = VE.registerModule({
 		},
 		objective = {
 			texture = "Interface\\AddOns\\VanillaEnhanced\\Assets\\QuestTracker-Objective",
-			size = 64,
+			size = 26,
 		},
 		showTrivial = false,
 		showEvents = false,
@@ -91,13 +91,17 @@ local module = VE.registerModule({
 		zoneCache = {},
 		questMatchCache = {},
 		mapDataReady = false,
+		mapDataStarted = false,
+		mapDataCurrentKey = nil,
 		mapIDsByZoneName = {},
 		questsByMap = {},
+		questsByTitle = {},
 		areaFrames = {},
 		turninFrames = {},
 		availableFrames = {},
 		activeObjectives = {},
 		activeIDs = {},
+		isUpdating = false,
 	},
 })
 
@@ -137,6 +141,21 @@ local function getZoneNames(continentID)
 	return module.data.zoneCache[continentID]
 end
 
+local function findQuestIDsInModule(title, level)
+	local titleKey = VE.normalizeKey(title)
+	if not titleKey or not module.data.questsByTitle[titleKey] then return nil end
+
+	local matches = {}
+	for _, questID in ipairs(module.data.questsByTitle[titleKey]) do
+		local questData = QuestZoneData.quests[questID]
+		if not level or (questData and questData.lvl == level) then
+			table.insert(matches, questID)
+		end
+	end
+
+	return table.getn(matches) > 0 and matches or nil
+end
+
 local function refreshActiveObjectives()
 	if not QuestZoneData or not QuestZoneData.quests then return end
 	module.data.activeObjectives = {}
@@ -157,7 +176,7 @@ local function refreshActiveObjectives()
 			end
 			
 			if not questID then
-				local matches = VE.findQuestIDsByTitle(title, level)
+				local matches = findQuestIDsInModule(title, level)
 				if matches then questID = matches[1] end
 			end
 
@@ -261,9 +280,12 @@ local function onTooltipSetUnit(unit)
 end
 
 local function ensureMapData()
-	if module.data.mapDataReady then return end
+	if module.data.mapDataReady or module.data.mapDataStarted then return end
 	if not QuestZoneData or not QuestZoneData.maps then return end
 
+	module.data.mapDataStarted = true
+
+	-- Process maps instantly (they are few)
 	for mapID, zoneName in pairs(QuestZoneData.maps) do
 		local zoneKey = VE.normalizeKey(zoneName)
 		if zoneKey then
@@ -272,28 +294,60 @@ local function ensureMapData()
 		end
 	end
 
-	for questID, questData in pairs(QuestZoneData.quests) do
-		if questData.available and questData.available.maps then
-			for mapID, startData in pairs(questData.available.maps) do
-				module.data.questsByMap[mapID] = module.data.questsByMap[mapID] or {}
-				table.insert(module.data.questsByMap[mapID], {
-					questID = questID,
-					title = questData.title,
-					level = questData.lvl,
-					minLevel = questData.min,
-					faction = questData.faction,
-					classID = questData.class,
-					isEvent = questData.isEvent,
-					isPvP = questData.isPvP,
-					objective = questData.objText,
-					x = startData.x,
-					y = startData.y,
-				})
+	-- Start the incremental quest processor
+	local processor = CreateFrame("Frame")
+	processor.count = 0
+	processor:SetScript("OnUpdate", function()
+		if not QuestZoneData or not QuestZoneData.quests then
+			this:SetScript("OnUpdate", nil)
+			return
+		end
+
+		local processed = 0
+		local chunk = 400 -- Process 400 quests per frame
+		
+		while processed < chunk do
+			local k, v = next(QuestZoneData.quests, module.data.mapDataCurrentKey)
+			if not k then
+				-- We're done
+				module.data.mapDataReady = true
+				module.refreshQuestAreas()
+				this:SetScript("OnUpdate", nil)
+				return
+			end
+			
+			module.data.mapDataCurrentKey = k
+			processed = processed + 1
+			
+			-- Process quest data
+			local questID = k
+			local questData = v
+			local titleKey = VE.normalizeKey(questData.title)
+			if titleKey then
+				module.data.questsByTitle[titleKey] = module.data.questsByTitle[titleKey] or {}
+				table.insert(module.data.questsByTitle[titleKey], questID)
+			end
+
+			if questData.available and questData.available.maps then
+				for mapID, startData in pairs(questData.available.maps) do
+					module.data.questsByMap[mapID] = module.data.questsByMap[mapID] or {}
+					table.insert(module.data.questsByMap[mapID], {
+						questID = questID,
+						title = questData.title,
+						level = questData.lvl,
+						minLevel = questData.min,
+						faction = questData.faction,
+						classID = questData.class,
+						isEvent = questData.isEvent,
+						isPvP = questData.isPvP,
+						objective = questData.objText,
+						x = startData.x,
+						y = startData.y,
+					})
+				end
 			end
 		end
-	end
-
-	module.data.mapDataReady = true
+	end)
 end
 
 local function getQuestIDFromLink(questLogIndex)
@@ -312,7 +366,7 @@ local function getQuestCandidates(title, level, questLogIndex)
 		return { questID }
 	end
 
-	return VE.findQuestIDsByTitle(title, level)
+	return findQuestIDsInModule(title, level)
 end
 
 local function getCurrentMapIDs()
@@ -359,7 +413,7 @@ local function collectQuestAreas(mapIDs)
 								)
 
 								if not seenAreas[areaKey] then
-									areas[VE.count(areas) + 1] = {
+									areas[table.getn(areas) + 1] = {
 										questID = questID,
 										title = title,
 										level = level,
@@ -417,11 +471,11 @@ local function collectQuestTurnins(mapIDs)
 										y = turninData.y,
 										quests = {},
 									}
-									turnins[VE.count(turnins) + 1] = marker
+									turnins[table.getn(turnins) + 1] = marker
 									markersByLocation[markerKey] = marker
 								end
 
-								marker.quests[VE.count(marker.quests) + 1] = {
+								marker.quests[table.getn(marker.quests) + 1] = {
 									questID = questID,
 									title = title,
 									level = level,
@@ -540,7 +594,7 @@ local function collectAvailableQuests(mapIDs)
 								y = q.y,
 								quests = {},
 							}
-							markers[VE.count(markers) + 1] = marker
+							markers[table.getn(markers) + 1] = marker
 							markersByLocation[markerKey] = marker
 						end
 
@@ -731,6 +785,9 @@ local function drawAvailableQuest(index, availableData)
 end
 
 module.refreshQuestAreas = function()
+	if module.data.isUpdating then return end
+	module.data.isUpdating = true
+
 	for _, area in ipairs(module.data.areaFrames) do
 		area:Hide()
 	end
@@ -743,13 +800,23 @@ module.refreshQuestAreas = function()
 		marker:Hide()
 	end
 
-	if not VE.isModuleEnabled(module.identifier) then return end
-	if not WorldMapFrame:IsVisible() then return end
+	if not VE.isModuleEnabled(module.identifier) then 
+		module.data.isUpdating = false
+		return 
+	end
+	
+	if not WorldMapFrame:IsVisible() then 
+		module.data.isUpdating = false
+		return 
+	end
 
 	ensureMapData()
 
 	local mapIDs = getCurrentMapIDs()
-	if not mapIDs then return end
+	if not mapIDs then 
+		module.data.isUpdating = false
+		return 
+	end
 
 	local areas = collectQuestAreas(mapIDs)
 	local turnins = collectQuestTurnins(mapIDs)
@@ -769,6 +836,8 @@ module.refreshQuestAreas = function()
 	for _, availableData in ipairs(available) do
 		availableIndex = drawAvailableQuest(availableIndex, availableData)
 	end
+
+	module.data.isUpdating = false
 end
 
 local function hookWorldMapUpdate()
@@ -800,7 +869,7 @@ module.plug:SetScript("OnEvent", function()
 		hookWorldMapUpdate()
 		
 		-- Initial cache refresh with delay
-		module.plug.refreshTime = GetTime() + 2
+		module.plug.refreshTime = GetTime() + 0.5
 		module.plug:SetScript("OnUpdate", function()
 			if GetTime() >= this.refreshTime then
 				refreshActiveObjectives()
@@ -824,7 +893,7 @@ module.plug:SetScript("OnEvent", function()
 			module.data.lastCompletingQuest = nil
 
 			-- Look for quest ID by title and mark it as completed in our history.
-			local matches = VE.findQuestIDsByTitle(title)
+			local matches = findQuestIDsInModule(title)
 			if matches then
 				if not VanillaEnhancedData.completedQuests then
 					VanillaEnhancedData.completedQuests = {}
