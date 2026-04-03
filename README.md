@@ -39,6 +39,7 @@ This should be updated on new releases.
 - **Rested XP Tooltip**: Displays exact XP numbers and rested percentage directly on the XP bar when hovered.
 
 ### Combat & Gameplay
+- **Extended Macros**: Overhauls the 1.12 macro system to support modern syntax including `#showtooltip`, conditional logic `[help,harm,@mouseover]`, and `/castsequence` with resets. Requires SuperWoW.
 - **Target Casting Bar**: Displays the name and progress of the spell your current target is casting directly on their unit frame.
 - **Cooldown Timers**: Adds numerical countdowns and icon desaturation to abilities and items on cooldown.
 - **Nameplate Enhancements**: Adds combo points, scaling based on UI settings, and threat-based coloring (green when you have aggro) to nameplates.
@@ -70,6 +71,61 @@ This should be updated on new releases.
 - **Extended Commands**: Adds modern slash commands like `/rl` (reload), `/use`, `/dismount`, and `/cancelform`.
 - **Solo Self Found**: A challenge mode module that blocks grouping, trading, and auction house usage.
 - **Hide UI Elements**: Specialized modules to hide Lua errors and specific Minimap buttons (BGF, LFT, EBC).
+
+## Extended Macros (Modern Syntax)
+
+The **Extended Macros** module allows you to use Retail/Classic-style macro syntax in the 1.12 client. It supports dynamic icons on action bars and complex conditional logic.
+
+### Supported Conditions
+| Condition | Description |
+| :--- | :--- |
+| `help` / `harm` | Unit is friendly / hostile. |
+| `exists` / `dead` | Unit exists / is dead. |
+| `combat` | You are in combat. |
+| `stealth` | You are stealthed or in Prowl/Shadowform. |
+| `mounted` | You are on a mount. |
+| `pet` | You have a pet active. |
+| `mod:shift/ctrl/alt` | Specific modifier key is held. |
+| `form:n` / `stance:n` | You are in a specific shapeshift form or warrior stance. |
+| `no[condition]` | Inverts any of the above (e.g., `nocombat`, `nodead`). |
+
+### Examples
+
+#### 1. Smart Healing (Mouseover)
+Priority: Mouseover (if friendly & alive) > Target (if friendly & alive) > Self.
+```lua
+#showtooltip Lesser Heal
+/cast [@mouseover,help,nodead][help,nodead][@player] Lesser Heal
+```
+
+#### 2. Combat Utility
+Casts Charge in combat, otherwise Intercept. Automatically starts attacking.
+```lua
+#showtooltip
+/cast [combat] Intercept; Charge
+/startattack
+```
+
+#### 3. Shaman Totem Sequence
+Drops totems in order, resets to the first totem after 5 seconds of inactivity or if you change targets.
+```lua
+#showtooltip
+/castsequence reset=5/target Stoneskin Totem, Mana Spring Totem, Grace of Air Totem
+```
+
+#### 4. Warrior Stance Swap
+Casts Overpower if in Battle Stance, otherwise swaps to Battle Stance.
+```lua
+#showtooltip Overpower
+/cast [stance:1] Overpower; Battle Stance
+```
+
+#### 5. Combined Modifier Macro
+Casts Flash Heal normally, but Greater Heal if Shift is held.
+```lua
+#showtooltip
+/cast [mod:shift] Greater Heal; Flash Heal
+```
 
 ## Slash Commands (Extended Commands)
 

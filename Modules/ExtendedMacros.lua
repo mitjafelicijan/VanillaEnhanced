@@ -1,8 +1,3 @@
---[[
-    Extended Macros Module
-    Extends the default macro system with support for conditions, #showtooltip, and custom commands.
-]]
-
 local module = VE.registerModule({
 	identifier = "ExtendedMacros",
 	meta = {
@@ -31,11 +26,11 @@ local function GetSpellTextureByName(name)
 	if not name or name == "" then return nil end
 	local cleanName = string.gsub(name, "%s*%(Rank %d+%)", "")
 	cleanName = VE.trim(cleanName)
-	
+
 	if module.data.spellCache[cleanName] then
 		return module.data.spellCache[cleanName]
 	end
-	
+
 	local i = 1
 	while true do
 		local n = GetSpellName(i, "spell")
@@ -159,10 +154,9 @@ local function parseMacro(body)
 	if not body then return lines end
 	local cleanBody = string.gsub(body, "\r\n", "\n")
 	cleanBody = string.gsub(cleanBody, "\r", "\n")
-	
+
 	local rawLines = VE.split(cleanBody, "\n")
 	for _, raw in ipairs(rawLines) do
-		local originalRaw = raw
 		raw = VE.trim(raw)
 		if raw ~= "" then
 			if string.sub(raw, 1, 1) == "#" then
@@ -213,6 +207,78 @@ local function updateMacroCache()
 	end
 end
 
+local function getMacroByName(name)
+	if not name or name == "" then return nil end
+	local trimmedName = VE.trim(name)
+	for i, macro in pairs(module.data.macroCache) do
+		if macro.name == trimmedName then
+			return macro
+		end
+	end
+	return nil
+end
+
+local function getEvaluatedAction(macro)
+	if not macro or not macro.parsed then return nil end
+	for _, line in ipairs(macro.parsed) do
+		if not line.isDirective and not line.isText then
+			if line.command == "cast" or line.command == "use" or line.command == "castsequence" then
+				for _, opt in ipairs(line.options) do
+					local ok, target = evaluateConditions(opt.conditions)
+					if ok then
+						local action = opt.action
+						if line.command == "castsequence" then
+							local spellsText = string.gsub(action, "reset=[%w/]+%s*", "")
+							local spells = VE.split(spellsText, ",")
+							local state = module.data.sequenceState[macro.name] or { index = 1 }
+							action = spells[state.index] or spells[1]
+						end
+						return line.command, action, target
+					end
+				end
+			end
+		end
+	end
+	return nil
+end
+
+local function getEvaluatedIcon(macro)
+	if not macro then return nil end
+	for _, line in ipairs(macro.parsed) do
+		if line.isDirective and (line.command == "showtooltip" or line.command == "show") then
+			if line.arg and line.arg ~= "" then
+				return GetSpellTextureByName(line.arg) or GetItemTextureByName(line.arg)
+			else
+				local _, action = getEvaluatedAction(macro)
+				if action then
+					return GetSpellTextureByName(action) or GetItemTextureByName(action)
+				end
+			end
+		end
+	end
+	if macro.icon and string.find(macro.icon, "QuestionMark") then
+		local _, action = getEvaluatedAction(macro)
+		if action then
+			return GetSpellTextureByName(action) or GetItemTextureByName(action)
+		end
+	end
+	return nil
+end
+
+local function runSlashCommand(cmd, arg)
+	for key, value in pairs(SlashCmdList) do
+		local i = 1
+		while getglobal("SLASH_" .. key .. i) do
+			if getglobal("SLASH_" .. key .. i) == "/" .. cmd then
+				value(arg)
+				return true
+			end
+			i = i + 1
+		end
+	end
+	return false
+end
+
 local function executeMacro(macro, onSelf)
 	if not macro then return end
 	local numLines = table.getn(macro.parsed)
@@ -240,16 +306,39 @@ local function executeMacro(macro, onSelf)
 						if onSelf and not finalTarget then finalTarget = "player" end
 
 						if cmd == "castsequence" then
+							local resetVal = VE.find(action, "reset=([%w/]+)")
 							local spellsText = string.gsub(action, "reset=[%w/]+%s*", "")
 							local spells = VE.split(spellsText, ",")
-							local state = module.data.sequenceState[macro.name] or { index = 1, lastTarget = UnitName("target") }
-							
+							local state = module.data.sequenceState[macro.name] or { index = 1, lastTarget = UnitName("target"), lastClick = GetTime(), inCombat = UnitAffectingCombat("player") }
+
+							-- Handle reset
+							local shouldReset = false
+							if resetVal then
+								-- Time reset
+								local resetTime = tonumber(resetVal)
+								if resetTime and (GetTime() - state.lastClick) > resetTime then
+									shouldReset = true
+								end
+								-- Target reset
+								if string.find(resetVal, "target") and state.lastTarget ~= UnitName("target") then
+									shouldReset = true
+								end
+								-- Combat reset
+								if string.find(resetVal, "combat") and state.inCombat ~= UnitAffectingCombat("player") then
+									shouldReset = true
+								end
+							end
+
+							if shouldReset then state.index = 1 end
+
 							local spell = spells[state.index] or spells[1]
 							CastSpellByName(spell, finalTarget)
-							
+
 							state.index = state.index + 1
 							if state.index > table.getn(spells) then state.index = 1 end
 							state.lastTarget = UnitName("target")
+							state.lastClick = GetTime()
+							state.inCombat = UnitAffectingCombat("player")
 							module.data.sequenceState[macro.name] = state
 						else
 							CastSpellByName(action, finalTarget)
@@ -335,7 +424,7 @@ module.plug:SetScript("OnEvent", function()
 
 	if event == "PLAYER_ENTERING_WORLD" then
 		updateMacroCache()
-		
+
 		local old_UseAction = UseAction
 		_G["UseAction"] = function(slot, checkCursor, onSelf)
 			local text = GetActionText(slot)
@@ -357,6 +446,6 @@ module.plug:SetScript("OnEvent", function()
 	elseif event == "UPDATE_MACROS" or event == "SPELLS_CHANGED" then
 		updateMacroCache()
 	end
-	
+
 	updateAllVisibleIcons()
 end)
