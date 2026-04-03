@@ -16,7 +16,7 @@ local categories = {
 }
 
 local config = {
-	frameWidth = 730,
+	frameWidth = 740,
 	frameHeight = 560,
 	sidebarWidth = 150,
 	hoverAlpha = 0.2,

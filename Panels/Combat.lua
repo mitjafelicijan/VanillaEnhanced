@@ -82,36 +82,36 @@ VE.panels.Combat = function(parent)
 	end)
 
 	-- Column 2
-	VE.elements.Checkbox(frame, 320, yStart, 210, COMBAT_TEXT_SHOW_REACTIVES_TEXT, OPTION_TOOLTIP_COMBAT_TEXT_SHOW_REACTIVES, nil, VE.GetUVarAsBoolean("COMBAT_TEXT_SHOW_REACTIVES"), function(checked)
+	VE.elements.Checkbox(frame, 280, yStart, 210, COMBAT_TEXT_SHOW_REACTIVES_TEXT, OPTION_TOOLTIP_COMBAT_TEXT_SHOW_REACTIVES, nil, VE.GetUVarAsBoolean("COMBAT_TEXT_SHOW_REACTIVES"), function(checked)
 		VE.SetUVar("COMBAT_TEXT_SHOW_REACTIVES", checked)
 	end)
 
-	VE.elements.Checkbox(frame, 320, yStart - (ySpacing * 1), 210, COMBAT_TEXT_SHOW_FRIENDLY_NAMES_TEXT, OPTION_TOOLTIP_COMBAT_TEXT_SHOW_FRIENDLY_NAMES, nil, VE.GetUVarAsBoolean("COMBAT_TEXT_SHOW_FRIENDLY_NAMES"), function(checked)
+	VE.elements.Checkbox(frame, 280, yStart - (ySpacing * 1), 210, COMBAT_TEXT_SHOW_FRIENDLY_NAMES_TEXT, OPTION_TOOLTIP_COMBAT_TEXT_SHOW_FRIENDLY_NAMES, nil, VE.GetUVarAsBoolean("COMBAT_TEXT_SHOW_FRIENDLY_NAMES"), function(checked)
 		VE.SetUVar("COMBAT_TEXT_SHOW_FRIENDLY_NAMES", checked)
 	end)
 
-	VE.elements.Checkbox(frame, 320, yStart - (ySpacing * 2), 210, COMBAT_TEXT_SHOW_COMBO_POINTS_TEXT, OPTION_TOOLTIP_COMBAT_TEXT_SHOW_COMBO_POINTS, nil, VE.GetUVarAsBoolean("COMBAT_TEXT_SHOW_COMBO_POINTS"), function(checked)
+	VE.elements.Checkbox(frame, 280, yStart - (ySpacing * 2), 210, COMBAT_TEXT_SHOW_COMBO_POINTS_TEXT, OPTION_TOOLTIP_COMBAT_TEXT_SHOW_COMBO_POINTS, nil, VE.GetUVarAsBoolean("COMBAT_TEXT_SHOW_COMBO_POINTS"), function(checked)
 		VE.SetUVar("COMBAT_TEXT_SHOW_COMBO_POINTS", checked)
 	end)
 
-	VE.elements.Checkbox(frame, 320, yStart - (ySpacing * 3), 210, COMBAT_TEXT_SHOW_MANA_TEXT, OPTION_TOOLTIP_COMBAT_TEXT_SHOW_MANA, nil, VE.GetUVarAsBoolean("COMBAT_TEXT_SHOW_MANA"), function(checked)
+	VE.elements.Checkbox(frame, 280, yStart - (ySpacing * 3), 210, COMBAT_TEXT_SHOW_MANA_TEXT, OPTION_TOOLTIP_COMBAT_TEXT_SHOW_MANA, nil, VE.GetUVarAsBoolean("COMBAT_TEXT_SHOW_MANA"), function(checked)
 		VE.SetUVar("COMBAT_TEXT_SHOW_MANA", checked)
 	end)
 
-	VE.elements.Checkbox(frame, 320, yStart - (ySpacing * 4), 210, COMBAT_TEXT_SHOW_HONOR_GAINED_TEXT, OPTION_TOOLTIP_COMBAT_TEXT_SHOW_HONOR_GAINED, nil, VE.GetUVarAsBoolean("COMBAT_TEXT_SHOW_HONOR_GAINED"), function(checked)
+	VE.elements.Checkbox(frame, 280, yStart - (ySpacing * 4), 210, COMBAT_TEXT_SHOW_HONOR_GAINED_TEXT, OPTION_TOOLTIP_COMBAT_TEXT_SHOW_HONOR_GAINED, nil, VE.GetUVarAsBoolean("COMBAT_TEXT_SHOW_HONOR_GAINED"), function(checked)
 		VE.SetUVar("COMBAT_TEXT_SHOW_HONOR_GAINED", checked)
 	end)
 
 	-- Damage related options (part of Floating Combat Text)
-	VE.elements.Checkbox(frame, 320, yStart - (ySpacing * 5), 210, SHOW_DAMAGE_TEXT, OPTION_TOOLTIP_SHOW_DAMAGE, nil, VE.GetCVarAsBoolean("CombatDamage"), function(checked)
+	VE.elements.Checkbox(frame, 280, yStart - (ySpacing * 5), 210, SHOW_DAMAGE_TEXT, OPTION_TOOLTIP_SHOW_DAMAGE, nil, VE.GetCVarAsBoolean("CombatDamage"), function(checked)
 		VE.SetCVar("CombatDamage", checked)
 	end)
 
-	VE.elements.Checkbox(frame, 320, yStart - (ySpacing * 6), 210, LOG_PERIODIC_EFFECTS, OPTION_TOOLTIP_LOG_PERIODIC_EFFECTS, nil, VE.GetCVarAsBoolean("CombatLogPeriodicSpells"), function(checked)
+	VE.elements.Checkbox(frame, 310, yStart - (ySpacing * 6), 210, LOG_PERIODIC_EFFECTS, OPTION_TOOLTIP_LOG_PERIODIC_EFFECTS, nil, VE.GetCVarAsBoolean("CombatLogPeriodicSpells"), function(checked)
 		VE.SetCVar("CombatLogPeriodicSpells", checked)
 	end)
 
-	VE.elements.Checkbox(frame, 320, yStart - (ySpacing * 7), 210, SHOW_PET_MELEE_DAMAGE, OPTION_TOOLTIP_SHOW_PET_MELEE_DAMAGE, nil, VE.GetCVarAsBoolean("PetMeleeDamage"), function(checked)
+	VE.elements.Checkbox(frame, 310, yStart - (ySpacing * 7), 210, SHOW_PET_MELEE_DAMAGE, OPTION_TOOLTIP_SHOW_PET_MELEE_DAMAGE, nil, VE.GetCVarAsBoolean("PetMeleeDamage"), function(checked)
 		VE.SetCVar("PetMeleeDamage", checked)
 	end)
 
