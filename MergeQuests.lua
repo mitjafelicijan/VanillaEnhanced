@@ -580,6 +580,7 @@ end
 
 	local entry = {
 		title = quest_names[quest_id] and quest_names[quest_id].T or nil,
+		objText = quest_names[quest_id] and quest_names[quest_id].O or nil,
 		lvl = quest["lvl"],
 		min = quest["min"],
 		faction = faction,

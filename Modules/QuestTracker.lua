@@ -81,6 +81,7 @@ local function ensureMapData()
 					level = questData.lvl,
 					minLevel = questData.min,
 					faction = questData.faction,
+					objective = questData.objText,
 					x = startData.x,
 					y = startData.y,
 				})
@@ -190,6 +191,7 @@ local function collectQuestAreas(mapIDs)
 										questID = questID,
 										title = title,
 										level = level,
+										objective = questData.objText,
 										count = areaData.count,
 										x = areaData.x,
 										y = areaData.y,
@@ -251,6 +253,7 @@ local function collectQuestTurnins(mapIDs)
 									questID = questID,
 									title = title,
 									level = level,
+									objective = questData.objText,
 								}
 							end
 						end
@@ -332,11 +335,12 @@ local function collectAvailableQuests(mapIDs)
 							markersByLocation[markerKey] = marker
 						end
 
-						marker.quests[VE.count(marker.quests) + 1] = {
-							questID = q.questID,
-							title = q.title,
-							level = q.level,
-						}
+					marker.quests[VE.count(marker.quests) + 1] = {
+						questID = q.questID,
+						title = q.title,
+						level = q.level,
+						objective = q.objective,
+					}
 					end
 				end
 			end
@@ -358,7 +362,11 @@ local function getOrCreateAreaFrame(index)
 		area:SetScript("OnEnter", function()
 			WorldMapTooltip:SetOwner(this, "ANCHOR_RIGHT")
 			WorldMapTooltip:AddLine(string.format("[%d] %s", this.questLevel, this.questTitle), 1, 0.82, 0)
-			WorldMapTooltip:AddLine("Objective area", 1, 1, 1)
+			if this.questObjective and this.questObjective ~= "" then
+				WorldMapTooltip:AddLine(this.questObjective, 1, 1, 1, 1)
+			else
+				WorldMapTooltip:AddLine("Objective area", 1, 1, 1)
+			end
 			if this.objectiveCount and this.objectiveCount > 0 then
 				WorldMapTooltip:AddLine(string.format("Known spawns/objectives: %d", this.objectiveCount), 0.9, 0.9, 0.9)
 			end
@@ -396,6 +404,9 @@ local function getOrCreateTurninFrame(index)
 					end
 				else
 					WorldMapTooltip:AddLine(string.format("[%d] %s", this.quests[1].level, this.quests[1].title), 1, 0.82, 0)
+					if this.quests[1].objective and this.quests[1].objective ~= "" then
+						WorldMapTooltip:AddLine(this.quests[1].objective, 1, 1, 1, 1)
+					end
 				end
 				WorldMapTooltip:AddLine("Completed quest ready to turn in", 0.9, 0.9, 0.9)
 			end
@@ -433,6 +444,9 @@ local function getOrCreateAvailableFrame(index)
 					end
 				else
 					WorldMapTooltip:AddLine(string.format("[%d] %s", this.quests[1].level, this.quests[1].title), 1, 0.82, 0)
+					if this.quests[1].objective and this.quests[1].objective ~= "" then
+						WorldMapTooltip:AddLine(this.quests[1].objective, 1, 1, 1, 1)
+					end
 				end
 				WorldMapTooltip:AddLine("Available quest givers", 0.9, 0.9, 0.9)
 				WorldMapTooltip:AddLine("<Shift+Click to mark as completed>", 0.5, 0.5, 0.5)
@@ -474,6 +488,7 @@ local function drawQuestArea(index, areaData)
 
 	area.questTitle = areaData.title
 	area.questLevel = areaData.level
+	area.questObjective = areaData.objective
 	area.objectiveCount = areaData.count
 
 	area:Show()
