@@ -8,27 +8,27 @@ VE.panels.UnitFrames = function(parent)
 	end)
 
 	do
-		local module = VE.getModule("BigPlayerFrame")
+		local module = VE.getModule("ClassPortraits")
 		if module then
 			VE.elements.Checkbox(frame, 20, -60, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("BigPlayerFrame")
+		if module then
+			VE.elements.Checkbox(frame, 20, -100, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 
 			local option = VE.getOption("BigPlayerFrameClassColors")
 			if option then
-				VE.elements.Checkbox(frame, 40, -90, 140, option.meta.label, option.meta.description, nil, option.enabled, function(checked)
+				VE.elements.Checkbox(frame, 40, -130, 140, option.meta.label, option.meta.description, nil, option.enabled, function(checked)
 					if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
 				end, option.superWoWRequired)
 			end
-		end
-	end
-
-	do
-		local module = VE.getModule("ClassPortraits")
-		if module then
-			VE.elements.Checkbox(frame, 20, -130, 140, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
 		end
 	end
 
