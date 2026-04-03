@@ -28,6 +28,8 @@ local module = VE.registerModule({
 		showPvP = false,
 		showTooltips = true,
 		tooltipColor = { r = 1, g = 0.82, b = 0 },
+		initialDelay = 5,
+		chunkSize = 200,
 	},
 	options = {
 		{
@@ -310,7 +312,7 @@ local function ensureMapData()
 		end
 
 		local processed = 0
-		local chunk = 30 -- Process fewer quests per frame to reduce hitching
+		local chunk = module.config.chunkSize or 200
 		
 		while processed < chunk do
 			local k, v = next(QuestZoneData.quests, module.data.mapDataCurrentKey)
@@ -808,9 +810,17 @@ module.refreshQuestAreas = function(forced)
 		return
 	end
 	
+	if not VE.isModuleEnabled(module.identifier) then 
+		return 
+	end
+	
+	if not WorldMapFrame:IsVisible() then 
+		return 
+	end
+
+	module.data.isUpdating = true
 	module.data.lastContinent = currentContinent
 	module.data.lastZone = currentZone
-	module.data.isUpdating = true
 
 	for _, area in ipairs(module.data.areaFrames) do
 		area:Hide()
@@ -822,16 +832,6 @@ module.refreshQuestAreas = function(forced)
 
 	for _, marker in ipairs(module.data.availableFrames) do
 		marker:Hide()
-	end
-
-	if not VE.isModuleEnabled(module.identifier) then 
-		module.data.isUpdating = false
-		return 
-	end
-	
-	if not WorldMapFrame:IsVisible() then 
-		module.data.isUpdating = false
-		return 
 	end
 
 	ensureMapData()
@@ -892,7 +892,7 @@ module.plug:SetScript("OnEvent", function()
 		hookWorldMapUpdate()
 		
 		-- Start map data processing and initial cache refresh after a delay
-		module.data.initialDelay = GetTime() + 10 -- 10s delay after login
+		module.data.initialDelay = GetTime() + (module.config.initialDelay or 5)
 		module.plug:SetScript("OnUpdate", function()
 			local now = GetTime()
 			
