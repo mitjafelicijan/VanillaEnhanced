@@ -107,6 +107,7 @@ if not VE.superWoWCheck(module) then
 	return
 end
 
+VE.print("QuestTracker: Loading file...")
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("QUEST_LOG_UPDATE")
@@ -138,15 +139,10 @@ local function getZoneNames(continentID)
 end
 
 local function refreshActiveObjectives()
-	if not QuestZoneData or not QuestZoneData.quests then
-		VE.dprint("QuestTracker: QuestZoneData not ready for tooltips.")
-		return
-	end
+	if not QuestZoneData or not QuestZoneData.quests then return end
 	module.data.activeObjectives = {}
 	module.data.activeIDs = {}
 	local numEntries = GetNumQuestLogEntries()
-	local objectiveCount = 0
-	local idCount = 0
 
 	for i = 1, numEntries do
 		local title, level, _, isHeader = GetQuestLogTitle(i)
@@ -172,14 +168,12 @@ local function refreshActiveObjectives()
 					for _, uID in ipairs(qData.objU) do
 						module.data.activeIDs[uID] = module.data.activeIDs[uID] or {}
 						table.insert(module.data.activeIDs[uID], { title = title, level = level })
-						idCount = idCount + 1
 					end
 				end
 				if qData.objO then
 					for _, oID in ipairs(qData.objO) do
 						module.data.activeIDs[oID] = module.data.activeIDs[oID] or {}
 						table.insert(module.data.activeIDs[oID], { title = title, level = level })
-						idCount = idCount + 1
 					end
 				end
 			end
@@ -188,34 +182,26 @@ local function refreshActiveObjectives()
 			for n = 1, numObjectives do
 				local text, _, finished = GetQuestLogLeaderBoard(n, i)
 				if text and not finished then
-					objectiveCount = objectiveCount + 1
-					-- Standard "Name: 0/10" format
-					local _, _, name, current, total = string.find(text, "(.-):%s*(%d+)%/(%d+)")
-					if name then
-						local key = cleanObjectiveName(name)
-						module.data.activeObjectives[key] = module.data.activeObjectives[key] or {}
-						table.insert(module.data.activeObjectives[key], {
+					-- Standard "Name: 0/10" format or custom text
+					local _, _, name = string.find(text, "(.-):%s*(%d+)%/(%d+)")
+					name = cleanObjectiveName(name or text)
+					if name and name ~= "" then
+						module.data.activeObjectives[name] = module.data.activeObjectives[name] or {}
+						table.insert(module.data.activeObjectives[name], {
 							title = title,
 							level = level,
-							current = current,
-							total = total,
-							text = text
-						})
-					else
-						-- Non-standard format, try to match the whole text or parts
-						local key = cleanObjectiveName(text)
-						module.data.activeObjectives[key] = module.data.activeObjectives[key] or {}
-						table.insert(module.data.activeObjectives[key], {
-							title = title,
-							level = level,
-							text = text
 						})
 					end
 				end
 			end
 		end
 	end
-	VE.dprint(string.format("QuestTracker: Cached %d text objectives and %d IDs.", objectiveCount, idCount))
+
+	local textCount = 0
+	for _ in pairs(module.data.activeObjectives) do textCount = textCount + 1 end
+	local idCount = 0
+	for _ in pairs(module.data.activeIDs) do idCount = idCount + 1 end
+	VE.printf("QuestTracker: Cached %d text objectives and %d IDs.", textCount, idCount)
 end
 
 local function onTooltipSetUnit(unit)
@@ -224,11 +210,13 @@ local function onTooltipSetUnit(unit)
 	local exists, guid = UnitExists(unit)
 	if not exists then return end
 
+	VE.printf("QuestTracker: unit=%s name=%s guid=%s", tostring(unit), tostring(UnitName(unit)), tostring(guid))
+
 	local name = UnitName(unit)
 	if not name then return end
 	local lowerName = string.lower(name)
 
-	-- VE.dprint("QuestTracker: Checking tooltip for " .. name .. " (GUID: " .. (guid or "nil") .. ")")
+	VE.dprint("QuestTracker: Tooltip for " .. name .. " (GUID: " .. (guid or "nil") .. ")")
 
 	local shownQuests = {}
 	local matched = false
@@ -236,7 +224,9 @@ local function onTooltipSetUnit(unit)
 	-- 1. Try ID matching (SuperWoW)
 	if guid and string.len(guid) > 12 then
 		local unitID = tonumber(string.sub(guid, 7, 12), 16)
+		VE.dprint("QuestTracker: Extracted ID " .. (unitID or "nil"))
 		if unitID and module.data.activeIDs[unitID] then
+			VE.printf("QuestTracker: ID MATCH FOUND for %d", unitID)
 			for _, obj in ipairs(module.data.activeIDs[unitID]) do
 				local questKey = obj.level .. obj.title
 				if not shownQuests[questKey] then
@@ -255,27 +245,21 @@ local function onTooltipSetUnit(unit)
 		-- Try fuzzy matching
 		for objKey, objList in pairs(module.data.activeObjectives) do
 			if string.find(objKey, lowerName) or string.find(lowerName, objKey) then
+				VE.dprint("QuestTracker: FUZZY NAME MATCH! " .. objKey)
 				objectives = objList
 				break
 			end
 		end
+	else
+		VE.dprint("QuestTracker: EXACT NAME MATCH!")
 	end
 
 	if objectives then
+		VE.printf("QuestTracker: NAME MATCH FOUND for %s", lowerName)
 		for _, obj in ipairs(objectives) do
 			local questKey = obj.level .. obj.title
 			if not shownQuests[questKey] then
-				if obj.current and obj.total then
-					GameTooltip:AddDoubleLine(
-						string.format("[%d] %s", obj.level, obj.title),
-						string.format("%s/%s", obj.current, obj.total),
-						module.config.tooltipColor.r, module.config.tooltipColor.g, module.config.tooltipColor.b,
-						1, 1, 1
-					)
-				else
-					GameTooltip:AddLine(string.format("[%d] %s", obj.level, obj.title), module.config.tooltipColor.r, module.config.tooltipColor.g, module.config.tooltipColor.b)
-					GameTooltip:AddLine("  " .. obj.text, 1, 1, 1)
-				end
+				GameTooltip:AddLine(string.format("[%d] %s", obj.level, obj.title), module.config.tooltipColor.r, module.config.tooltipColor.g, module.config.tooltipColor.b)
 				shownQuests[questKey] = true
 				matched = true
 			end
@@ -867,14 +851,28 @@ module.plug:SetScript("OnEvent", function()
 end)
 
 -- Hook tooltips
-local _SetUnit = GameTooltip.SetUnit
-GameTooltip.SetUnit = function(self, unit)
-	_SetUnit(self, unit)
-	if VE.isModuleEnabled(module.identifier) then
-		-- VE.dprint("QuestTracker: SetUnit triggered for " .. (unit or "nil"))
-		onTooltipSetUnit(unit)
+local function setupHooks()
+	-- 1. Hook SetUnit method
+	local _SetUnit = GameTooltip.SetUnit
+	GameTooltip.SetUnit = function(self, unit)
+		_SetUnit(self, unit)
+		if VE.isModuleEnabled(module.identifier) then
+			onTooltipSetUnit(unit)
+		end
 	end
+
+	-- 2. Hook OnShow script as fallback (confirmed working in 1.12)
+	local _OnShow = GameTooltip:GetScript("OnShow")
+	GameTooltip:SetScript("OnShow", function()
+		if _OnShow then _OnShow() end
+		if VE.isModuleEnabled(module.identifier) and UnitExists("mouseover") then
+			onTooltipSetUnit("mouseover")
+		end
+	end)
 end
+
+setupHooks()
+VE.printf("QuestTracker: Tooltip hooks established.")
 
 SLASH_QUESTTRACKERDEBUG1 = "/qtt"
 SlashCmdList["QUESTTRACKERDEBUG"] = function(msg)

@@ -629,7 +629,9 @@ end
 
 	if quest["obj"] then
 		entry.objU = {}
+		entry.objO = {}
 		local seenU = {}
+		local seenO = {}
 		
 		-- Direct unit objectives
 		if quest["obj"]["U"] then
@@ -641,15 +643,61 @@ end
 			end
 		end
 		
-		-- Loot unit objectives (units that drop objective items)
+		-- Direct object objectives
+		if quest["obj"]["O"] then
+			for _, oID in ipairs(quest["obj"]["O"]) do
+				if not seenO[oID] then
+					table.insert(entry.objO, oID)
+					seenO[oID] = true
+				end
+			end
+		end
+		
+		-- Loot unit/object objectives (units/objects that drop objective items)
 		if quest["obj"]["I"] then
 			for _, itemID in ipairs(quest["obj"]["I"]) do
-				local loot = refloot[itemID]
-				if loot and loot["U"] then
-					for uID, _ in pairs(loot["U"]) do
-						if not seenU[uID] then
-							table.insert(entry.objU, uID)
-							seenU[uID] = true
+				local itemData = items[itemID]
+				if itemData then
+					-- Unit drops
+					if itemData["U"] then
+						for uID, _ in pairs(itemData["U"]) do
+							if not seenU[uID] then
+								table.insert(entry.objU, uID)
+								seenU[uID] = true
+							end
+						end
+					end
+					-- Object loot
+					if itemData["O"] then
+						for oID, _ in pairs(itemData["O"]) do
+							if not seenO[oID] then
+								table.insert(entry.objO, oID)
+								seenO[oID] = true
+							end
+						end
+					end
+					-- Reference loot
+					if itemData["R"] then
+						for refID, _ in pairs(itemData["R"]) do
+							local loot = refloot[refID]
+							if loot then
+								if loot["U"] then
+									for uID, _ in pairs(loot["U"]) do
+										if not seenU[uID] then
+											table.insert(entry.objU, uID)
+											seenU[uID] = true
+										end
+									end
+								end
+								if loot["O"] then
+									for oID, _ in pairs(loot["O"]) do
+										if not seenO[oID] then
+											table.insert(entry.objO, oID)
+											seenO[oID] = true
+										end
+									end
+								end
+							end
 						end
 					end
 				end
@@ -657,7 +705,7 @@ end
 		end
 		
 		if #entry.objU == 0 then entry.objU = nil end
-		if quest["obj"]["O"] then entry.objO = quest["obj"]["O"] end
+		if #entry.objO == 0 then entry.objO = nil end
 	end
 
 	if objective_out then
