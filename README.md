@@ -74,7 +74,7 @@ This should be updated on new releases.
 
 ## Extended Macros (Modern Syntax)
 
-The **Extended Macros** module allows you to use Retail/Classic-style macro syntax in the 1.12 client. It supports dynamic icons on action bars and complex conditional logic.
+The **Extended Macros** module allows you to use Retail/Classic-style macro syntax in the 1.12 client. It supports dynamic icons on action bars using `#show` and `#showtooltip` directives, and complex conditional logic.
 
 ### Supported Conditions
 | Condition | Description |
@@ -86,8 +86,10 @@ The **Extended Macros** module allows you to use Retail/Classic-style macro synt
 | `mounted` | You are on a mount. |
 | `pet` | You have a pet active. |
 | `mod:shift/ctrl/alt` | Specific modifier key is held. |
+| `mod` | Any modifier key is held. |
 | `form:n` / `stance:n` | You are in a specific shapeshift form or warrior stance. |
-| `no[condition]` | Inverts any of the above (e.g., `nocombat`, `nodead`). |
+| `@unit` / `target=unit`| Directs the action at a specific unit (e.g., `@mouseover`, `@player`). |
+| `no[condition]` | Inverts specific conditions (`nodead`, `nocombat`, `noexists`, `nostealth`, `nopet`, `nomounted`). |
 
 ### Examples
 
@@ -107,10 +109,10 @@ Casts Charge in combat, otherwise Intercept. Automatically starts attacking.
 ```
 
 #### 3. Shaman Totem Sequence
-Drops totems in order, resets to the first totem after 5 seconds of inactivity or if you change targets.
+Drops totems in order, resets to the first totem after 5 seconds of inactivity, if you change targets, or if you leave/enter combat.
 ```lua
 #showtooltip
-/castsequence reset=5/target Stoneskin Totem, Mana Spring Totem, Grace of Air Totem
+/castsequence reset=5/target/combat Stoneskin Totem, Mana Spring Totem, Grace of Air Totem
 ```
 
 #### 4. Warrior Stance Swap
@@ -144,12 +146,19 @@ Casts Flash Heal normally, but Greater Heal if Shift is held.
 | `/equip [id] [item]` | | Equips an item by name into a specific slot ID. |
 | `/feedpet [food]` | | Feeds the specified food to your hunter pet. |
 | `/cleartarget` | | Clears your current selection. |
-| `/stopattack` | | Stops attacking and re-targets the last target. |
+| `/stopattack` | | Stops auto-attacking. |
 | `/targetlasttarget` | | Re-targets your previous selection. |
 | `/targetmouseoverunit`| | Targets the unit currently under your mouse. |
 | `/mcast [spell]` | | Casts a spell on your mouseover unit (Legacy). |
 | `/dcast [spell]` | | Casts a spell with a short delay (Legacy). |
 | `/sa` | `/sandbox` | Debugging tool (currently empty). |
+| `/startattack` | | Starts auto-attacking the current target. |
+| `/stopattack` | | Stops auto-attacking. |
+| `/stopcasting` | | Interrupts your current spell cast. |
+| `/petattack` | | Orders your pet to attack your target. |
+| `/petfollow` | | Orders your pet to follow you. |
+| `/petpassive` | | Sets your pet to passive mode. |
+| `/petdefensive`| | Sets your pet to defensive mode. |
 
 #### Equip Slot IDs
 | ID | Slot | ID | Slot | ID | Slot | ID | Slot |
