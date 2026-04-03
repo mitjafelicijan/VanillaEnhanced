@@ -1,3 +1,4 @@
+-- Faction IDs: 1=Alliance, 2=Horde, 3=Neutral
 local module = VE.registerModule({
 	identifier = "QuestTracker",
 	meta = {
@@ -79,6 +80,7 @@ local function ensureMapData()
 					title = questData.title,
 					level = questData.lvl,
 					minLevel = questData.min,
+					faction = questData.faction,
 					x = startData.x,
 					y = startData.y,
 				})
@@ -302,6 +304,8 @@ local function collectAvailableQuests(mapIDs)
 	end
 
 	local playerLevel = UnitLevel("player")
+	local playerFaction = UnitFactionGroup("player")
+	local factionID = (playerFaction == "Alliance" and 1 or 2)
 	local markers = {}
 	local markersByLocation = {}
 
@@ -311,24 +315,29 @@ local function collectAvailableQuests(mapIDs)
 			for _, q in ipairs(quests) do
 				-- Filter out active, completed, and under-leveled quests.
 				if not activeQuests[normalizeKey(q.title)] and not completedQuests[q.questID] and playerLevel >= (q.minLevel or 0) then
-					local markerKey = string.format("%s|%s|%s", mapID, q.x, q.y)
-					local marker = markersByLocation[markerKey]
+					-- Filter by faction (1: Alliance, 2: Horde, 3: Neutral).
+					local eligible = (q.faction == 3 or q.faction == factionID)
 
-					if not marker then
-						marker = {
-							x = q.x,
-							y = q.y,
-							quests = {},
+					if eligible then
+						local markerKey = string.format("%s|%s|%s", mapID, q.x, q.y)
+						local marker = markersByLocation[markerKey]
+
+						if not marker then
+							marker = {
+								x = q.x,
+								y = q.y,
+								quests = {},
+							}
+							markers[VE.count(markers) + 1] = marker
+							markersByLocation[markerKey] = marker
+						end
+
+						marker.quests[VE.count(marker.quests) + 1] = {
+							questID = q.questID,
+							title = q.title,
+							level = q.level,
 						}
-						markers[VE.count(markers) + 1] = marker
-						markersByLocation[markerKey] = marker
 					end
-
-					marker.quests[VE.count(marker.quests) + 1] = {
-						questID = q.questID,
-						title = q.title,
-						level = q.level,
-					}
 				end
 			end
 		end
