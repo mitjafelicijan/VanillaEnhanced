@@ -1,16 +1,16 @@
 --[[
 
 TODO
-	- Change icon depending on a spell
-	- have some sort of if else option
-	- add startattack and missing commands
-	- add option to parse [] [] [] like classic addons
+- Change icon depending on a spell
+- have some sort of if else option
+- add startattack and missing commands
+- add option to parse [] [] [] like classic addons
 
 
-	/cast [condition1] Healing Wave; [condition2] Windfury Totem; [condition3] Healing Wave (Rank 3); Frost Shock
-	/castsequence [options] reset=condition1/... action1, action2, ...
-	/castsequence reset=30 Piercing Howl, Hamstring
-	
+/cast [condition1] Healing Wave; [condition2] Windfury Totem; [condition3] Healing Wave (Rank 3); Frost Shock
+/castsequence [options] reset=condition1/... action1, action2, ...
+/castsequence reset=30 Piercing Howl, Hamstring
+
 ]]
 
 local module = VE.registerModule({
@@ -124,7 +124,7 @@ module.plug:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
 
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
-	
+
 	-- Hooks into the action exectuion.
 	if event == "PLAYER_ENTERING_WORLD" then
 		VE.iprint("hooking up to action events")
@@ -152,11 +152,11 @@ module.plug:SetScript("OnEvent", function()
 			-- 		local name, icon, body = GetMacroInfo(i)
 			-- 		if name == text then
 			-- 			VE.printf("idx: %d, name: %s, icon: %s, slot: %s, body: \n%s", i, name, icon, slot, body)
-						
+
 			-- 			local texture = "Interface\\Icons\\Spell_Fire_Fireball"
 			-- 			EditMacro(i, name, texture, body)
 			-- 			updateActionBarButtonTexture(slot, texture)
-						
+
 			-- 			macroFound = true
 			-- 			break
 			-- 		end
