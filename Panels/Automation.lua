@@ -2,7 +2,7 @@ VE.panels.Automation = function(parent)
 	local frame = CreateFrame("Frame", "VanillaEnhancedAutomationFrame", parent)
 	frame:SetAllPoints(parent)
 	
-	-- Left
+	-- Left column
 
 	do
 		local module = VE.getModule("AutoDismount")
@@ -22,7 +22,38 @@ VE.panels.Automation = function(parent)
 		end
 	end
 
-	-- Right
+	do
+		local module = VE.getModule("MaintainDruidForms")
+		if module then
+			VE.elements.Checkbox(frame, 20, -80, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("MaintainHunterAspects")
+		if module then
+			VE.elements.Checkbox(frame, 20, -110, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	VE.elements.Checkbox(frame, 20, -150, 210, LOOT_AT_WINDOW_CURSOR_TEXT, OPTION_TOOLTIP_LOOT_AT_WINDOW_CURSOR, nil, VE.GetUVarAsBoolean("LOOT_WINDOW_AT_CURSOR"), function(checked)
+		VE.SetUVar("LOOT_WINDOW_AT_CURSOR", checked)
+	end)
+
+	do
+		local module = VE.getModule("AutoLoot")
+		if module then
+			VE.elements.Checkbox(frame, 20, -180, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	-- Right column
 
 	do
 		local module = VE.getModule("AutoRepair")
@@ -54,11 +85,11 @@ VE.panels.Automation = function(parent)
 			}
 			
 			-- Enable/Disable master switch
-			VE.elements.Checkbox(frame, 20, -100, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 20, -220, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 
-			local yStart = -130
+			local yStart = -250
 			local yOffset = 50
 			
 			-- Left Column
@@ -97,12 +128,6 @@ VE.panels.Automation = function(parent)
 				module.config.options.ES = key
 				if not VanillaEnhancedData["AutoRoll"] then VanillaEnhancedData["AutoRoll"] = {} end
 				VanillaEnhancedData["AutoRoll"].ES = key
-			end, module.superWoWRequired)
-
-			VE.elements.DropDown(frame, 270, yStart - (yOffset * 2), 160, "Naxxramas", module.config.options.Naxx or false, rollOptions, function(key)
-				module.config.options.Naxx = key
-				if not VanillaEnhancedData["AutoRoll"] then VanillaEnhancedData["AutoRoll"] = {} end
-				VanillaEnhancedData["AutoRoll"].Naxx = key
 			end, module.superWoWRequired)
 		end
 	end

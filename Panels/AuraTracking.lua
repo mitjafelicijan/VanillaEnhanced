@@ -1,5 +1,5 @@
-VE.panels.Features = function(parent)
-	local frame = CreateFrame("Frame", "VanillaEnhancedFeaturesFrame", parent)
+VE.panels.AuraTracking = function(parent)
+	local frame = CreateFrame("Frame", "VanillaEnhancedAuraTrackingFrame", parent)
 	frame:SetAllPoints(parent)
 
 	-- Left column

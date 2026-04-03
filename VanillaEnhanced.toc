@@ -90,16 +90,17 @@ Modules\CompactRaidFrames.lua
 Modules\QuestTracker.lua
 
 # Control panels
-Panels\Controls.lua
-Panels\Display.lua
-Panels\Interface.lua
-Panels\Camera.lua
-Panels\Combat.lua
+Panels\General.lua
+Panels\UnitFrames.lua
+Panels\RaidFrames.lua
+Panels\Nameplates.lua
 Panels\ActionBars.lua
-Panels\ChatSocial.lua
-Panels\RaidParty.lua
-Panels\Features.lua
+Panels\Combat.lua
 Panels\Automation.lua
+Panels\Social.lua
+Panels\Utilities.lua
+Panels\System.lua
+Panels\AuraTracking.lua
 Panels\Addons.lua
 
 # Main settings panel

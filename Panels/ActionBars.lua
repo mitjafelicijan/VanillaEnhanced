@@ -1,6 +1,5 @@
 local function UpdateActionBars()
 	SetActionBarToggles(SHOW_MULTI_ACTIONBAR_1, SHOW_MULTI_ACTIONBAR_2, SHOW_MULTI_ACTIONBAR_3, SHOW_MULTI_ACTIONBAR_4, ALWAYS_SHOW_MULTIBARS)
-	-- MultiActionBar_Update() -- XXX: This messes up some operations but it does apply changes without reloading.
 end
 
 VE.panels.ActionBars = function(parent)

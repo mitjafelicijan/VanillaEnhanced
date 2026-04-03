@@ -1,8 +1,8 @@
-VE.panels.ChatSocial = function(parent)
-	local frame = CreateFrame("Frame", "VanillaEnhancedChatSocialFrame", parent)
+VE.panels.Social = function(parent)
+	local frame = CreateFrame("Frame", "VanillaEnhancedSocialFrame", parent)
 	frame:SetAllPoints(parent)
 
-	-- Left
+	-- Left column (Chat)
 
 	VE.elements.Checkbox(frame, 20, -20, 210, SIMPLE_CHAT_TEXT, OPTION_TOOLTIP_SIMPLE_CHAT, nil, VE.GetUVarAsBoolean("SIMPLE_CHAT"), function(checked)
 		VE.SetUVar("SIMPLE_CHAT", checked)
@@ -36,7 +36,25 @@ VE.panels.ChatSocial = function(parent)
 		VE.SetCVar("profanityFilter", checked)
 	end)
 
-	-- Right
+	do
+		local module = VE.getModule("ChatEnhancements")
+		if module then
+			VE.elements.Checkbox(frame, 20, -270, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("LastMessageOnly")
+		if module then
+			VE.elements.Checkbox(frame, 20, -300, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	-- Right column (Blocking & Social Features)
 
 	VE.elements.Checkbox(frame, 270, -20, 120, BLOCK_TRADES, OPTION_TOOLTIP_BLOCK_TRADES, nil, VE.GetCVarAsBoolean("BlockTrades"), function(checked)
 		VE.SetCVar("BlockTrades", checked)
@@ -70,20 +88,27 @@ VE.panels.ChatSocial = function(parent)
 	end
 
 	do
-		local module = VE.getModule("PullBreakTimer")
+		local module = VE.getModule("SoloSelfFound")
 		if module then
-			VE.elements.Checkbox(frame, 270, -140, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -150, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
 	end
 
-	
+	do
+		local module = VE.getModule("PullBreakTimer")
+		if module then
+			VE.elements.Checkbox(frame, 270, -190, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
 
 	do
-		local module = VE.getModule("SoloSelfFound")
+		local module = VE.getModule("BulletinBoard")
 		if module then
-			VE.elements.Checkbox(frame, 270, -180, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -230, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end

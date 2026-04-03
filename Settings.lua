@@ -1,28 +1,29 @@
 -- CVARS: https://www.townlong-yak.com/framexml/1.12.1/UIOptionsFrame.lua
 
 local categories = {
-	{ key = "controls", label = "Controls", description = "", active = true, features = nil },
-	{ key = "display", label = "Display", description = "", active = false, features = nil },
-	{ key = "interface", label = "Interface", description = "", active = false, features = nil },
-	{ key = "camera", label = "Camera", description = "", active = false, features = nil },
-	{ key = "combat", label = "Combat", description = "", active = false, features = nil },
+	{ key = "general", label = "General", description = "", active = true, features = nil },
+	{ key = "unitframes", label = "Unit Frames", description = "", active = false, features = nil },
+	{ key = "raidframes", label = "Raid Frames", description = "", active = false, features = nil },
+	{ key = "nameplates", label = "Nameplates", description = "", active = false, features = nil },
 	{ key = "actionbars", label = "Action Bars", description = "", active = false, features = nil },
-	{ key = "chatsocial", label = "Chat & Social", description = "", active = false, features = nil },
-	{ key = "raidparty", label = "Raid & Party", description = "", active = false, features = nil },
-	{ key = "features", label = "Features", description = "", active = false, features = nil },
+	{ key = "combat", label = "Combat", description = "", active = false, features = nil },
 	{ key = "automation", label = "Automation", description = "", active = false, features = nil },
+	{ key = "social", label = "Social", description = "", active = false, features = nil },
+	{ key = "utilities", label = "Utilities", description = "", active = false, features = nil },
+	{ key = "system", label = "System", description = "", active = false, features = nil },
+	{ key = "auratracking", label = "Aura Tracking", description = "", active = false, features = nil },
 	{ key = "addons", label = "AddOns", description = "", active = false, features = nil },
 }
 
 local config = {
 	frameWidth = 730,
-	frameHeight = 540,
+	frameHeight = 560,
 	sidebarWidth = 150,
 	hoverAlpha = 0.2,
 	addonLoaded = false,
 	overrideMenu = false,
 	hideOnLoad = true,
-	startPanel = "controls",
+	startPanel = "general",
 }
 
 local frame = CreateFrame("Frame", "VanillaEnhancedFrame", UIParent)
@@ -182,16 +183,17 @@ frame:SetScript("OnEvent", function()
 
 		-- Register all the panels and show the first one.
 		frame.panel.panels = {}
-		frame.panel.panels["controls"] = VE.panels.Controls(frame.panel)
-		frame.panel.panels["display"] = VE.panels.Display(frame.panel)
-		frame.panel.panels["interface"] = VE.panels.Interface(frame.panel)
-		frame.panel.panels["camera"] = VE.panels.Camera(frame.panel)
-		frame.panel.panels["combat"] = VE.panels.Combat(frame.panel)
+		frame.panel.panels["general"] = VE.panels.General(frame.panel)
+		frame.panel.panels["unitframes"] = VE.panels.UnitFrames(frame.panel)
+		frame.panel.panels["raidframes"] = VE.panels.RaidFrames(frame.panel)
+		frame.panel.panels["nameplates"] = VE.panels.Nameplates(frame.panel)
 		frame.panel.panels["actionbars"] = VE.panels.ActionBars(frame.panel)
-		frame.panel.panels["chatsocial"] = VE.panels.ChatSocial(frame.panel)
-		frame.panel.panels["raidparty"] = VE.panels.RaidParty(frame.panel)
-		frame.panel.panels["features"] = VE.panels.Features(frame.panel)
+		frame.panel.panels["combat"] = VE.panels.Combat(frame.panel)
 		frame.panel.panels["automation"] = VE.panels.Automation(frame.panel)
+		frame.panel.panels["social"] = VE.panels.Social(frame.panel)
+		frame.panel.panels["utilities"] = VE.panels.Utilities(frame.panel)
+		frame.panel.panels["system"] = VE.panels.System(frame.panel)
+		frame.panel.panels["auratracking"] = VE.panels.AuraTracking(frame.panel)
 		frame.panel.panels["addons"] = VE.panels.Addons(frame.panel)
 		frame.panel.panels[config.startPanel]:Show()
 
