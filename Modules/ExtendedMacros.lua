@@ -130,6 +130,12 @@ local function evaluateConditions(condGroups)
 	for _, group in ipairs(condGroups) do
 		local pass = true
 		local target = nil
+
+		-- Explicit support for empty brackets [] or [ ]
+		if group == "" or VE.trim(group) == "" then
+			return true, nil
+		end
+
 		local conds = VE.split(group, ",")
 		for _, c in ipairs(conds) do
 			c = VE.trim(c)
