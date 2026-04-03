@@ -600,6 +600,7 @@ end
 		min = quest["min"],
 		faction = faction,
 		class = classReq,
+		isEvent = (quest["event"] and quest["event"] > 0) and 1 or nil,
 	}
 
 if objective_out then

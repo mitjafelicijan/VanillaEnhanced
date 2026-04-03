@@ -1,5 +1,6 @@
 -- Faction IDs: 1=Alliance, 2=Horde, 3=Neutral
 -- Class IDs: 0=All, 1=Warrior, 2=Paladin, 3=Hunter, 4=Rogue, 5=Priest, 6=Shaman, 7=Mage, 8=Warlock, 9=Druid
+-- Event IDs: 0=None, 1=Active
 local module = VE.registerModule({
 	identifier = "QuestTracker",
 	meta = {
@@ -22,6 +23,7 @@ local module = VE.registerModule({
 			size = 64,
 		},
 		showTrivial = false,
+		showEvents = false,
 	},
 	options = {
 		{
@@ -34,6 +36,20 @@ local module = VE.registerModule({
 				local m = VE.getModule("QuestTracker")
 				if m then
 					m.config.showTrivial = checked
+					m.refreshQuestAreas()
+				end
+			end,
+		},
+		{
+			identifier = "QuestTrackerShowEvents",
+			meta = {
+				label = "Show event quests",
+				description = "Show quests related to festivals and world events.",
+			},
+			callback = function(checked)
+				local m = VE.getModule("QuestTracker")
+				if m then
+					m.config.showEvents = checked
 					m.refreshQuestAreas()
 				end
 			end,
@@ -100,6 +116,7 @@ local function ensureMapData()
 					minLevel = questData.min,
 					faction = questData.faction,
 					classID = questData.class,
+					isEvent = questData.isEvent,
 					objective = questData.objText,
 					x = startData.x,
 					y = startData.y,
@@ -367,6 +384,11 @@ local function collectAvailableQuests(mapIDs)
 						end
 					end
 
+					-- Filter by event status.
+					if eligible and q.isEvent == 1 and not module.config.showEvents then
+						eligible = false
+					end
+
 					if eligible then
 						local markerKey = string.format("%s|%s|%s", mapID, q.x, q.y)
 						local marker = markersByLocation[markerKey]
@@ -629,6 +651,7 @@ module.plug:SetScript("OnEvent", function()
 	if event == "PLAYER_ENTERING_WORLD" then
 		-- Sync options with config.
 		module.config.showTrivial = VE.isOptionEnabled("QuestTrackerShowTrivial")
+		module.config.showEvents = VE.isOptionEnabled("QuestTrackerShowEvents")
 
 		ensureMapData()
 		hookWorldMapUpdate()
