@@ -242,7 +242,7 @@ local function InitializeFocusFrame()
 
 	module.plug.frame.name = module.plug.frame.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	module.plug.frame.name:SetPoint("TOPLEFT", 34, -28)
-	module.plug.frame.name:SetJustifyH("LEFT")
+	module.plug.frame.name:SetJustifyH("CENTER")
 	module.plug.frame.name:SetWidth(100)
 	module.plug.frame.name:SetHeight(10)
 
@@ -337,7 +337,7 @@ local function InitializeFocusFrame()
 	module.plug.frame.targetOfFocus.name = module.plug.frame.targetOfFocus.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	module.plug.frame.targetOfFocus.name:SetPoint("BOTTOMLEFT", 42, 18)
 	module.plug.frame.targetOfFocus.name:SetJustifyH("LEFT")
-	module.plug.frame.targetOfFocus.name:SetWidth(60)
+	module.plug.frame.targetOfFocus.name:SetWidth(100)
 
 	module.plug.frame.targetOfFocus:SetScript("OnClick", function()
 		local guid = module.data.focusGUID
