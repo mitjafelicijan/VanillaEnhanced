@@ -77,6 +77,15 @@ VE.panels.UnitFrames = function(parent)
 		end
 	end
 
+	do
+		local module = VE.getModule("FocusTargetFrame")
+		if module then
+			VE.elements.Checkbox(frame, 20, -340, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
 	-- Right column
 	VE.elements.Checkbox(frame, 270, -20, 210, SHOW_TARGET_OF_TARGET_TEXT, OPTION_TOOLTIP_SHOW_TARGET_OF_TARGET, nil, VE.GetUVarAsBoolean("SHOW_TARGET_OF_TARGET"), function(checked)
 		VE.SetUVar("SHOW_TARGET_OF_TARGET", checked)
