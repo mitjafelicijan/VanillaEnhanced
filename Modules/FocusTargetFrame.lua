@@ -24,8 +24,8 @@ end
 -- Main Container
 module.plug = CreateFrame("Frame", "VE_FocusFrame", UIParent)
 module.plug:SetPoint("CENTER", UIParent, "CENTER", 250, 100)
-module.plug:SetWidth(232)
-module.plug:SetHeight(100)
+module.plug:SetWidth(256)
+module.plug:SetHeight(130)
 module.plug:Hide()
 module.plug:SetMovable(true)
 module.plug:EnableMouse(true)
@@ -44,34 +44,28 @@ module.plug:SetScript("OnMouseDown", function()
 	end
 end)
 
--- Level 1: Background and Portrait (behind everything)
+-- Level 1: Background and Portrait
 module.plug.portrait = module.plug:CreateTexture(nil, "BACKGROUND")
 module.plug.portrait:SetWidth(64)
 module.plug.portrait:SetHeight(64)
 module.plug.portrait:SetPoint("TOPRIGHT", -42, -12)
 
-module.plug.model = CreateFrame("PlayerModel", nil, module.plug)
-module.plug.model:SetWidth(64)
-module.plug.model:SetHeight(64)
-module.plug.model:SetPoint("TOPRIGHT", -42, -12)
-module.plug.model:SetFrameLevel(module.plug:GetFrameLevel())
-
--- Level 2: Status Bars (middle layer)
+-- Level 2: Status Bars
 module.plug.healthBar = CreateFrame("StatusBar", nil, module.plug)
 module.plug.healthBar:SetFrameLevel(module.plug:GetFrameLevel() + 1)
 module.plug.healthBar:SetWidth(119)
-module.plug.healthBar:SetHeight(30) -- Big style
-module.plug.healthBar:SetPoint("TOPLEFT", 7, -22)
+module.plug.healthBar:SetHeight(30) -- Matches BigPlayerFrame style
+module.plug.healthBar:SetPoint("TOPRIGHT", -106, -22)
 module.plug.healthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 
 module.plug.manaBar = CreateFrame("StatusBar", nil, module.plug)
 module.plug.manaBar:SetFrameLevel(module.plug:GetFrameLevel() + 1)
 module.plug.manaBar:SetWidth(119)
 module.plug.manaBar:SetHeight(12)
-module.plug.manaBar:SetPoint("TOPLEFT", 7, -52)
+module.plug.manaBar:SetPoint("TOPRIGHT", -106, -52)
 module.plug.manaBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 
--- Level 3: Overlay (Frame Texture and Text on top)
+-- Level 3: Overlay (Texture and Text)
 module.plug.overlay = CreateFrame("Frame", nil, module.plug)
 module.plug.overlay:SetAllPoints(module.plug)
 module.plug.overlay:SetFrameLevel(module.plug:GetFrameLevel() + 2)
@@ -81,19 +75,19 @@ module.plug.texture:SetAllPoints(module.plug.overlay)
 module.plug.texture:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\UI-TargetingFrame")
 
 module.plug.name = module.plug.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-module.plug.name:SetPoint("TOPLEFT", 10, -19)
+module.plug.name:SetPoint("TOPLEFT", 34, -28)
 module.plug.name:SetJustifyH("LEFT")
 module.plug.name:SetWidth(100)
 module.plug.name:SetHeight(10)
 
 module.plug.level = module.plug.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-module.plug.level:SetPoint("TOPLEFT", 114, -19)
+module.plug.level:SetPoint("TOPLEFT", 196, -62)
 
 -- Target of Focus Frame (Small frame)
 module.plug.targetOfFocus = CreateFrame("Button", "VE_TargetOfFocusFrame", module.plug)
-module.plug.targetOfFocus:SetWidth(93)
-module.plug.targetOfFocus:SetHeight(45)
-module.plug.targetOfFocus:SetPoint("TOPLEFT", module.plug, "BOTTOMRIGHT", -106, 32)
+module.plug.targetOfFocus:SetWidth(126)
+module.plug.targetOfFocus:SetHeight(64)
+module.plug.targetOfFocus:SetPoint("TOPLEFT", module.plug, "BOTTOMRIGHT", -138, 64)
 module.plug.targetOfFocus:Hide()
 
 module.plug.targetOfFocus.texture = module.plug.targetOfFocus:CreateTexture(nil, "ARTWORK")
@@ -113,13 +107,13 @@ module.plug.targetOfFocus.portrait:SetPoint("TOPLEFT", 5, -5)
 module.plug.targetOfFocus.healthBar = CreateFrame("StatusBar", nil, module.plug.targetOfFocus)
 module.plug.targetOfFocus.healthBar:SetWidth(46)
 module.plug.targetOfFocus.healthBar:SetHeight(7)
-module.plug.targetOfFocus.healthBar:SetPoint("TOPLEFT", 43, -15)
+module.plug.targetOfFocus.healthBar:SetPoint("TOPLEFT", 44, -15-10)
 module.plug.targetOfFocus.healthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 
 module.plug.targetOfFocus.manaBar = CreateFrame("StatusBar", nil, module.plug.targetOfFocus)
 module.plug.targetOfFocus.manaBar:SetWidth(46)
 module.plug.targetOfFocus.manaBar:SetHeight(7)
-module.plug.targetOfFocus.manaBar:SetPoint("TOPLEFT", 43, -23)
+module.plug.targetOfFocus.manaBar:SetPoint("TOPLEFT", 44, -23-10)
 module.plug.targetOfFocus.manaBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 
 module.plug.targetOfFocus:SetScript("OnClick", function()
@@ -221,12 +215,6 @@ local function UpdateFocusFrame()
 	module.plug.name:SetText(module.data.focusName or "Unknown")
 	module.plug.level:SetText(module.data.focusLevel or "??")
 	SetPortraitTexture(module.plug.portrait, guid)
-	
-	if module.plug.model then
-		module.plug.model:SetUnit(guid)
-		module.plug.model:SetCamera(0)
-		module.plug.model:Show()
-	end
 	
 	UpdateFocusClassification()
 	UpdateFocusBars()
