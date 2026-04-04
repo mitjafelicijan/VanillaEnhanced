@@ -49,8 +49,10 @@ local function GetAuraStatus(slotData)
 
 	-- Get target texture for the spell name
 	local targetTexture = nil
-	local spells = VE.GetSpellInfoByName(slotData.name)
-	if VE.count(spells) > 0 then
+	local spellName = VE.trim(slotData.name)
+	local spells = VE.GetSpellInfoByName(spellName)
+
+	if next(spells) then
 		targetTexture = spells[next(spells)].icon
 	end
 
@@ -103,7 +105,9 @@ local function GenerateEmptyFrames()
 	module.plug.frame:SetPoint("Center", UIParent, "Center", 0, module.config.offset)
 	module.plug.frame:SetFrameStrata("BACKGROUND")
 
-	VE.dframe(module.plug.frame, 1, 0, 0, 1)
+	if VE.config.Debug then
+		VE.dframe(module.plug.frame, 1, 0, 0, 1)
+	end
 
 	module.plug.frame.auras = {}
 	for i = 1, module.config.maxAuras do
@@ -139,6 +143,9 @@ local function GenerateEmptyFrames()
 end
 
 local function UpdateAuraFrames()
+	if not module.plug.frame then
+		GenerateEmptyFrames()
+	end
 	if not module.plug.frame then return end
 
 	local anyShown = false
@@ -237,6 +244,7 @@ module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("PLAYER_AURAS_CHANGED")
 module.plug:RegisterEvent("PLAYER_TARGET_CHANGED")
+module.plug:RegisterEvent("UNIT_AURA")
 
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
@@ -244,11 +252,17 @@ module.plug:SetScript("OnEvent", function()
 	if event == "PLAYER_ENTERING_WORLD" then
 		MigrateData()
 		GenerateEmptyFrames()
-		-- UpdateAuraFrames()
+		UpdateAuraFrames()
 	end
 
-	if event == "PLAYER_AURAS_CHANGED" or event == "PLAYER_TARGET_CHANGED" then
-		-- UpdateAuraFrames()
+	if event == "PLAYER_AURAS_CHANGED" or event == "PLAYER_TARGET_CHANGED" or event == "UNIT_AURA" then
+		if event == "UNIT_AURA" then
+			if arg1 == "player" or arg1 == "target" then
+				UpdateAuraFrames()
+			end
+		else
+			UpdateAuraFrames()
+		end
 	end
 end)
 
@@ -260,7 +274,7 @@ module.plug:SetScript("OnUpdate", function()
 
 	lastUpdate = lastUpdate + arg1
 	if lastUpdate > 0.3 then
-		-- UpdateAuraFrames()
+		UpdateAuraFrames()
 		lastUpdate = 0
 	end
 end)
