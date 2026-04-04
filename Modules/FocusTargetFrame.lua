@@ -87,7 +87,7 @@ module.plug.level:SetPoint("TOPLEFT", 196, -62)
 module.plug.targetOfFocus = CreateFrame("Button", "VE_TargetOfFocusFrame", module.plug)
 module.plug.targetOfFocus:SetWidth(126)
 module.plug.targetOfFocus:SetHeight(64)
-module.plug.targetOfFocus:SetPoint("TOPLEFT", module.plug, "BOTTOMRIGHT", -138, 64)
+module.plug.targetOfFocus:SetPoint("TOPLEFT", module.plug, "BOTTOMRIGHT", -134, 64)
 module.plug.targetOfFocus:Hide()
 
 module.plug.targetOfFocus.portrait = module.plug.targetOfFocus:CreateTexture(nil, "BACKGROUND")
