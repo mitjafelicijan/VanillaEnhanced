@@ -19,7 +19,7 @@ VE.panels.AuraTracking = function(parent)
 	local l1 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	l1:SetPoint("TOPLEFT", 25, headerY)
 	l1:SetText("Spell Name")
-	
+
 	local l2 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	l2:SetPoint("TOPLEFT", 175, headerY)
 	l2:SetText("Condition")
@@ -35,7 +35,7 @@ VE.panels.AuraTracking = function(parent)
 	local l5 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	l5:SetPoint("TOPLEFT", 475, headerY)
 	l5:SetText("S")
-	
+
 	local l6 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	l6:SetPoint("TOPLEFT", 500, headerY)
 	l6:SetText("D")
@@ -98,7 +98,7 @@ VE.panels.AuraTracking = function(parent)
 		stacks:SetScript("OnClick", function() 
 			data.showStacks = this:GetChecked() and true or false 
 		end)
-		
+
 		-- Duration (D)
 		local duration = CreateFrame("CheckButton", "VEAuraSlotDuration"..index, frame, "UICheckButtonTemplate")
 		duration:SetWidth(24)

@@ -259,7 +259,7 @@ module.plug:SetScript("OnUpdate", function()
 	if not module.plug.frame or not module.plug.frame:IsShown() then return end
 
 	lastUpdate = lastUpdate + arg1
-	if lastUpdate > 0.1 then
+	if lastUpdate > 0.3 then
 		-- UpdateAuraFrames()
 		lastUpdate = 0
 	end
