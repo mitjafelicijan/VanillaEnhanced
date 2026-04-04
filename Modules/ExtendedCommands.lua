@@ -332,6 +332,11 @@ module.plug:SetScript("OnEvent", function()
 		PetDefensiveMode()
 	end
 
+	SLASH_PETAGGRESSIVE1 = "/petaggressive"
+	SlashCmdList["PETAGGRESSIVE"] = function()
+		PetAggressiveMode()
+	end
+
 	do
 		SLASH_BEARFORM1 = "/bearform"
 		SlashCmdList["BEARFORM"] = function(msg, editbox)

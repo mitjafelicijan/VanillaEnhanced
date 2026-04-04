@@ -166,6 +166,7 @@ Uses Arcane Intellect on target normally, but Arcane Brilliance if in a party or
 | `/petfollow` | | Orders your pet to follow you. |
 | `/petpassive` | | Sets your pet to passive mode. |
 | `/petdefensive`| | Sets your pet to defensive mode. |
+| `/petaggressive`| | Sets your pet to aggressive mode. |
 
 #### Equip Slot IDs
 | ID | Slot | ID | Slot | ID | Slot | ID | Slot |
