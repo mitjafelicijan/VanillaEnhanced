@@ -90,31 +90,38 @@ module.plug.targetOfFocus:SetHeight(64)
 module.plug.targetOfFocus:SetPoint("TOPLEFT", module.plug, "BOTTOMRIGHT", -138, 64)
 module.plug.targetOfFocus:Hide()
 
-module.plug.targetOfFocus.texture = module.plug.targetOfFocus:CreateTexture(nil, "ARTWORK")
-module.plug.targetOfFocus.texture:SetAllPoints(module.plug.targetOfFocus)
-module.plug.targetOfFocus.texture:SetTexture("Interface\\TargetingFrame\\UI-TargetofTargetFrame")
-
-module.plug.targetOfFocus.name = module.plug.targetOfFocus:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-module.plug.targetOfFocus.name:SetPoint("BOTTOMLEFT", 42, 5)
-module.plug.targetOfFocus.name:SetJustifyH("LEFT")
-module.plug.targetOfFocus.name:SetWidth(45)
-
 module.plug.targetOfFocus.portrait = module.plug.targetOfFocus:CreateTexture(nil, "BACKGROUND")
 module.plug.targetOfFocus.portrait:SetWidth(35)
 module.plug.targetOfFocus.portrait:SetHeight(35)
 module.plug.targetOfFocus.portrait:SetPoint("TOPLEFT", 5, -5)
 
 module.plug.targetOfFocus.healthBar = CreateFrame("StatusBar", nil, module.plug.targetOfFocus)
+module.plug.targetOfFocus.healthBar:SetFrameLevel(module.plug.targetOfFocus:GetFrameLevel() + 1)
 module.plug.targetOfFocus.healthBar:SetWidth(46)
 module.plug.targetOfFocus.healthBar:SetHeight(7)
-module.plug.targetOfFocus.healthBar:SetPoint("TOPLEFT", 44, -15-10)
+module.plug.targetOfFocus.healthBar:SetPoint("TOPLEFT", 44, -15)
 module.plug.targetOfFocus.healthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 
 module.plug.targetOfFocus.manaBar = CreateFrame("StatusBar", nil, module.plug.targetOfFocus)
+module.plug.targetOfFocus.manaBar:SetFrameLevel(module.plug.targetOfFocus:GetFrameLevel() + 1)
 module.plug.targetOfFocus.manaBar:SetWidth(46)
 module.plug.targetOfFocus.manaBar:SetHeight(7)
-module.plug.targetOfFocus.manaBar:SetPoint("TOPLEFT", 44, -23-10)
+module.plug.targetOfFocus.manaBar:SetPoint("TOPLEFT", 44, -23)
 module.plug.targetOfFocus.manaBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+
+-- Target of Focus Overlay (Texture and Name)
+module.plug.targetOfFocus.overlay = CreateFrame("Frame", nil, module.plug.targetOfFocus)
+module.plug.targetOfFocus.overlay:SetAllPoints(module.plug.targetOfFocus)
+module.plug.targetOfFocus.overlay:SetFrameLevel(module.plug.targetOfFocus:GetFrameLevel() + 2)
+
+module.plug.targetOfFocus.texture = module.plug.targetOfFocus.overlay:CreateTexture(nil, "ARTWORK")
+module.plug.targetOfFocus.texture:SetAllPoints(module.plug.targetOfFocus.overlay)
+module.plug.targetOfFocus.texture:SetTexture("Interface\\TargetingFrame\\UI-TargetofTargetFrame")
+
+module.plug.targetOfFocus.name = module.plug.targetOfFocus.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+module.plug.targetOfFocus.name:SetPoint("BOTTOMLEFT", 42, 5)
+module.plug.targetOfFocus.name:SetJustifyH("LEFT")
+module.plug.targetOfFocus.name:SetWidth(45)
 
 module.plug.targetOfFocus:SetScript("OnClick", function()
 	local guid = module.data.focusGUID
