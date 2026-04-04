@@ -21,132 +21,15 @@ if not VE.superWoWCheck(module) then
 	return
 end
 
--- Main Container
-module.plug = CreateFrame("Frame", "VE_FocusFrame", UIParent)
-module.plug:SetPoint("CENTER", UIParent, "CENTER", 250, 100)
-module.plug:SetWidth(256)
-module.plug:SetHeight(130)
-module.plug:Hide()
-module.plug:SetMovable(true)
-module.plug:EnableMouse(true)
-module.plug:RegisterForDrag("LeftButton")
-module.plug:SetScript("OnDragStart", function() this:StartMoving() end)
-module.plug:SetScript("OnDragStop", function() this:StopMovingOrSizing() end)
-module.plug:SetScript("OnMouseDown", function()
-	if arg1 == "LeftButton" then
-		if module.data.focusGUID then
-			TargetUnit(module.data.focusGUID)
-		end
-	elseif arg1 == "RightButton" then
-		module.data.focusGUID = nil
-		module.plug:Hide()
-		VE.print("Focus cleared.")
-	end
-end)
-
--- Level 1: Background and Portrait
-module.plug.portrait = module.plug:CreateTexture(nil, "BACKGROUND")
-module.plug.portrait:SetWidth(64)
-module.plug.portrait:SetHeight(64)
-module.plug.portrait:SetPoint("TOPRIGHT", -42, -12)
-
--- Level 2: Status Bars
-module.plug.healthBar = CreateFrame("StatusBar", nil, module.plug)
-module.plug.healthBar:SetFrameLevel(module.plug:GetFrameLevel() + 1)
-module.plug.healthBar:SetWidth(119)
-module.plug.healthBar:SetHeight(30) -- Matches BigPlayerFrame style
-module.plug.healthBar:SetPoint("TOPRIGHT", -106, -22)
-module.plug.healthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-VE.dframe(module.plug.healthBar, 0, 0, 0, 0.5)
-
-module.plug.powerBar = CreateFrame("StatusBar", nil, module.plug)
-module.plug.powerBar:SetFrameLevel(module.plug:GetFrameLevel() + 1)
-module.plug.powerBar:SetWidth(119)
-module.plug.powerBar:SetHeight(12)
-module.plug.powerBar:SetPoint("TOPRIGHT", -106, -52)
-module.plug.powerBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-VE.dframe(module.plug.powerBar, 0, 0, 0, 0.5)
-
--- Level 3: Overlay (Texture and Text)
-module.plug.overlay = CreateFrame("Frame", nil, module.plug)
-module.plug.overlay:SetAllPoints(module.plug)
-module.plug.overlay:SetFrameLevel(module.plug:GetFrameLevel() + 2)
-
-module.plug.texture = module.plug.overlay:CreateTexture(nil, "ARTWORK")
-module.plug.texture:SetAllPoints(module.plug.overlay)
-module.plug.texture:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\UI-TargetingFrame")
-
-module.plug.name = module.plug.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-module.plug.name:SetPoint("TOPLEFT", 34, -28)
-module.plug.name:SetJustifyH("LEFT")
-module.plug.name:SetWidth(100)
-module.plug.name:SetHeight(10)
-
-module.plug.level = module.plug.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-module.plug.level:SetPoint("TOPLEFT", 196, -62)
-
--- Target of Focus Frame (Small frame)
-module.plug.targetOfFocus = CreateFrame("Button", "VE_TargetOfFocusFrame", module.plug)
-module.plug.targetOfFocus:SetWidth(126)
-module.plug.targetOfFocus:SetHeight(64)
-module.plug.targetOfFocus:SetPoint("TOPLEFT", module.plug, "BOTTOMRIGHT", -130, 64)
-module.plug.targetOfFocus:Hide()
-
-module.plug.targetOfFocus.portrait = module.plug.targetOfFocus:CreateTexture(nil, "BACKGROUND")
-module.plug.targetOfFocus.portrait:SetWidth(35)
-module.plug.targetOfFocus.portrait:SetHeight(35)
-module.plug.targetOfFocus.portrait:SetPoint("TOPLEFT", 5, -5)
-
-module.plug.targetOfFocus.healthBar = CreateFrame("StatusBar", nil, module.plug.targetOfFocus)
-module.plug.targetOfFocus.healthBar:SetFrameLevel(module.plug.targetOfFocus:GetFrameLevel() + 1)
-module.plug.targetOfFocus.healthBar:SetWidth(46)
-module.plug.targetOfFocus.healthBar:SetHeight(7)
-module.plug.targetOfFocus.healthBar:SetPoint("TOPLEFT", 44, -15)
-module.plug.targetOfFocus.healthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-module.plug.targetOfFocus.healthBar:SetStatusBarColor(0, 1, 0)
-VE.dframe(module.plug.targetOfFocus.healthBar, 0, 0, 0, 0.5)
-
-module.plug.targetOfFocus.powerBar = CreateFrame("StatusBar", nil, module.plug.targetOfFocus)
-module.plug.targetOfFocus.powerBar:SetFrameLevel(module.plug.targetOfFocus:GetFrameLevel() + 1)
-module.plug.targetOfFocus.powerBar:SetWidth(46)
-module.plug.targetOfFocus.powerBar:SetHeight(7)
-module.plug.targetOfFocus.powerBar:SetPoint("TOPLEFT", 44, -23)
-module.plug.targetOfFocus.powerBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-VE.dframe(module.plug.targetOfFocus.powerBar, 0, 0, 0, 0.5)
-
--- Target of Focus Overlay (Texture and Name)
-module.plug.targetOfFocus.overlay = CreateFrame("Frame", nil, module.plug.targetOfFocus)
-module.plug.targetOfFocus.overlay:SetAllPoints(module.plug.targetOfFocus)
-module.plug.targetOfFocus.overlay:SetFrameLevel(module.plug.targetOfFocus:GetFrameLevel() + 2)
-
-module.plug.targetOfFocus.texture = module.plug.targetOfFocus.overlay:CreateTexture(nil, "ARTWORK")
-module.plug.targetOfFocus.texture:SetAllPoints(module.plug.targetOfFocus.overlay)
-module.plug.targetOfFocus.texture:SetTexture("Interface\\TargetingFrame\\UI-TargetofTargetFrame")
-
-module.plug.targetOfFocus.name = module.plug.targetOfFocus.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-module.plug.targetOfFocus.name:SetPoint("BOTTOMLEFT", 42, 5)
-module.plug.targetOfFocus.name:SetJustifyH("LEFT")
-module.plug.targetOfFocus.name:SetWidth(45)
-
-module.plug.targetOfFocus:SetScript("OnClick", function()
-	local guid = module.data.focusGUID
-	if guid then
-		local exists, targetOfFocusGUID = UnitExists(guid .. "target")
-		if targetOfFocusGUID then
-			TargetUnit(targetOfFocusGUID)
-		end
-	end
-end)
-
 local function UpdateFocusClassification()
 	if not module.data.focusGUID then return end
 	local classification = UnitClassification(module.data.focusGUID)
 	if classification == "worldboss" or classification == "elite" or classification == "rareelite" then
-		module.plug.texture:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\UI-TargetingFrame-Elite")
+		module.plug.frame.texture:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\UI-TargetingFrame-Elite")
 	elseif classification == "rare" then
-		module.plug.texture:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\UI-TargetingFrame-Rare")
+		module.plug.frame.texture:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\UI-TargetingFrame-Rare")
 	else
-		module.plug.texture:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\UI-TargetingFrame")
+		module.plug.frame.texture:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\UI-TargetingFrame")
 	end
 end
 
@@ -156,13 +39,13 @@ local function UpdateFocusBars()
 
 	local health = UnitHealth(guid)
 	local healthMax = UnitHealthMax(guid)
-	module.plug.healthBar:SetMinMaxValues(0, healthMax)
-	module.plug.healthBar:SetValue(health)
+	module.plug.frame.healthBar:SetMinMaxValues(0, healthMax)
+	module.plug.frame.healthBar:SetValue(health)
 
 	local power = UnitMana(guid)
 	local powerMax = UnitManaMax(guid)
-	module.plug.powerBar:SetMinMaxValues(0, powerMax)
-	module.plug.powerBar:SetValue(power)
+	module.plug.frame.powerBar:SetMinMaxValues(0, powerMax)
+	module.plug.frame.powerBar:SetValue(power)
 
 	-- Power colors
 	local powerType = UnitPowerType(guid)
@@ -174,7 +57,7 @@ local function UpdateFocusBars()
 
 	local powerColor = VE.config.PowerColors[powerName]
 	if powerColor then
-		module.plug.powerBar:SetStatusBarColor(powerColor.r, powerColor.g, powerColor.b)
+		module.plug.frame.powerBar:SetStatusBarColor(powerColor.r, powerColor.g, powerColor.b)
 	end
 
 	-- Class colors
@@ -182,40 +65,40 @@ local function UpdateFocusBars()
 		local class = module.data.focusClass
 		local color = VE.config.ClassColors[class]
 		if color then
-			module.plug.healthBar:SetStatusBarColor(color.r, color.g, color.b)
+			module.plug.frame.healthBar:SetStatusBarColor(color.r, color.g, color.b)
 		else
-			module.plug.healthBar:SetStatusBarColor(0, 1, 0)
+			module.plug.frame.healthBar:SetStatusBarColor(0, 1, 0)
 		end
 	else
-		module.plug.healthBar:SetStatusBarColor(0, 1, 0)
+		module.plug.frame.healthBar:SetStatusBarColor(0, 1, 0)
 	end
 end
 
 local function UpdateTargetOfFocus()
 	local guid = module.data.focusGUID
 	if not guid then
-		module.plug.targetOfFocus:Hide()
+		module.plug.frame.targetOfFocus:Hide()
 		return
 	end
 
 	local exists, targetGUID = UnitExists(guid .. "target")
 	if not exists then
-		module.plug.targetOfFocus:Hide()
+		module.plug.frame.targetOfFocus:Hide()
 		return
 	end
 
-	module.plug.targetOfFocus.name:SetText(UnitName(guid .. "target"))
-	SetPortraitTexture(module.plug.targetOfFocus.portrait, guid .. "target")
+	module.plug.frame.targetOfFocus.name:SetText(UnitName(guid .. "target"))
+	SetPortraitTexture(module.plug.frame.targetOfFocus.portrait, guid .. "target")
 
 	local health = UnitHealth(guid .. "target")
 	local healthMax = UnitHealthMax(guid .. "target")
-	module.plug.targetOfFocus.healthBar:SetMinMaxValues(0, healthMax)
-	module.plug.targetOfFocus.healthBar:SetValue(health)
+	module.plug.frame.targetOfFocus.healthBar:SetMinMaxValues(0, healthMax)
+	module.plug.frame.targetOfFocus.healthBar:SetValue(health)
 
 	local power = UnitMana(guid .. "target")
 	local powerMax = UnitManaMax(guid .. "target")
-	module.plug.targetOfFocus.powerBar:SetMinMaxValues(0, powerMax)
-	module.plug.targetOfFocus.powerBar:SetValue(power)
+	module.plug.frame.targetOfFocus.powerBar:SetMinMaxValues(0, powerMax)
+	module.plug.frame.targetOfFocus.powerBar:SetValue(power)
 
 	-- Power colors
 	local powerType = UnitPowerType(guid .. "target")
@@ -227,46 +110,166 @@ local function UpdateTargetOfFocus()
 
 	local powerColor = VE.config.PowerColors[powerName]
 	if powerColor then
-		module.plug.targetOfFocus.powerBar:SetStatusBarColor(powerColor.r, powerColor.g, powerColor.b)
+		module.plug.frame.targetOfFocus.powerBar:SetStatusBarColor(powerColor.r, powerColor.g, powerColor.b)
 	end
 
-	module.plug.targetOfFocus:Show()
+	module.plug.frame.targetOfFocus:Show()
 end
 
 local function UpdateFocusFrame()
 	local guid = module.data.focusGUID
 	if not guid or not UnitExists(guid) then
-		module.plug:Hide()
+		module.plug.frame:Hide()
 		return
 	end
 
-	module.plug.name:SetText(module.data.focusName or "Unknown")
-	module.plug.level:SetText(module.data.focusLevel or "??")
-	SetPortraitTexture(module.plug.portrait, guid)
+	module.plug.frame.name:SetText(module.data.focusName or "Unknown")
+	module.plug.frame.level:SetText(module.data.focusLevel or "??")
+	SetPortraitTexture(module.plug.frame.portrait, guid)
 
 	UpdateFocusClassification()
 	UpdateFocusBars()
 	UpdateTargetOfFocus()
-	module.plug:Show()
+	module.plug.frame:Show()
 end
 
-module.plug:SetScript("OnUpdate", function()
-	if not module.data.focusGUID then return end
+local function InitializeFocusFrame()
+	-- Main Container
+	module.plug.frame = CreateFrame("Frame", "VE_FocusFrame", UIParent)
+	module.plug.frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+	module.plug.frame:SetWidth(256)
+	module.plug.frame:SetHeight(130)
+	module.plug.frame:Hide()
+	module.plug.frame:SetMovable(true)
+	module.plug.frame:EnableMouse(true)
+	module.plug.frame:RegisterForDrag("LeftButton")
+	module.plug.frame:SetScript("OnDragStart", function() this:StartMoving() end)
+	module.plug.frame:SetScript("OnDragStop", function() this:StopMovingOrSizing() end)
+	module.plug.frame:SetScript("OnMouseDown", function()
+		if arg1 == "LeftButton" then
+			if module.data.focusGUID then
+				TargetUnit(module.data.focusGUID)
+			end
+		elseif arg1 == "RightButton" then
+			module.data.focusGUID = nil
+			module.plug.frame:Hide()
+			VE.print("Focus cleared.")
+		end
+	end)
 
-	this.elapsed = (this.elapsed or 0) + arg1
-	if this.elapsed < 0.1 then return end
-	this.elapsed = 0
+	-- Level 1: Background and Portrait
+	module.plug.frame.portrait = module.plug.frame:CreateTexture(nil, "BACKGROUND")
+	module.plug.frame.portrait:SetWidth(64)
+	module.plug.frame.portrait:SetHeight(64)
+	module.plug.frame.portrait:SetPoint("TOPRIGHT", -42, -12)
 
-	if not UnitExists(module.data.focusGUID) then
-		module.plug:Hide()
-		module.data.focusGUID = nil
-		return
-	end
+	-- Level 2: Status Bars
+	module.plug.frame.healthBar = CreateFrame("StatusBar", nil, module.plug.frame)
+	module.plug.frame.healthBar:SetFrameLevel(module.plug.frame:GetFrameLevel() + 1)
+	module.plug.frame.healthBar:SetWidth(119)
+	module.plug.frame.healthBar:SetHeight(30) -- Matches BigPlayerFrame style
+	module.plug.frame.healthBar:SetPoint("TOPRIGHT", -106, -22)
+	module.plug.frame.healthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+	VE.dframe(module.plug.frame.healthBar, 0, 0, 0, 0.5)
 
-	UpdateFocusBars()
-	UpdateTargetOfFocus()
-end)
+	module.plug.frame.powerBar = CreateFrame("StatusBar", nil, module.plug.frame)
+	module.plug.frame.powerBar:SetFrameLevel(module.plug.frame:GetFrameLevel() + 1)
+	module.plug.frame.powerBar:SetWidth(119)
+	module.plug.frame.powerBar:SetHeight(12)
+	module.plug.frame.powerBar:SetPoint("TOPRIGHT", -106, -52)
+	module.plug.frame.powerBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+	VE.dframe(module.plug.frame.powerBar, 0, 0, 0, 0.5)
 
+	-- Level 3: Overlay (Texture and Text)
+	module.plug.frame.overlay = CreateFrame("Frame", nil, module.plug.frame)
+	module.plug.frame.overlay:SetAllPoints(module.plug.frame)
+	module.plug.frame.overlay:SetFrameLevel(module.plug.frame:GetFrameLevel() + 2)
+
+	module.plug.frame.texture = module.plug.frame.overlay:CreateTexture(nil, "ARTWORK")
+	module.plug.frame.texture:SetAllPoints(module.plug.frame.overlay)
+	module.plug.frame.texture:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\UI-TargetingFrame")
+
+	module.plug.frame.name = module.plug.frame.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	module.plug.frame.name:SetPoint("TOPLEFT", 34, -28)
+	module.plug.frame.name:SetJustifyH("LEFT")
+	module.plug.frame.name:SetWidth(100)
+	module.plug.frame.name:SetHeight(10)
+
+	module.plug.frame.level = module.plug.frame.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	module.plug.frame.level:SetPoint("TOPLEFT", 196, -62)
+
+	-- Target of Focus Frame (Small frame)
+	module.plug.frame.targetOfFocus = CreateFrame("Button", "VE_TargetOfFocusFrame", module.plug.frame)
+	module.plug.frame.targetOfFocus:SetWidth(126)
+	module.plug.frame.targetOfFocus:SetHeight(64)
+	module.plug.frame.targetOfFocus:SetPoint("TOPLEFT", module.plug.frame, "BOTTOMRIGHT", -130, 64)
+	module.plug.frame.targetOfFocus:Hide()
+
+	module.plug.frame.targetOfFocus.portrait = module.plug.frame.targetOfFocus:CreateTexture(nil, "BACKGROUND")
+	module.plug.frame.targetOfFocus.portrait:SetWidth(35)
+	module.plug.frame.targetOfFocus.portrait:SetHeight(35)
+	module.plug.frame.targetOfFocus.portrait:SetPoint("TOPLEFT", 5, -5)
+
+	module.plug.frame.targetOfFocus.healthBar = CreateFrame("StatusBar", nil, module.plug.frame.targetOfFocus)
+	module.plug.frame.targetOfFocus.healthBar:SetFrameLevel(module.plug.frame.targetOfFocus:GetFrameLevel() + 1)
+	module.plug.frame.targetOfFocus.healthBar:SetWidth(46)
+	module.plug.frame.targetOfFocus.healthBar:SetHeight(7)
+	module.plug.frame.targetOfFocus.healthBar:SetPoint("TOPLEFT", 44, -15)
+	module.plug.frame.targetOfFocus.healthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+	module.plug.frame.targetOfFocus.healthBar:SetStatusBarColor(0, 1, 0)
+	VE.dframe(module.plug.frame.targetOfFocus.healthBar, 0, 0, 0, 0.5)
+
+	module.plug.frame.targetOfFocus.powerBar = CreateFrame("StatusBar", nil, module.plug.frame.targetOfFocus)
+	module.plug.frame.targetOfFocus.powerBar:SetFrameLevel(module.plug.frame.targetOfFocus:GetFrameLevel() + 1)
+	module.plug.frame.targetOfFocus.powerBar:SetWidth(46)
+	module.plug.frame.targetOfFocus.powerBar:SetHeight(7)
+	module.plug.frame.targetOfFocus.powerBar:SetPoint("TOPLEFT", 44, -23)
+	module.plug.frame.targetOfFocus.powerBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+	VE.dframe(module.plug.frame.targetOfFocus.powerBar, 0, 0, 0, 0.5)
+
+	-- Target of Focus Overlay (Texture and Name)
+	module.plug.frame.targetOfFocus.overlay = CreateFrame("Frame", nil, module.plug.frame.targetOfFocus)
+	module.plug.frame.targetOfFocus.overlay:SetAllPoints(module.plug.frame.targetOfFocus)
+	module.plug.frame.targetOfFocus.overlay:SetFrameLevel(module.plug.frame.targetOfFocus:GetFrameLevel() + 2)
+
+	module.plug.frame.targetOfFocus.texture = module.plug.frame.targetOfFocus.overlay:CreateTexture(nil, "ARTWORK")
+	module.plug.frame.targetOfFocus.texture:SetAllPoints(module.plug.frame.targetOfFocus.overlay)
+	module.plug.frame.targetOfFocus.texture:SetTexture("Interface\\TargetingFrame\\UI-TargetofTargetFrame")
+
+	module.plug.frame.targetOfFocus.name = module.plug.frame.targetOfFocus.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	module.plug.frame.targetOfFocus.name:SetPoint("BOTTOMLEFT", 42, 5)
+	module.plug.frame.targetOfFocus.name:SetJustifyH("LEFT")
+	module.plug.frame.targetOfFocus.name:SetWidth(45)
+
+	module.plug.frame.targetOfFocus:SetScript("OnClick", function()
+		local guid = module.data.focusGUID
+		if guid then
+			local exists, targetOfFocusGUID = UnitExists(guid .. "target")
+			if targetOfFocusGUID then
+				TargetUnit(targetOfFocusGUID)
+			end
+		end
+	end)
+	module.plug.frame:SetScript("OnUpdate", function()
+		if not module.data.focusGUID then return end
+
+		this.elapsed = (this.elapsed or 0) + arg1
+		if this.elapsed < 0.1 then return end
+		this.elapsed = 0
+
+		if not UnitExists(module.data.focusGUID) then
+			module.plug.frame:Hide()
+			module.data.focusGUID = nil
+			return
+		end
+
+		UpdateFocusBars()
+		UpdateTargetOfFocus()
+	end)
+
+end
+
+module.plug = CreateFrame("Frame", module.identifier, UIParent)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 module.plug:SetScript("OnEvent", function()
@@ -300,6 +303,7 @@ module.plug:SetScript("OnEvent", function()
 		end
 		SlashCmdList["VE_CLEARFOCUS"] = _G["VE_ClearFocus"]
 
+		InitializeFocusFrame()
 		UpdateFocusFrame()
 	end
 end)
