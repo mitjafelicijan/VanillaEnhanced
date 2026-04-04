@@ -215,6 +215,37 @@ local function InitializeFocusFrame()
 	module.plug.frame.level = module.plug.frame.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	module.plug.frame.level:SetPoint("TOPLEFT", 196, -62)
 
+	-- Debuffs (4x4 Grid)
+	module.plug.frame.debuffs = {}
+	local auraSize = 21
+	local auraSpacing = 2
+	local perRow = 4
+	local startX = 30
+	local startY = -70
+
+	for i = 1, 16 do
+		local row = math.floor((i - 1) / perRow)
+		local col = math.mod((i - 1), perRow)
+
+		local button = CreateFrame("Button", "VE_FocusFrame_Debuff" .. i, module.plug.frame)
+		button:SetWidth(auraSize)
+		button:SetHeight(auraSize)
+		button:SetPoint("TOPLEFT", module.plug.frame, "TOPLEFT", startX + (col * (auraSize + auraSpacing)), startY - (row * (auraSize + auraSpacing)))
+
+		button.texture = button:CreateTexture(nil, "ARTWORK")
+		button.texture:SetAllPoints()
+		button.texture:SetTexture("Interface\\Icons\\Temp")
+
+		button.border = button:CreateTexture(nil, "OVERLAY")
+		button.border:SetWidth(auraSize + 2)
+		button.border:SetHeight(auraSize + 2)
+		button.border:SetPoint("CENTER", button, "CENTER", 0, 0)
+		button.border:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays")
+		button.border:SetTexCoord(0.296875, 0.5703125, 0, 0.515625)
+
+		module.plug.frame.debuffs[i] = button
+	end
+
 	-- Target of Focus Frame (Small frame)
 	module.plug.frame.targetOfFocus = CreateFrame("Button", "VE_TargetOfFocusFrame", module.plug.frame)
 	module.plug.frame.targetOfFocus:SetWidth(126)
@@ -254,9 +285,9 @@ local function InitializeFocusFrame()
 	module.plug.frame.targetOfFocus.texture:SetTexture("Interface\\TargetingFrame\\UI-TargetofTargetFrame")
 
 	module.plug.frame.targetOfFocus.name = module.plug.frame.targetOfFocus.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	module.plug.frame.targetOfFocus.name:SetPoint("BOTTOMLEFT", 42, 5)
+	module.plug.frame.targetOfFocus.name:SetPoint("BOTTOMLEFT", 42, 18)
 	module.plug.frame.targetOfFocus.name:SetJustifyH("LEFT")
-	module.plug.frame.targetOfFocus.name:SetWidth(45)
+	module.plug.frame.targetOfFocus.name:SetWidth(60)
 
 	module.plug.frame.targetOfFocus:SetScript("OnClick", function()
 		local guid = module.data.focusGUID
