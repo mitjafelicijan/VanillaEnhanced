@@ -280,9 +280,12 @@ module.plug:SetScript("OnEvent", function()
 
 	SLASH_TARGETLASTTARGET1 = "/targetlasttarget"
 	SlashCmdList["TARGETLASTTARGET"] = function()
-		TargetUnit("playertarget")
-		-- This one below is causing issues.
-		-- TargetLastTarget()
+		TargetLastTarget()
+	end
+
+	SLASH_STOPCASTING1 = "/stopcasting"
+	SlashCmdList["STOPCASTING"] = function()
+		SpellStopCasting()
 	end
 
 	SLASH_TARGETMOUSEOVERUNIT1 = "/targetmouseoverunit"
