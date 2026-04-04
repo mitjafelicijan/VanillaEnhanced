@@ -136,7 +136,12 @@ end
 local function InitializeFocusFrame()
 	-- Main Container
 	module.plug.frame = CreateFrame("Frame", "VE_FocusFrame", UIParent)
-	module.plug.frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+	local pos = VanillaEnhancedData[module.identifier] and VanillaEnhancedData[module.identifier].pos
+	if pos then
+		module.plug.frame:SetPoint(pos.point, UIParent, pos.relativePoint, pos.xOfs, pos.yOfs)
+	else
+		module.plug.frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+	end
 	module.plug.frame:SetWidth(256)
 	module.plug.frame:SetHeight(130)
 	module.plug.frame:Hide()
@@ -144,7 +149,19 @@ local function InitializeFocusFrame()
 	module.plug.frame:EnableMouse(true)
 	module.plug.frame:RegisterForDrag("LeftButton")
 	module.plug.frame:SetScript("OnDragStart", function() this:StartMoving() end)
-	module.plug.frame:SetScript("OnDragStop", function() this:StopMovingOrSizing() end)
+	module.plug.frame:SetScript("OnDragStop", function()
+		this:StopMovingOrSizing()
+		local point, _, relativePoint, xOfs, yOfs = this:GetPoint()
+		if not VanillaEnhancedData[module.identifier] then
+			VanillaEnhancedData[module.identifier] = {}
+		end
+		VanillaEnhancedData[module.identifier].pos = {
+			point = point,
+			relativePoint = relativePoint,
+			xOfs = xOfs,
+			yOfs = yOfs,
+		}
+	end)
 	module.plug.frame:SetScript("OnMouseDown", function()
 		if arg1 == "LeftButton" then
 			if module.data.focusGUID then
