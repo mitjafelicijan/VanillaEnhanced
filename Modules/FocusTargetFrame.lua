@@ -58,12 +58,12 @@ module.plug.healthBar:SetHeight(30) -- Matches BigPlayerFrame style
 module.plug.healthBar:SetPoint("TOPRIGHT", -106, -22)
 module.plug.healthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 
-module.plug.manaBar = CreateFrame("StatusBar", nil, module.plug)
-module.plug.manaBar:SetFrameLevel(module.plug:GetFrameLevel() + 1)
-module.plug.manaBar:SetWidth(119)
-module.plug.manaBar:SetHeight(12)
-module.plug.manaBar:SetPoint("TOPRIGHT", -106, -52)
-module.plug.manaBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+module.plug.powerBar = CreateFrame("StatusBar", nil, module.plug)
+module.plug.powerBar:SetFrameLevel(module.plug:GetFrameLevel() + 1)
+module.plug.powerBar:SetWidth(119)
+module.plug.powerBar:SetHeight(12)
+module.plug.powerBar:SetPoint("TOPRIGHT", -106, -52)
+module.plug.powerBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 
 -- Level 3: Overlay (Texture and Text)
 module.plug.overlay = CreateFrame("Frame", nil, module.plug)
@@ -101,13 +101,14 @@ module.plug.targetOfFocus.healthBar:SetWidth(46)
 module.plug.targetOfFocus.healthBar:SetHeight(7)
 module.plug.targetOfFocus.healthBar:SetPoint("TOPLEFT", 44, -15)
 module.plug.targetOfFocus.healthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+module.plug.targetOfFocus.healthBar:SetStatusBarColor(0, 1, 0)
 
-module.plug.targetOfFocus.manaBar = CreateFrame("StatusBar", nil, module.plug.targetOfFocus)
-module.plug.targetOfFocus.manaBar:SetFrameLevel(module.plug.targetOfFocus:GetFrameLevel() + 1)
-module.plug.targetOfFocus.manaBar:SetWidth(46)
-module.plug.targetOfFocus.manaBar:SetHeight(7)
-module.plug.targetOfFocus.manaBar:SetPoint("TOPLEFT", 44, -23)
-module.plug.targetOfFocus.manaBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+module.plug.targetOfFocus.powerBar = CreateFrame("StatusBar", nil, module.plug.targetOfFocus)
+module.plug.targetOfFocus.powerBar:SetFrameLevel(module.plug.targetOfFocus:GetFrameLevel() + 1)
+module.plug.targetOfFocus.powerBar:SetWidth(46)
+module.plug.targetOfFocus.powerBar:SetHeight(7)
+module.plug.targetOfFocus.powerBar:SetPoint("TOPLEFT", 44, -23)
+module.plug.targetOfFocus.powerBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 
 -- Target of Focus Overlay (Texture and Name)
 module.plug.targetOfFocus.overlay = CreateFrame("Frame", nil, module.plug.targetOfFocus)
@@ -154,19 +155,22 @@ local function UpdateFocusBars()
 	module.plug.healthBar:SetMinMaxValues(0, healthMax)
 	module.plug.healthBar:SetValue(health)
 
-	local mana = UnitMana(guid)
-	local manaMax = UnitManaMax(guid)
-	module.plug.manaBar:SetMinMaxValues(0, manaMax)
-	module.plug.manaBar:SetValue(mana)
+	local power = UnitMana(guid)
+	local powerMax = UnitManaMax(guid)
+	module.plug.powerBar:SetMinMaxValues(0, powerMax)
+	module.plug.powerBar:SetValue(power)
 
 	-- Power colors
 	local powerType = UnitPowerType(guid)
-	if powerType == 0 then -- Mana
-		module.plug.manaBar:SetStatusBarColor(VE.config.PowerColors.Mana.r, VE.config.PowerColors.Mana.g, VE.config.PowerColors.Mana.b)
-	elseif powerType == 1 then -- Rage
-		module.plug.manaBar:SetStatusBarColor(VE.config.PowerColors.Rage.r, VE.config.PowerColors.Rage.g, VE.config.PowerColors.Rage.b)
-	elseif powerType == 3 then -- Energy
-		module.plug.manaBar:SetStatusBarColor(VE.config.PowerColors.Energy.r, VE.config.PowerColors.Energy.g, VE.config.PowerColors.Energy.b)
+	local powerName = "unknown"
+	if powerType == 0 then powerName = "Mana"
+	elseif powerType == 1 then powerName = "Rage"
+	elseif powerType == 2 then powerName = "Focus"
+	elseif powerType == 3 then powerName = "Energy" end
+
+	local powerColor = VE.config.PowerColors[powerName]
+	if powerColor then
+		module.plug.powerBar:SetStatusBarColor(powerColor.r, powerColor.g, powerColor.b)
 	end
 
 	-- Class colors
@@ -204,10 +208,23 @@ local function UpdateTargetOfFocus()
 	module.plug.targetOfFocus.healthBar:SetMinMaxValues(0, healthMax)
 	module.plug.targetOfFocus.healthBar:SetValue(health)
 
-	local mana = UnitMana(guid .. "target")
-	local manaMax = UnitManaMax(guid .. "target")
-	module.plug.targetOfFocus.manaBar:SetMinMaxValues(0, manaMax)
-	module.plug.targetOfFocus.manaBar:SetValue(mana)
+	local power = UnitMana(guid .. "target")
+	local powerMax = UnitManaMax(guid .. "target")
+	module.plug.targetOfFocus.powerBar:SetMinMaxValues(0, powerMax)
+	module.plug.targetOfFocus.powerBar:SetValue(power)
+
+	-- Power colors
+	local powerType = UnitPowerType(guid .. "target")
+	local powerName = "unknown"
+	if powerType == 0 then powerName = "Mana"
+	elseif powerType == 1 then powerName = "Rage"
+	elseif powerType == 2 then powerName = "Focus"
+	elseif powerType == 3 then powerName = "Energy" end
+
+	local powerColor = VE.config.PowerColors[powerName]
+	if powerColor then
+		module.plug.targetOfFocus.powerBar:SetStatusBarColor(powerColor.r, powerColor.g, powerColor.b)
+	end
 
 	module.plug.targetOfFocus:Show()
 end
