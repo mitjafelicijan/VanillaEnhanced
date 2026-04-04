@@ -312,6 +312,26 @@ module.plug:SetScript("OnEvent", function()
 		VE.print("Food not found in bags.")
 	end
 
+	SLASH_PETATTACK1 = "/petattack"
+	SlashCmdList["PETATTACK"] = function()
+		PetAttack()
+	end
+
+	SLASH_PETFOLLOW1 = "/petfollow"
+	SlashCmdList["PETFOLLOW"] = function()
+		PetFollow()
+	end
+
+	SLASH_PETPASSIVE1 = "/petpassive"
+	SlashCmdList["PETPASSIVE"] = function()
+		PetPassiveMode()
+	end
+
+	SLASH_PETDEFENSIVE1 = "/petdefensive"
+	SlashCmdList["PETDEFENSIVE"] = function()
+		PetDefensiveMode()
+	end
+
 	do
 		SLASH_BEARFORM1 = "/bearform"
 		SlashCmdList["BEARFORM"] = function(msg, editbox)
