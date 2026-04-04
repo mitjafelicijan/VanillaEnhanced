@@ -66,7 +66,7 @@ VE.panels.AuraTracking = function(parent)
 		end)
 
 		-- Show When (Condition)
-		VE.elements.DropDown(frame, x + 175, rowY + 2, 90, nil, data.showWhen, {
+		VE.elements.DropDown(frame, x + 150, rowY + 2, 90, nil, data.showWhen, {
 			{ text = "Present", key = "present" },
 			{ text = "Missing", key = "missing" },
 		}, function(key)
@@ -74,7 +74,7 @@ VE.panels.AuraTracking = function(parent)
 		end)
 
 		-- Target
-		VE.elements.DropDown(frame, x + 285, rowY + 2, 85, nil, data.target, {
+		VE.elements.DropDown(frame, x + 255 + 2, rowY + 2, 85, nil, data.target, {
 			{ text = "Player", key = "player" },
 			{ text = "Target", key = "target" },
 		}, function(key)
@@ -82,7 +82,7 @@ VE.panels.AuraTracking = function(parent)
 		end)
 
 		-- Type
-		VE.elements.DropDown(frame, x + 385, rowY + 2, 75, nil, data.type, {
+		VE.elements.DropDown(frame, x + 355 + 4, rowY + 2, 75, nil, data.type, {
 			{ text = "Buff", key = "buff" },
 			{ text = "Debuff", key = "debuff" },
 		}, function(key)
