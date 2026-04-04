@@ -34,8 +34,6 @@ local function GetAuraSlotData(index)
 			showWhen = "present", -- present, missing
 			target = "player", -- player, target
 			type = "buff", -- buff, debuff
-			showStacks = true,
-			showDuration = true,
 		}
 	end
 
@@ -73,12 +71,7 @@ local function GetAuraStatus(slotData)
 			return {
 				found = true,
 				texture = texture,
-				count = count,
-				duration = duration,
-				timeLeft = timeLeft,
 				showWhen = slotData.showWhen,
-				showStacks = slotData.showStacks,
-				showDuration = slotData.showDuration,
 			}
 		end
 	end
@@ -88,8 +81,6 @@ local function GetAuraStatus(slotData)
 		found = false,
 		texture = targetTexture,
 		showWhen = slotData.showWhen,
-		showStacks = slotData.showStacks,
-		showDuration = slotData.showDuration,
 	}
 end
 
@@ -126,16 +117,6 @@ local function GenerateEmptyFrames()
 		aura.texture = aura:CreateTexture(nil, "BACKGROUND")
 		aura.texture:SetAllPoints(aura)
 
-		aura.stacks = aura:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-		aura.stacks:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", -2, 2)
-		aura.stacks:SetFont("Fonts\\FRIZQT__.TTF", 14, "OUTLINE")
-		aura.stacks:SetTextColor(1, 1, 1)
-
-		aura.duration = aura:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-		aura.duration:SetPoint("CENTER", aura, "CENTER", 0, 0)
-		aura.duration:SetFont("Fonts\\FRIZQT__.TTF", 16, "OUTLINE")
-		aura.duration:SetTextColor(1, 1, 0)
-
 		table.insert(module.plug.frame.auras, aura)
 	end
 
@@ -166,25 +147,6 @@ local function UpdateAuraFrames()
 
 		if shouldShow and status.texture then
 			frame.texture:SetTexture(status.texture)
-
-			if status.showStacks and status.count and status.count > 1 then
-				frame.stacks:SetText(status.count)
-				frame.stacks:Show()
-			else
-				frame.stacks:Hide()
-			end
-
-			if status.showDuration and status.timeLeft and status.timeLeft > 0 then
-				local val = math.floor(status.timeLeft)
-				if val > 60 then
-					frame.duration:SetText(math.floor(val/60) .. "m")
-				else
-					frame.duration:SetText(val)
-				end
-				frame.duration:Show()
-			else
-				frame.duration:Hide()
-			end
 
 			frame:Show()
 			anyShown = true
@@ -221,8 +183,6 @@ local function MigrateData()
 					showWhen = showWhen,
 					target = "player",
 					type = "buff",
-					showStacks = true,
-					showDuration = true,
 				}
 			end
 		end
@@ -263,18 +223,5 @@ module.plug:SetScript("OnEvent", function()
 		else
 			UpdateAuraFrames()
 		end
-	end
-end)
-
--- Timer for smooth duration updates
-local lastUpdate = 0
-module.plug:SetScript("OnUpdate", function()
-	if not VE.isModuleEnabled(module.identifier) then return end
-	if not module.plug.frame or not module.plug.frame:IsShown() then return end
-
-	lastUpdate = lastUpdate + arg1
-	if lastUpdate > 0.3 then
-		UpdateAuraFrames()
-		lastUpdate = 0
 	end
 end)

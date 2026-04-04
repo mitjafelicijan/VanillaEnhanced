@@ -32,14 +32,6 @@ VE.panels.AuraTracking = function(parent)
 	l4:SetPoint("TOPLEFT", 385, headerY)
 	l4:SetText("Type")
 
-	local l5 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	l5:SetPoint("TOPLEFT", 475, headerY)
-	l5:SetText("S")
-
-	local l6 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	l6:SetPoint("TOPLEFT", 500, headerY)
-	l6:SetText("D")
-
 	local function CreateSlotUI(index, rowY)
 		local x = 20
 		if not VanillaEnhancedData["AuraTrackerSlots"][index] then
@@ -48,8 +40,6 @@ VE.panels.AuraTracking = function(parent)
 				showWhen = "present",
 				target = "player",
 				type = "buff",
-				showStacks = true,
-				showDuration = true,
 			}
 		end
 		local data = VanillaEnhancedData["AuraTrackerSlots"][index]
@@ -82,36 +72,11 @@ VE.panels.AuraTracking = function(parent)
 		}, function(key)
 			data.type = key
 		end)
-
-		-- Stacks (S)
-		local stacks = CreateFrame("CheckButton", "VEAuraSlotStacks"..index, frame, "UICheckButtonTemplate")
-		stacks:SetWidth(24)
-		stacks:SetHeight(24)
-		stacks:SetPoint("TOPLEFT", x + 452, rowY - 1)
-		stacks:SetChecked(data.showStacks)
-		stacks:SetScript("OnClick", function() 
-			data.showStacks = this:GetChecked() and true or false 
-		end)
-
-		-- Duration (D)
-		local duration = CreateFrame("CheckButton", "VEAuraSlotDuration"..index, frame, "UICheckButtonTemplate")
-		duration:SetWidth(24)
-		duration:SetHeight(24)
-		duration:SetPoint("TOPLEFT", x + 477, rowY - 1)
-		duration:SetChecked(data.showDuration)
-		duration:SetScript("OnClick", function() 
-			data.showDuration = this:GetChecked() and true or false 
-		end)
 	end
 
 	for i = 1, 8 do
 		CreateSlotUI(i, -80 - (i-1) * 35)
 	end
-
-	-- Help text
-	local help = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-	help:SetPoint("BOTTOMLEFT", 20, 20)
-	help:SetText("S = Show Stacks, D = Show Duration")
 
 	if VE.config.Debug then VE.dframe(frame, 0.0, 1.0, 1.0, 0.2) end
 
