@@ -115,6 +115,39 @@ local function UpdateTargetOfFocus()
 
 	module.plug.frame.targetOfFocus:Show()
 end
+	
+local function UpdateFocusDebuffs()
+	local guid = module.data.focusGUID
+	if not guid or not UnitExists(guid) then
+		if module.plug.frame.debuffs then
+			for i = 1, 16 do
+				module.plug.frame.debuffs[i]:Hide()
+			end
+		end
+		return
+	end
+
+	for i = 1, 16 do
+		local button = module.plug.frame.debuffs[i]
+		local texture, applications, debuffType = UnitDebuff(guid, i)
+
+		if texture then
+			button.texture:SetTexture(texture)
+			if applications and applications > 1 then
+				button.count:SetText(applications)
+				button.count:Show()
+			else
+				button.count:Hide()
+			end
+
+			local color = DebuffTypeColor[debuffType or "none"] or DebuffTypeColor["none"]
+			button.border:SetVertexColor(color.r, color.g, color.b)
+			button:Show()
+		else
+			button:Hide()
+		end
+	end
+end
 
 local function UpdateFocusFrame()
 	local guid = module.data.focusGUID
@@ -130,6 +163,7 @@ local function UpdateFocusFrame()
 	UpdateFocusClassification()
 	UpdateFocusBars()
 	UpdateTargetOfFocus()
+	UpdateFocusDebuffs()
 	module.plug.frame:Show()
 end
 
@@ -236,12 +270,28 @@ local function InitializeFocusFrame()
 		button.texture:SetAllPoints()
 		button.texture:SetTexture("Interface\\Icons\\Temp")
 
+		button.count = button:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+		button.count:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -1, 1)
+		button.count:SetTextColor(1, 1, 1)
+		button.count:Hide()
+
 		button.border = button:CreateTexture(nil, "OVERLAY")
 		button.border:SetWidth(auraSize + 2)
 		button.border:SetHeight(auraSize + 2)
 		button.border:SetPoint("CENTER", button, "CENTER", 0, 0)
 		button.border:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays")
 		button.border:SetTexCoord(0.296875, 0.5703125, 0, 0.515625)
+
+		button.id = i
+		button:SetScript("OnEnter", function()
+			if module.data.focusGUID then
+				GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT")
+				GameTooltip:SetUnitDebuff(module.data.focusGUID, this.id)
+			end
+		end)
+		button:SetScript("OnLeave", function()
+			GameTooltip:Hide()
+		end)
 
 		module.plug.frame.debuffs[i] = button
 	end
@@ -313,6 +363,7 @@ local function InitializeFocusFrame()
 
 		UpdateFocusBars()
 		UpdateTargetOfFocus()
+		UpdateFocusDebuffs()
 	end)
 
 end
