@@ -4,13 +4,13 @@
 
 	<Frame name="MiniPlayerDebuff" virtual="true">
 		<Size>
-			<AbsDimension x="24" y="24"/>
+			<AbsDimension x="20" y="20"/>
 		</Size>
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture name="$parentTexture" file="Interface\Icons\Spell_Nature_ResistNature">
 					<Size>
-						<AbsDimension x="24" y="24"/>
+						<AbsDimension x="20" y="20"/>
 					</Size>
 					<Anchors>
 						<Anchor point="CENTER">

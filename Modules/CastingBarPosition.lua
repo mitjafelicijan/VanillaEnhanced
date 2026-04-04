@@ -7,11 +7,9 @@ local module = VE.registerModule({
 	plug = nil,
 	superWoWRequired = false,
 	config = {
-		offsetPercentage = 44,
-		offset = 280,
+		offset = -200,
 	},
 	data = {
-		offset = 0,
 		finishTime = 0,
 		casting = false,
 	},
@@ -24,19 +22,14 @@ if not VE.superWoWCheck(module) then
 end
 
 local function AdjustCastingBarPosition()
-	CastingBarFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, module.data.offset)
+	CastingBarFrame:ClearAllPoints()
+	CastingBarFrame:SetPoint("CENTER", UIParent, "CENTER", 0, module.config.offset)
 end
 
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterAllEvents()
 module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
-
-	if event == "PLAYER_ENTERING_WORLD" then
-		local half = GetScreenHeight() / 2
-		module.data.offset = math.ceil(half - ((half / 100) * module.config.offsetPercentage))
-		-- module.data.offset = module.config.offset
-	end
 
 	if event == "SPELLCAST_START" or event == "SPELLCAST_CHANNEL_START" then
 		local duration = tonumber(arg2)
@@ -80,7 +73,8 @@ module.plug:SetScript("OnUpdate", function()
 
 	-- Update the casting bar position
 	if CastingBarFrame:IsShown() then
-		CastingBarFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, module.data.offset)
+		CastingBarFrame:ClearAllPoints()
+		CastingBarFrame:SetPoint("CENTER", UIParent, "CENTER", 0, module.config.offset)
 	end
 
 	-- This fixes casting bar sometimes staying visible if SPELLCAST_STOP, etc

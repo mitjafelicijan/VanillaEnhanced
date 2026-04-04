@@ -7,12 +7,12 @@ local module = VE.registerModule({
 	plug = nil,
 	superWoWRequired = false,
 	config = {
-		offset= -140,
+		offset= -154,
 		maxAuras = 8,
 		columns = 4,
 		rows = 2,
 		auraPadding = 4,
-		auraSize = 32,
+		auraSize = 28,
 	},
 	data = {},
 })
