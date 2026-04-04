@@ -158,8 +158,6 @@ Uses Arcane Intellect on target normally, but Arcane Brilliance if in a party or
 | `/stopattack` | | Stops auto-attacking. |
 | `/targetlasttarget` | | Re-targets your previous selection. |
 | `/targetmouseoverunit`| | Targets the unit currently under your mouse. |
-| `/mcast [spell]` | | Casts a spell on your mouseover unit (Legacy). |
-| `/dcast [spell]` | | Casts a spell with a short delay (Legacy). |
 | `/sa` | `/sandbox` | Debugging tool (currently empty). |
 | `/startattack` | | Starts auto-attacking the current target. |
 | `/stopattack` | | Stops auto-attacking. |

@@ -262,36 +262,6 @@ module.plug:SetScript("OnEvent", function()
 		VE.printf("Item not found: %s", itemName)
 	end
 
-	-- OBSOLETE: This is replaced with macros now.
-	SLASH_MCAST1 = "/mcast"
-	SlashCmdList["MCAST"] = function(msg)
-		local spell = msg or nil
-		local unit = GetMouseFocus() and GetMouseFocus().unit
-		if not unit or not spell then return end
-
-		CastSpellByName(spell)
-		if SpellIsTargeting() then
-			SpellTargetUnit(unit)
-		end
-	end
-
-	-- OBSOLETE: This is replaced with macros now.
-	SLASH_DCAST1 = "/dcast"
-	SlashCmdList["DCAST"] = function(msg, editbox)
-		VE.executeWithDelay(2, function()
-			-- Attempt to cast the spell
-			local success = CastSpellByName(msg)
-
-			-- Check if the cast was successful
-			if not success then
-				VE.print("Failed to cast " .. msg)
-			else
-				VE.print("Successfully cast " .. msg)
-			end
-
-		end)
-	end
-
 	SLASH_TARGETLASTTARGET1 = "/targetlasttarget"
 	SlashCmdList["TARGETLASTTARGET"] = function()
 		TargetUnit("playertarget")
