@@ -54,12 +54,6 @@ VE.panels.AuraTracking = function(parent)
 		end
 		local data = VanillaEnhancedData["AuraTrackerSlots"][index]
 
-		-- Slot Number
-		local slotText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-		slotText:SetPoint("TOPLEFT", x - 15, rowY - 7)
-		slotText:SetText(index)
-		slotText:SetTextColor(0.5, 0.5, 0.5)
-
 		-- Name
 		VE.elements.InputArea(frame, x, rowY, 145, 25, nil, nil, nil, data.name, 50, function(text)
 			data.name = text
@@ -117,7 +111,7 @@ VE.panels.AuraTracking = function(parent)
 	-- Help text
 	local help = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	help:SetPoint("BOTTOMLEFT", 20, 20)
-	help:SetText("S = Show Stacks, D = Show Duration (Requires SuperWoW for timers)")
+	help:SetText("S = Show Stacks, D = Show Duration")
 
 	if VE.config.Debug then VE.dframe(frame, 0.0, 1.0, 1.0, 0.2) end
 
