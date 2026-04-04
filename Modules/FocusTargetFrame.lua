@@ -12,7 +12,6 @@ local module = VE.registerModule({
 		focusName = nil,
 		focusLevel = nil,
 		focusClass = nil,
-		targetOfFocusGUID = nil,
 	},
 })
 
@@ -22,6 +21,7 @@ if not VE.superWoWCheck(module) then
 	return
 end
 
+-- Main Container
 module.plug = CreateFrame("Frame", "VE_FocusFrame", UIParent)
 module.plug:SetPoint("CENTER", UIParent, "CENTER", 250, 100)
 module.plug:SetWidth(232)
@@ -44,45 +44,52 @@ module.plug:SetScript("OnMouseDown", function()
 	end
 end)
 
--- Create components
-module.plug.texture = module.plug:CreateTexture(nil, "ARTWORK")
-module.plug.texture:SetAllPoints(module.plug)
-module.plug.texture:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\UI-TargetingFrame")
-
+-- Level 1: Background and Portrait (behind everything)
 module.plug.portrait = module.plug:CreateTexture(nil, "BACKGROUND")
 module.plug.portrait:SetWidth(64)
 module.plug.portrait:SetHeight(64)
-module.plug.portrait:SetPoint("TOPLEFT", 7, -6)
+module.plug.portrait:SetPoint("TOPRIGHT", -42, -12)
 
 module.plug.model = CreateFrame("PlayerModel", nil, module.plug)
 module.plug.model:SetWidth(64)
 module.plug.model:SetHeight(64)
-module.plug.model:SetPoint("TOPLEFT", 7, -6)
+module.plug.model:SetPoint("TOPRIGHT", -42, -12)
+module.plug.model:SetFrameLevel(module.plug:GetFrameLevel())
 
-module.plug.name = module.plug:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-module.plug.name:SetPoint("TOPLEFT", 116, -18)
+-- Level 2: Status Bars (middle layer)
+module.plug.healthBar = CreateFrame("StatusBar", nil, module.plug)
+module.plug.healthBar:SetFrameLevel(module.plug:GetFrameLevel() + 1)
+module.plug.healthBar:SetWidth(119)
+module.plug.healthBar:SetHeight(30) -- Big style
+module.plug.healthBar:SetPoint("TOPLEFT", 7, -22)
+module.plug.healthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+
+module.plug.manaBar = CreateFrame("StatusBar", nil, module.plug)
+module.plug.manaBar:SetFrameLevel(module.plug:GetFrameLevel() + 1)
+module.plug.manaBar:SetWidth(119)
+module.plug.manaBar:SetHeight(12)
+module.plug.manaBar:SetPoint("TOPLEFT", 7, -52)
+module.plug.manaBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+
+-- Level 3: Overlay (Frame Texture and Text on top)
+module.plug.overlay = CreateFrame("Frame", nil, module.plug)
+module.plug.overlay:SetAllPoints(module.plug)
+module.plug.overlay:SetFrameLevel(module.plug:GetFrameLevel() + 2)
+
+module.plug.texture = module.plug.overlay:CreateTexture(nil, "ARTWORK")
+module.plug.texture:SetAllPoints(module.plug.overlay)
+module.plug.texture:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\UI-TargetingFrame")
+
+module.plug.name = module.plug.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+module.plug.name:SetPoint("TOPLEFT", 10, -19)
 module.plug.name:SetJustifyH("LEFT")
 module.plug.name:SetWidth(100)
 module.plug.name:SetHeight(10)
 
-module.plug.level = module.plug:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-module.plug.level:SetPoint("CENTER", 70, -32)
+module.plug.level = module.plug.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+module.plug.level:SetPoint("TOPLEFT", 114, -19)
 
-module.plug.healthBar = CreateFrame("StatusBar", nil, module.plug)
-module.plug.healthBar:SetWidth(119)
-module.plug.healthBar:SetHeight(12)
-module.plug.healthBar:SetPoint("TOPLEFT", 106, -41)
-module.plug.healthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-module.plug.healthBar:SetStatusBarColor(0, 1, 0)
-
-module.plug.manaBar = CreateFrame("StatusBar", nil, module.plug)
-module.plug.manaBar:SetWidth(119)
-module.plug.manaBar:SetHeight(12)
-module.plug.manaBar:SetPoint("TOPLEFT", 106, -52)
-module.plug.manaBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-module.plug.manaBar:SetStatusBarColor(0, 0, 1)
-
--- Target of Focus Frame
+-- Target of Focus Frame (Small frame)
 module.plug.targetOfFocus = CreateFrame("Button", "VE_TargetOfFocusFrame", module.plug)
 module.plug.targetOfFocus:SetWidth(93)
 module.plug.targetOfFocus:SetHeight(45)
@@ -97,7 +104,6 @@ module.plug.targetOfFocus.name = module.plug.targetOfFocus:CreateFontString(nil,
 module.plug.targetOfFocus.name:SetPoint("BOTTOMLEFT", 42, 5)
 module.plug.targetOfFocus.name:SetJustifyH("LEFT")
 module.plug.targetOfFocus.name:SetWidth(45)
-module.plug.targetOfFocus.name:SetHeight(10)
 
 module.plug.targetOfFocus.portrait = module.plug.targetOfFocus:CreateTexture(nil, "BACKGROUND")
 module.plug.targetOfFocus.portrait:SetWidth(35)
@@ -109,19 +115,17 @@ module.plug.targetOfFocus.healthBar:SetWidth(46)
 module.plug.targetOfFocus.healthBar:SetHeight(7)
 module.plug.targetOfFocus.healthBar:SetPoint("TOPLEFT", 43, -15)
 module.plug.targetOfFocus.healthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-module.plug.targetOfFocus.healthBar:SetStatusBarColor(0, 1, 0)
 
 module.plug.targetOfFocus.manaBar = CreateFrame("StatusBar", nil, module.plug.targetOfFocus)
 module.plug.targetOfFocus.manaBar:SetWidth(46)
 module.plug.targetOfFocus.manaBar:SetHeight(7)
 module.plug.targetOfFocus.manaBar:SetPoint("TOPLEFT", 43, -23)
 module.plug.targetOfFocus.manaBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-module.plug.targetOfFocus.manaBar:SetStatusBarColor(0, 0, 1)
 
 module.plug.targetOfFocus:SetScript("OnClick", function()
 	local guid = module.data.focusGUID
 	if guid then
-		local _, targetOfFocusGUID = UnitExists(guid .. "target")
+		local exists, targetOfFocusGUID = UnitExists(guid .. "target")
 		if targetOfFocusGUID then
 			TargetUnit(targetOfFocusGUID)
 		end
@@ -130,9 +134,7 @@ end)
 
 local function UpdateFocusClassification()
 	if not module.data.focusGUID then return end
-	
 	local classification = UnitClassification(module.data.focusGUID)
-	
 	if classification == "worldboss" or classification == "elite" or classification == "rareelite" then
 		module.plug.texture:SetTexture("Interface\\AddOns\\VanillaEnhanced\\Assets\\UI-TargetingFrame-Elite")
 	elseif classification == "rare" then
@@ -166,12 +168,14 @@ local function UpdateFocusBars()
 		module.plug.manaBar:SetStatusBarColor(VE.config.PowerColors.Energy.r, VE.config.PowerColors.Energy.g, VE.config.PowerColors.Energy.b)
 	end
 
-	-- Class colors for health if applicable
+	-- Class colors
 	if VE.isModuleEnabled("BigPlayerFrame") and VE.isOptionEnabled("BigPlayerFrameClassColors") then
 		local class = module.data.focusClass
 		local color = VE.config.ClassColors[class]
 		if color then
 			module.plug.healthBar:SetStatusBarColor(color.r, color.g, color.b)
+		else
+			module.plug.healthBar:SetStatusBarColor(0, 1, 0)
 		end
 	else
 		module.plug.healthBar:SetStatusBarColor(0, 1, 0)
@@ -233,7 +237,6 @@ end
 module.plug:SetScript("OnUpdate", function()
 	if not module.data.focusGUID then return end
 	
-	-- Throttle updates to ~10fps
 	this.elapsed = (this.elapsed or 0) + arg1
 	if this.elapsed < 0.1 then return end
 	this.elapsed = 0
@@ -254,7 +257,6 @@ module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 
 	if event == "PLAYER_ENTERING_WORLD" then
-		-- Slash commands
 		SLASH_VE_FOCUS1 = "/focus"
 		SLASH_VE_FOCUS2 = "/focustarget"
 		SlashCmdList["VE_FOCUS"] = function()
