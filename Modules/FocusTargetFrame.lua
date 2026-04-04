@@ -115,7 +115,7 @@ local function UpdateTargetOfFocus()
 
 	module.plug.frame.targetOfFocus:Show()
 end
-	
+
 local function UpdateFocusDebuffs()
 	local guid = module.data.focusGUID
 	if not guid or not UnitExists(guid) then
@@ -242,12 +242,14 @@ local function InitializeFocusFrame()
 
 	module.plug.frame.name = module.plug.frame.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	module.plug.frame.name:SetPoint("TOPLEFT", 34, -28)
-	module.plug.frame.name:SetJustifyH("CENTER")
+	module.plug.frame.name:SetJustifyH("LEFT")
 	module.plug.frame.name:SetWidth(100)
 	module.plug.frame.name:SetHeight(10)
 
 	module.plug.frame.level = module.plug.frame.overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	module.plug.frame.level:SetPoint("TOPLEFT", 196, -62)
+	module.plug.frame.level:SetPoint("TOPLEFT", 193, -62)
+	module.plug.frame.level:SetWidth(20)
+	module.plug.frame.level:SetJustifyH("CENTER")
 
 	-- Debuffs (4x4 Grid)
 	module.plug.frame.debuffs = {}
