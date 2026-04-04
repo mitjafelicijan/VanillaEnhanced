@@ -1,8 +1,8 @@
 local module = VE.registerModule({
 	identifier = "FocusTargetFrame",
 	meta = {
-		label = "FocusTargetFrame",
-		description = "Adds a focus target frame using SuperWoW GUID capabilities.",
+		label = "Focus Target Frame",
+		description = "Adds a focus target frame that tracks your current focus's health, mana, and target.",
 	},
 	plug = nil,
 	superWoWRequired = true,
