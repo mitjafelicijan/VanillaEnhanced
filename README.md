@@ -146,7 +146,7 @@ Uses Arcane Intellect on target normally, but Arcane Brilliance if in a party or
 | `/rp [arg]` | `/raidpullout` | Manages raid pullout frames (`show`, `hide`, `reload`). |
 | `/reset` | `/resetinstances` | Resets all active instances. |
 | `/dismount` | | Automatically finds and cancels your mount aura. |
-| `/cancelform` | | Cancels Druid shapeshift forms or Priest Shadowform. |
+| `/cancelform` | | Cancels Druid forms, Priest Shadowform, or Shaman Spirit Wolf. |
 | `/bearform` | | Enters Druid Bear Form. |
 | `/aquaticform` | | Enters Druid Aquatic Form. |
 | `/catform` | | Enters Druid Cat Form. |
@@ -156,10 +156,8 @@ Uses Arcane Intellect on target normally, but Arcane Brilliance if in a party or
 | `/equipslot [id] [item]` | | Equips an item by name into a specific slot ID. |
 | `/feedpet [food]` | | Feeds the specified food to your hunter pet. |
 | `/cleartarget` | | Clears your current selection. |
-| `/stopattack` | | Stops auto-attacking. |
 | `/targetlasttarget` | | Re-targets your previous selection. |
 | `/targetmouseoverunit`| | Targets the unit currently under your mouse. |
-| `/sa` | `/sandbox` | Debugging tool (currently empty). |
 | `/startattack` | | Starts auto-attacking the current target. |
 | `/stopattack` | | Stops auto-attacking. |
 | `/stopcasting` | | Interrupts your current spell cast. |
