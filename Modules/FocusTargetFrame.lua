@@ -89,7 +89,7 @@ module.plug.level:SetPoint("TOPLEFT", 196, -62)
 module.plug.targetOfFocus = CreateFrame("Button", "VE_TargetOfFocusFrame", module.plug)
 module.plug.targetOfFocus:SetWidth(126)
 module.plug.targetOfFocus:SetHeight(64)
-module.plug.targetOfFocus:SetPoint("TOPLEFT", module.plug, "BOTTOMRIGHT", -134, 64)
+module.plug.targetOfFocus:SetPoint("TOPLEFT", module.plug, "BOTTOMRIGHT", -130, 64)
 module.plug.targetOfFocus:Hide()
 
 module.plug.targetOfFocus.portrait = module.plug.targetOfFocus:CreateTexture(nil, "BACKGROUND")
@@ -206,7 +206,7 @@ local function UpdateTargetOfFocus()
 
 	module.plug.targetOfFocus.name:SetText(UnitName(guid .. "target"))
 	SetPortraitTexture(module.plug.targetOfFocus.portrait, guid .. "target")
-	
+
 	local health = UnitHealth(guid .. "target")
 	local healthMax = UnitHealthMax(guid .. "target")
 	module.plug.targetOfFocus.healthBar:SetMinMaxValues(0, healthMax)
@@ -243,7 +243,7 @@ local function UpdateFocusFrame()
 	module.plug.name:SetText(module.data.focusName or "Unknown")
 	module.plug.level:SetText(module.data.focusLevel or "??")
 	SetPortraitTexture(module.plug.portrait, guid)
-	
+
 	UpdateFocusClassification()
 	UpdateFocusBars()
 	UpdateTargetOfFocus()
@@ -252,7 +252,7 @@ end
 
 module.plug:SetScript("OnUpdate", function()
 	if not module.data.focusGUID then return end
-	
+
 	this.elapsed = (this.elapsed or 0) + arg1
 	if this.elapsed < 0.1 then return end
 	this.elapsed = 0
@@ -262,7 +262,7 @@ module.plug:SetScript("OnUpdate", function()
 		module.data.focusGUID = nil
 		return
 	end
-	
+
 	UpdateFocusBars()
 	UpdateTargetOfFocus()
 end)
@@ -275,7 +275,8 @@ module.plug:SetScript("OnEvent", function()
 	if event == "PLAYER_ENTERING_WORLD" then
 		SLASH_VE_FOCUS1 = "/focus"
 		SLASH_VE_FOCUS2 = "/focustarget"
-		SlashCmdList["VE_FOCUS"] = function()
+
+		_G["VE_SetFocus"] = function()
 			local exists, guid = UnitExists("target")
 			if guid then
 				module.data.focusGUID = guid
@@ -289,12 +290,15 @@ module.plug:SetScript("OnEvent", function()
 				module.plug:Hide()
 			end
 		end
+		SlashCmdList["VE_FOCUS"] = _G["VE_SetFocus"]
 
 		SLASH_VE_CLEARFOCUS1 = "/clearfocus"
-		SlashCmdList["VE_CLEARFOCUS"] = function()
+
+		_G["VE_ClearFocus"] = function()
 			module.data.focusGUID = nil
 			module.plug:Hide()
 		end
+		SlashCmdList["VE_CLEARFOCUS"] = _G["VE_ClearFocus"]
 
 		UpdateFocusFrame()
 	end

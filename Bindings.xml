@@ -14,4 +14,12 @@
 	<Binding name="VE_USE_TRINKET2" header="VE_ADDON_BINDINGS">
 		UseTrinket2()
 	</Binding>
+
+	<Binding name="VE_SET_FOCUS" header="VE_ADDON_BINDINGS">
+		VE_SetFocus()
+	</Binding>
+
+	<Binding name="VE_CLEAR_FOCUS" header="VE_ADDON_BINDINGS">
+		VE_ClearFocus()
+	</Binding>
 </Bindings>
