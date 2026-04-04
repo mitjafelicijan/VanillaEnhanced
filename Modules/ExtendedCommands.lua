@@ -174,7 +174,7 @@ module.plug:SetScript("OnEvent", function()
 			if buffTexture ~= nil then
 				startPos, endPos = string.find(buffTexture, "Spell_Shadow_Shadowform")
 				if startPos ~= nil and endPos ~= nil then CancelPlayerBuff(i) end
-				
+
 				startPos, endPos = string.find(buffTexture, "Spell_Nature_SpiritWolf")
 				if startPos ~= nil and endPos ~= nil then CancelPlayerBuff(i) end
 			end
@@ -229,11 +229,29 @@ module.plug:SetScript("OnEvent", function()
 	-- 17 = Off Hand
 	-- 18 = Ranged
 	SLASH_EQUIP1 = "/equip"
-	SlashCmdList["EQUIP"] = function(msg, editbox)
+	SlashCmdList["EQUIP"] = function(msg)
+		local searchName = string.lower(msg)
+		for bagID = 0, NUM_BAG_SLOTS do
+			for slotIndex = 1, GetContainerNumSlots(bagID) do
+				local link = GetContainerItemLink(bagID, slotIndex)
+				if link then
+					local itemText = string.lower(link)
+					if string.find(itemText, searchName, 1, 1) then
+						UseContainerItem(bagID, slotIndex)
+						return
+					end
+				end
+			end
+		end
+		VE.printf("Item not found: %s", msg)
+	end
+
+	SLASH_EQUIPSLOT1 = "/equipslot"
+	SlashCmdList["EQUIPSLOT"] = function(msg)
 		local _, _, slotText, itemName = string.find(msg, "^(%d+)%s+(.+)$")
 
 		if not slotText or not itemName then
-			DEFAULT_CHAT_FRAME:AddMessage("Usage: /equip slotid item name")
+			DEFAULT_CHAT_FRAME:AddMessage("Usage: /equipslot slotid item name")
 			return
 		end
 
@@ -244,11 +262,9 @@ module.plug:SetScript("OnEvent", function()
 		end
 
 		local searchName = string.lower(itemName)
-
 		for bagID = 0, NUM_BAG_SLOTS do
 			for slotIndex = 1, GetContainerNumSlots(bagID) do
 				local link = GetContainerItemLink(bagID, slotIndex)
-
 				if link then
 					local itemText = string.lower(link)
 					if string.find(itemText, searchName, 1, 1) then

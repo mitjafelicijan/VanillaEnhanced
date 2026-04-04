@@ -152,7 +152,8 @@ Uses Arcane Intellect on target normally, but Arcane Brilliance if in a party or
 | `/catform` | | Enters Druid Cat Form. |
 | `/travelform` | | Enters Druid Travel Form. |
 | `/use [item]` | | Searches bags for an item by name and uses it. |
-| `/equip [id] [item]` | | Equips an item by name into a specific slot ID. |
+| `/equip [item]` | | Searches bags for an item by name and equips it. |
+| `/equipslot [id] [item]` | | Equips an item by name into a specific slot ID. |
 | `/feedpet [food]` | | Feeds the specified food to your hunter pet. |
 | `/cleartarget` | | Clears your current selection. |
 | `/stopattack` | | Stops auto-attacking. |
