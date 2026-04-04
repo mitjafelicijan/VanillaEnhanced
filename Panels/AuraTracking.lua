@@ -5,43 +5,43 @@ VE.panels.AuraTracking = function(parent)
 	local module = VE.getModule("AuraTracker")
 	if not module then return frame end
 
-	-- Header / Enable
-	do
-		local cb = VE.elements.Checkbox(frame, 20, -10, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-			if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-		end, module.superWoWRequired)
-	end
+	-- Header / Enable - Aligned with other modules at -20
+	VE.elements.Checkbox(frame, 20, -20, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+		if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+	end, module.superWoWRequired)
 
 	if not VanillaEnhancedData["AuraTrackerSlots"] then
 		VanillaEnhancedData["AuraTrackerSlots"] = {}
 	end
 
 	-- Column Labels
+	local headerY = -55
 	local l1 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	l1:SetPoint("TOPLEFT", 25, -45)
+	l1:SetPoint("TOPLEFT", 25, headerY)
 	l1:SetText("Spell Name")
 	
 	local l2 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	l2:SetPoint("TOPLEFT", 170, -45)
+	l2:SetPoint("TOPLEFT", 175, headerY)
 	l2:SetText("Condition")
 
 	local l3 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	l3:SetPoint("TOPLEFT", 270, -45)
+	l3:SetPoint("TOPLEFT", 285, headerY)
 	l3:SetText("Target")
 
 	local l4 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	l4:SetPoint("TOPLEFT", 370, -45)
+	l4:SetPoint("TOPLEFT", 385, headerY)
 	l4:SetText("Type")
 
 	local l5 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	l5:SetPoint("TOPLEFT", 465, -45)
+	l5:SetPoint("TOPLEFT", 475, headerY)
 	l5:SetText("S")
 	
 	local l6 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	l6:SetPoint("TOPLEFT", 490, -45)
+	l6:SetPoint("TOPLEFT", 500, headerY)
 	l6:SetText("D")
 
-	local function CreateSlotUI(index, x, y)
+	local function CreateSlotUI(index, rowY)
+		local x = 20
 		if not VanillaEnhancedData["AuraTrackerSlots"][index] then
 			VanillaEnhancedData["AuraTrackerSlots"][index] = {
 				name = "",
@@ -56,17 +56,17 @@ VE.panels.AuraTracking = function(parent)
 
 		-- Slot Number
 		local slotText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-		slotText:SetPoint("TOPLEFT", x - 15, y - 7)
+		slotText:SetPoint("TOPLEFT", x - 15, rowY - 7)
 		slotText:SetText(index)
 		slotText:SetTextColor(0.5, 0.5, 0.5)
 
 		-- Name
-		VE.elements.InputArea(frame, x, y, 140, 25, nil, nil, nil, data.name, 50, function(text)
+		VE.elements.InputArea(frame, x, rowY, 145, 25, nil, nil, nil, data.name, 50, function(text)
 			data.name = text
 		end)
 
-		-- Show When
-		VE.elements.DropDown(frame, x + 150, y + 10, 80, nil, data.showWhen, {
+		-- Show When (Condition)
+		VE.elements.DropDown(frame, x + 175, rowY + 2, 90, nil, data.showWhen, {
 			{ text = "Present", key = "present" },
 			{ text = "Missing", key = "missing" },
 		}, function(key)
@@ -74,7 +74,7 @@ VE.panels.AuraTracking = function(parent)
 		end)
 
 		-- Target
-		VE.elements.DropDown(frame, x + 250, y + 10, 80, nil, data.target, {
+		VE.elements.DropDown(frame, x + 285, rowY + 2, 85, nil, data.target, {
 			{ text = "Player", key = "player" },
 			{ text = "Target", key = "target" },
 		}, function(key)
@@ -82,26 +82,28 @@ VE.panels.AuraTracking = function(parent)
 		end)
 
 		-- Type
-		VE.elements.DropDown(frame, x + 350, y + 10, 80, nil, data.type, {
+		VE.elements.DropDown(frame, x + 385, rowY + 2, 75, nil, data.type, {
 			{ text = "Buff", key = "buff" },
 			{ text = "Debuff", key = "debuff" },
 		}, function(key)
 			data.type = key
 		end)
 
-		-- Stacks
+		-- Stacks (S)
 		local stacks = CreateFrame("CheckButton", "VEAuraSlotStacks"..index, frame, "UICheckButtonTemplate")
-		stacks:SetPoint("TOPLEFT", x + 442, y + 4)
-		stacks:SetScale(0.7)
+		stacks:SetWidth(24)
+		stacks:SetHeight(24)
+		stacks:SetPoint("TOPLEFT", x + 452, rowY - 1)
 		stacks:SetChecked(data.showStacks)
 		stacks:SetScript("OnClick", function() 
 			data.showStacks = this:GetChecked() and true or false 
 		end)
 		
-		-- Duration
+		-- Duration (D)
 		local duration = CreateFrame("CheckButton", "VEAuraSlotDuration"..index, frame, "UICheckButtonTemplate")
-		duration:SetPoint("TOPLEFT", x + 467, y + 4)
-		duration:SetScale(0.7)
+		duration:SetWidth(24)
+		duration:SetHeight(24)
+		duration:SetPoint("TOPLEFT", x + 477, rowY - 1)
 		duration:SetChecked(data.showDuration)
 		duration:SetScript("OnClick", function() 
 			data.showDuration = this:GetChecked() and true or false 
@@ -109,7 +111,7 @@ VE.panels.AuraTracking = function(parent)
 	end
 
 	for i = 1, 8 do
-		CreateSlotUI(i, 20, -60 - (i-1) * 38)
+		CreateSlotUI(i, -80 - (i-1) * 35)
 	end
 
 	-- Help text
