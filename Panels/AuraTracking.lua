@@ -15,21 +15,21 @@ VE.panels.AuraTracking = function(parent)
 	end
 
 	-- Column Labels
-	local headerY = -55
+	local headerY = -60
 	local l1 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	l1:SetPoint("TOPLEFT", 25, headerY)
 	l1:SetText("Spell Name")
 
 	local l2 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	l2:SetPoint("TOPLEFT", 175, headerY)
+	l2:SetPoint("TOPLEFT", 225, headerY)
 	l2:SetText("Condition")
 
 	local l3 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	l3:SetPoint("TOPLEFT", 285, headerY)
+	l3:SetPoint("TOPLEFT", 335, headerY)
 	l3:SetText("Target")
 
 	local l4 = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	l4:SetPoint("TOPLEFT", 385, headerY)
+	l4:SetPoint("TOPLEFT", 435, headerY)
 	l4:SetText("Type")
 
 	local function CreateSlotUI(index, rowY)
@@ -45,12 +45,12 @@ VE.panels.AuraTracking = function(parent)
 		local data = VanillaEnhancedData["AuraTrackerSlots"][index]
 
 		-- Name
-		VE.elements.InputArea(frame, x, rowY, 145, 25, nil, nil, nil, data.name, 50, function(text)
+		VE.elements.InputArea(frame, x, rowY, 195, 25, nil, nil, nil, data.name, 50, function(text)
 			data.name = text
 		end)
 
 		-- Show When (Condition)
-		VE.elements.DropDown(frame, x + 150, rowY + 2, 90, nil, data.showWhen, {
+		VE.elements.DropDown(frame, x + 200, rowY + 2, 90, nil, data.showWhen, {
 			{ text = "Present", key = "present" },
 			{ text = "Missing", key = "missing" },
 		}, function(key)
@@ -58,7 +58,7 @@ VE.panels.AuraTracking = function(parent)
 		end)
 
 		-- Target
-		VE.elements.DropDown(frame, x + 255 + 2, rowY + 2, 85, nil, data.target, {
+		VE.elements.DropDown(frame, x + 305 + 2, rowY + 2, 85, nil, data.target, {
 			{ text = "Player", key = "player" },
 			{ text = "Target", key = "target" },
 		}, function(key)
@@ -66,7 +66,7 @@ VE.panels.AuraTracking = function(parent)
 		end)
 
 		-- Type
-		VE.elements.DropDown(frame, x + 355 + 4, rowY + 2, 75, nil, data.type, {
+		VE.elements.DropDown(frame, x + 405 + 4, rowY + 2, 75, nil, data.type, {
 			{ text = "Buff", key = "buff" },
 			{ text = "Debuff", key = "debuff" },
 		}, function(key)
