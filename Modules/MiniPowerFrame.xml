@@ -66,7 +66,7 @@
 		<Size x="120" y="40"/>
 		<Anchors>
 			<Anchor point="Center" relativePoint="Center" relativeTo="UIParent">
-				<Offset x="0" y="-110" />
+				<Offset x="0" y="-90" />
 			</Anchor>
 		</Anchors>
 

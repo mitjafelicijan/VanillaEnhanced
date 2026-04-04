@@ -7,13 +7,12 @@ local module = VE.registerModule({
 	plug = nil,
 	superWoWRequired = false,
 	config = {
-		offsetPercentage = 60,
-		offsetPosition = "bottom", -- [top, bottom]
+		offset= -140,
 		maxAuras = 8,
 		columns = 4,
 		rows = 2,
 		auraPadding = 4,
-		auraSize = 48,
+		auraSize = 32,
 	},
 	data = {},
 })
@@ -28,7 +27,7 @@ local function GetAuraSlotData(index)
 	if not VanillaEnhancedData["AuraTrackerSlots"] then
 		VanillaEnhancedData["AuraTrackerSlots"] = {}
 	end
-	
+
 	if not VanillaEnhancedData["AuraTrackerSlots"][index] then
 		VanillaEnhancedData["AuraTrackerSlots"][index] = {
 			name = "",
@@ -39,24 +38,24 @@ local function GetAuraSlotData(index)
 			showDuration = true,
 		}
 	end
-	
+
 	return VanillaEnhancedData["AuraTrackerSlots"][index]
 end
 
 local function GetAuraStatus(slotData)
 	if not slotData.name or slotData.name == "" then return nil end
-	
+
 	local target = slotData.target or "player"
-	
+
 	-- Get target texture for the spell name
 	local targetTexture = nil
 	local spells = VE.GetSpellInfoByName(slotData.name)
 	if VE.count(spells) > 0 then
 		targetTexture = spells[next(spells)].icon
 	end
-	
+
 	if not targetTexture then return nil end
-	
+
 	-- Search for the aura
 	for i = 1, 32 do
 		local texture, count, id, duration, timeLeft
@@ -65,9 +64,9 @@ local function GetAuraStatus(slotData)
 		else
 			texture, count, id, duration, timeLeft = UnitDebuff(target, i)
 		end
-		
+
 		if not texture then break end
-		
+
 		if texture == targetTexture then
 			return {
 				found = true,
@@ -81,7 +80,7 @@ local function GetAuraStatus(slotData)
 			}
 		end
 	end
-	
+
 	-- Not found
 	return {
 		found = false,
@@ -95,62 +94,60 @@ end
 local function GenerateEmptyFrames()
 	if module.plug.frame then return end
 
-	local half = GetScreenHeight() / 2
-	local offset = half - ((half / 100) * module.config.offsetPercentage)
-	if module.config.offsetPosition == "bottom" then offset = -offset end
-
 	local totalWidth = (module.config.columns * module.config.auraSize) + ((module.config.columns - 1) * module.config.auraPadding)
 	local totalHeight = (module.config.rows * module.config.auraSize) + ((module.config.rows - 1) * module.config.auraPadding)
 
 	module.plug.frame = CreateFrame("Frame", "AuraTracker", UIParent)
 	module.plug.frame:SetWidth(totalWidth)
 	module.plug.frame:SetHeight(totalHeight)
-	module.plug.frame:SetPoint("Center", UIParent, "Center", 0, offset)
+	module.plug.frame:SetPoint("Center", UIParent, "Center", 0, module.config.offset)
 	module.plug.frame:SetFrameStrata("BACKGROUND")
+
+	VE.dframe(module.plug.frame, 1, 0, 0, 1)
 
 	module.plug.frame.auras = {}
 	for i = 1, module.config.maxAuras do
 		local row = math.floor((i - 1) / module.config.columns)
 		local col = mod(i - 1, module.config.columns)
-		
+
 		local aura = CreateFrame("Frame", "AuraTrackerAura" .. i, module.plug.frame)
 		aura:SetWidth(module.config.auraSize)
 		aura:SetHeight(module.config.auraSize)
-		
+
 		local xOffset = (col * (module.config.auraSize + module.config.auraPadding))
 		local yOffset = -(row * (module.config.auraSize + module.config.auraPadding))
-		
+
 		aura:SetPoint("TopLeft", module.plug.frame, "TopLeft", xOffset, yOffset)
-		
+
 		aura.texture = aura:CreateTexture(nil, "BACKGROUND")
 		aura.texture:SetAllPoints(aura)
-		
+
 		aura.stacks = aura:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 		aura.stacks:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", -2, 2)
 		aura.stacks:SetFont("Fonts\\FRIZQT__.TTF", 14, "OUTLINE")
 		aura.stacks:SetTextColor(1, 1, 1)
-		
+
 		aura.duration = aura:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 		aura.duration:SetPoint("CENTER", aura, "CENTER", 0, 0)
 		aura.duration:SetFont("Fonts\\FRIZQT__.TTF", 16, "OUTLINE")
 		aura.duration:SetTextColor(1, 1, 0)
-		
+
 		table.insert(module.plug.frame.auras, aura)
 	end
 
-	module.plug.frame:Hide()
+	-- module.plug.frame:Hide()
 end
 
 local function UpdateAuraFrames()
 	if not module.plug.frame then return end
-	
+
 	local anyShown = false
-	
+
 	for i = 1, module.config.maxAuras do
 		local slotData = GetAuraSlotData(i)
 		local status = GetAuraStatus(slotData)
 		local frame = module.plug.frame.auras[i]
-		
+
 		local shouldShow = false
 		if status then
 			if status.showWhen == "present" and status.found then
@@ -159,17 +156,17 @@ local function UpdateAuraFrames()
 				shouldShow = true
 			end
 		end
-		
+
 		if shouldShow and status.texture then
 			frame.texture:SetTexture(status.texture)
-			
+
 			if status.showStacks and status.count and status.count > 1 then
 				frame.stacks:SetText(status.count)
 				frame.stacks:Show()
 			else
 				frame.stacks:Hide()
 			end
-			
+
 			if status.showDuration and status.timeLeft and status.timeLeft > 0 then
 				local val = math.floor(status.timeLeft)
 				if val > 60 then
@@ -181,14 +178,14 @@ local function UpdateAuraFrames()
 			else
 				frame.duration:Hide()
 			end
-			
+
 			frame:Show()
 			anyShown = true
 		else
 			frame:Hide()
 		end
 	end
-	
+
 	if anyShown then
 		module.plug.frame:Show()
 	else
@@ -211,7 +208,7 @@ local function MigrateData()
 					spellName = VE.trim(strsub(aura, 2))
 					showWhen = "missing"
 				end
-				
+
 				VanillaEnhancedData["AuraTrackerSlots"][i] = {
 					name = spellName,
 					showWhen = showWhen,
@@ -247,11 +244,11 @@ module.plug:SetScript("OnEvent", function()
 	if event == "PLAYER_ENTERING_WORLD" then
 		MigrateData()
 		GenerateEmptyFrames()
-		UpdateAuraFrames()
+		-- UpdateAuraFrames()
 	end
 
 	if event == "PLAYER_AURAS_CHANGED" or event == "PLAYER_TARGET_CHANGED" then
-		UpdateAuraFrames()
+		-- UpdateAuraFrames()
 	end
 end)
 
@@ -260,10 +257,10 @@ local lastUpdate = 0
 module.plug:SetScript("OnUpdate", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 	if not module.plug.frame or not module.plug.frame:IsShown() then return end
-	
+
 	lastUpdate = lastUpdate + arg1
 	if lastUpdate > 0.1 then
-		UpdateAuraFrames()
+		-- UpdateAuraFrames()
 		lastUpdate = 0
 	end
 end)
