@@ -309,6 +309,13 @@ module.plug:SetScript("OnEvent", function()
 		end
 	end
 
+	SLASH_STARTATTACK1 = "/startattack"
+	SlashCmdList["STARTATTACK"] = function()
+		if not IsCurrentAction(0) then
+			AttackTarget()
+		end
+	end
+
 	SLASH_STOPATTACK1 = "/stopattack"
 	SlashCmdList["STOPATTACK"] = function()
 		ClearTarget()
