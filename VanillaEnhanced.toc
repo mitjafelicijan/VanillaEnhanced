@@ -64,6 +64,7 @@ Modules\HideLuaErrors.lua
 Modules\HunterTargetDistance.lua
 Modules\ItemLevel.lua
 Modules\LastMessageOnly.lua
+Modules\LootAtCursor.lua
 Modules\LowHealth.lua
 Modules\MailboxEnhancements.lua
 Modules\MaintainDruidForms.lua

@@ -22,9 +22,14 @@ VE.panels.Automation = function(parent)
 		end
 	end
 
-	VE.elements.Checkbox(frame, 20, -90, 210, LOOT_AT_WINDOW_CURSOR_TEXT, OPTION_TOOLTIP_LOOT_AT_WINDOW_CURSOR, nil, VE.GetUVarAsBoolean("LOOT_WINDOW_AT_CURSOR"), function(checked)
-		VE.SetUVar("LOOT_WINDOW_AT_CURSOR", checked)
-	end)
+	do
+		local module = VE.getModule("LootAtCursor")
+		if module then
+			VE.elements.Checkbox(frame, 20, -90, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
 
 	do
 		local module = VE.getModule("AutoLoot")
