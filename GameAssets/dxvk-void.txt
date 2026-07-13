@@ -1,0 +1,14 @@
+Void installation guide
+
+	sudo xbps-install -S vulkan-loader-32bit gnutls-32bit
+
+	echo '/usr/lib32' | sudo tee /etc/ld.so.conf.d/lib32.conf
+	sudo ldconfig
+
+	lutris -d 2>&1 | grep -i -E 'i386|vulkan|gnutls'
+
+DXVK Environmental variables
+
+	DXVK_CONFIG=dxvk.conf
+	DXVK_FRAME_RATE=120
+	DXVK_HUD=full
