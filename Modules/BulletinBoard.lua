@@ -301,7 +301,7 @@ function BulletinBoard_Refresh()
 end
 
 local function CreateMultiSelectDropdown(name, parent, items, width)
-	local frame = CreateFrame("Button", name, parent, "UIDropDownMenuTemplate")
+	local frame = CreateFrame("Button", "VE_BulletinBoardDropdown", parent, "UIDropDownMenuTemplate")
 	frame:SetWidth(width or 150)
 	frame:SetHeight(44)
 
@@ -347,9 +347,11 @@ local function CreateMultiSelectDropdown(name, parent, items, width)
 	frame.timerFrame:SetScript("OnUpdate", function()
 		if not this.startTime then return end
 		if GetTime() - this.startTime > 0.01 then
-			this:SetScript("OnUpdate", nil)
+			local level = this.level or 1
+			local value = this.value
 			this.startTime = nil
-			ToggleDropDownMenu(1, nil, frame, frame:GetName(), 8, 7)
+			if not UIDROPDOWNMENU_OPEN_MENU then UIDROPDOWNMENU_OPEN_MENU = frame:GetName() end
+			ToggleDropDownMenu(level, value, frame, frame:GetName(), 8, 7)
 			this:Hide()
 		end
 	end)
@@ -362,6 +364,8 @@ local function CreateMultiSelectDropdown(name, parent, items, width)
 
 		-- Schedule menu reopen.
 		frame.timerFrame.startTime = GetTime()
+		frame.timerFrame.level = UIDROPDOWNMENU_MENU_LEVEL
+		frame.timerFrame.value = UIDROPDOWNMENU_MENU_VALUE
 		frame.timerFrame:Show()
 
 		UpdateListings()
@@ -369,16 +373,62 @@ local function CreateMultiSelectDropdown(name, parent, items, width)
 
 	-- Initialize the dropdown.
 	UIDropDownMenu_Initialize(frame, function()
-		for _, item in ipairs(items) do
-			local info = {
-				text = item.name,
-				value = item.id,
-				func = Dropdown_OnClick,
-				checked = module.data.selectedInstances[item.id],
-				isTitle = false,
-				notCheckable = false
-			}
-			UIDropDownMenu_AddButton(info)
+		local level = tonumber(UIDROPDOWNMENU_MENU_LEVEL) or 1
+		local value = UIDROPDOWNMENU_MENU_VALUE
+
+		if level == 1 then
+			local info = {}
+			info.text = "Dungeons (1-30)"
+			info.value = "DUNGEON_LOW"
+			info.hasArrow = true
+			info.notCheckable = true
+			UIDropDownMenu_AddButton(info, level)
+
+			info = {}
+			info.text = "Dungeons (31-50)"
+			info.value = "DUNGEON_MID"
+			info.hasArrow = true
+			info.notCheckable = true
+			UIDropDownMenu_AddButton(info, level)
+
+			info = {}
+			info.text = "Dungeons (51-60)"
+			info.value = "DUNGEON_HIGH"
+			info.hasArrow = true
+			info.notCheckable = true
+			UIDropDownMenu_AddButton(info, level)
+
+			info = {}
+			info.text = "Raids"
+			info.value = "RAID"
+			info.hasArrow = true
+			info.notCheckable = true
+			UIDropDownMenu_AddButton(info, level)
+		elseif level == 2 then
+			for _, item in ipairs(items) do
+				local match = false
+				local lv = tonumber(VE.find(item.level or "0", "(%d+)")) or 0
+
+				if value == "RAID" and item.type == "raid" then
+					match = true
+				elseif item.type == "dungeon" then
+					if value == "DUNGEON_LOW" and lv <= 30 then match = true
+					elseif value == "DUNGEON_MID" and lv > 30 and lv <= 50 then match = true
+					elseif value == "DUNGEON_HIGH" and lv > 50 then match = true end
+				end
+
+				if match then
+					local info = {
+						text = item.name,
+						value = item.id,
+						func = Dropdown_OnClick,
+						checked = module.data.selectedInstances[item.id],
+						isTitle = false,
+						notCheckable = false
+					}
+					UIDropDownMenu_AddButton(info, level)
+				end
+			end
 		end
 	end)
 

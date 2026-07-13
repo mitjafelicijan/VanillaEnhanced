@@ -439,7 +439,7 @@ module.plug:SetScript("OnEvent", function()
 		updateMacroCache()
 
 		local old_UseAction = UseAction
-		_G["UseAction"] = function(slot, checkCursor, onSelf)
+		setglobal("UseAction", function(slot, checkCursor, onSelf)
 			local text = GetActionText(slot)
 			if text then
 				local macro = getMacroByName(text)
@@ -451,7 +451,7 @@ module.plug:SetScript("OnEvent", function()
 			if old_UseAction then
 				old_UseAction(slot, checkCursor, onSelf)
 			end
-		end
+		end)
 
 		VE.hooksecurefunc("ActionButton_Update", function()
 			updateButtonIcon(this)

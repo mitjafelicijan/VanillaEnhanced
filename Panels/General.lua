@@ -125,6 +125,33 @@ VE.panels.General = function(parent)
 		end
 	end
 
+	do
+		local module = VE.getModule("CompareTooltip")
+		if module then
+			VE.elements.Checkbox(frame, 270, -190, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("RestedXPTooltip")
+		if module then
+			VE.elements.Checkbox(frame, 270, -220, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("HideLuaErrors")
+		if module then
+			VE.elements.Checkbox(frame, 270, -250, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
 	if VE.config.Debug then VE.dframe(frame, 0.0, 1.0, 1.0, 0.2) end
 
 	-- Hide the frame before sending it back.

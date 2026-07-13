@@ -380,7 +380,7 @@ module.plug:SetScript("OnEvent", function()
 		SLASH_VE_FOCUS1 = "/focus"
 		SLASH_VE_FOCUS2 = "/focustarget"
 
-		_G["VE_SetFocus"] = function()
+		setglobal("VE_SetFocus", function()
 			local exists, guid = UnitExists("target")
 			if guid then
 				module.data.focusGUID = guid
@@ -393,16 +393,16 @@ module.plug:SetScript("OnEvent", function()
 				module.data.focusGUID = nil
 				module.plug:Hide()
 			end
-		end
-		SlashCmdList["VE_FOCUS"] = _G["VE_SetFocus"]
+		end)
+		SlashCmdList["VE_FOCUS"] = getglobal("VE_SetFocus")
 
 		SLASH_VE_CLEARFOCUS1 = "/clearfocus"
 
-		_G["VE_ClearFocus"] = function()
+		setglobal("VE_ClearFocus", function()
 			module.data.focusGUID = nil
 			module.plug:Hide()
-		end
-		SlashCmdList["VE_CLEARFOCUS"] = _G["VE_ClearFocus"]
+		end)
+		SlashCmdList["VE_CLEARFOCUS"] = getglobal("VE_ClearFocus")
 
 		InitializeFocusFrame()
 		UpdateFocusFrame()

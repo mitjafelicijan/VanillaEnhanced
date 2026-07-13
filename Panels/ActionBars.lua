@@ -59,6 +59,15 @@ VE.panels.ActionBars = function(parent)
 
 	-- Right column
 
+	do
+		local module = VE.getModule("OutOfRange")
+		if module then
+			VE.elements.Checkbox(frame, 270, -20, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
 	if VE.config.Debug then VE.dframe(frame, 0.0, 1.0, 1.0, 0.2) end
 
 	-- Hide the frame before sending it back.

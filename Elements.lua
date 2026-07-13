@@ -128,7 +128,7 @@ VE.elements.Slider = function(parent, x, y, componentWidth, labelText, tooltipTi
 end
 
 VE.elements.DropDown = function(parent, x, y, componentWidth, labelText, initialState, items, callback, superWoWRequired)
-	local name = "DropDown"..tostring(GetNextID())
+	local name = "VE_DropDown"..tostring(GetNextID())
 	local labelOffset = 0
 
 	-- Calculate offset of DropDown if label is also provided.
@@ -158,9 +158,11 @@ VE.elements.DropDown = function(parent, x, y, componentWidth, labelText, initial
 	end
 
 	-- Create a unique initialization function for each dropdown.
-	_G["DropDownInit_" .. name] = function()
-		local currentFrame = this
+	local initFunc = function()
+		local level = tonumber(UIDROPDOWNMENU_MENU_LEVEL) or 1
 		for i, item in ipairs(frame.items) do
+			if i > 32 then break end -- Hard Blizzard limit safety check
+
 			local info = {}
 			info.text = item.text
 			info.value = i
@@ -169,12 +171,12 @@ VE.elements.DropDown = function(parent, x, y, componentWidth, labelText, initial
 				UIDropDownMenu_SetSelectedID(frame, info.value)
 				callback(info.key)
 			end
-			UIDropDownMenu_AddButton(info)
+			UIDropDownMenu_AddButton(info, level)
 		end
 	end
 
-	-- Initialize the dropdown with the unique function
-	UIDropDownMenu_Initialize(frame, _G["DropDownInit_" .. name])
+	-- Initialize the dropdown.
+	UIDropDownMenu_Initialize(frame, initFunc)
 
 	-- Set active value and width.
 	if frame.selectedID then

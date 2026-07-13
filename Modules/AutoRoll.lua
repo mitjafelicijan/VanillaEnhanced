@@ -108,9 +108,9 @@ end
 -- Helper to confirm BoP popup if it appears for the rolled item
 local function ConfirmLootRoll(rollID, rollType)
 	for i=1, STATICPOPUP_NUMDIALOGS do
-		local frame = _G["StaticPopup"..i]
+		local frame = getglobal("StaticPopup"..i)
 		if frame:IsShown() and frame.which == "CONFIRM_LOOT_ROLL" and frame.data == rollID and frame.data2 == rollType then
-			_G["StaticPopup"..i.."Button1"]:Click()
+			getglobal("StaticPopup"..i.."Button1"):Click()
 		end
 	end
 end

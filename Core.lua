@@ -1,5 +1,10 @@
 local _G = getfenv(0)
 
+-- Global fix for DropDownMenu nil concatenation error.
+if not UIDROPDOWNMENU_OPEN_MENU then
+	UIDROPDOWNMENU_OPEN_MENU = ""
+end
+
 if not VanillaEnhancedModules then
 	VanillaEnhancedModules = {}
 end

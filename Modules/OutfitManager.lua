@@ -68,7 +68,7 @@ end
 
 function module.ShowDropdown(button, index)
 	module.data.dropdownOutfitIndex = index
-	ToggleDropDownMenu(1, nil, module.data.dropdownMenuFrame, button, 0, 0)
+	ToggleDropDownMenu(1, nil, module.data.dropdownMenuFrame, button:GetName(), 0, 0)
 end
 
 function module.GetCurrentGear()
