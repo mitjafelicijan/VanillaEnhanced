@@ -152,10 +152,13 @@ end
 local function UpdateFocusFrame()
 	local guid = module.data.focusGUID
 	if not guid or not UnitExists(guid) then
-		module.plug.frame:Hide()
+		if module.plug.frame then
+			module.plug.frame:Hide()
+		end
 		return
 	end
 
+	module.plug.frame:Show()
 	module.plug.frame.name:SetText(module.data.focusName or "Unknown")
 	module.plug.frame.level:SetText(module.data.focusLevel or "??")
 	SetPortraitTexture(module.plug.frame.portrait, guid)
@@ -164,10 +167,10 @@ local function UpdateFocusFrame()
 	UpdateFocusBars()
 	UpdateTargetOfFocus()
 	UpdateFocusDebuffs()
-	module.plug.frame:Show()
 end
 
 local function InitializeFocusFrame()
+	if module.plug.frame then return end
 	-- Main Container
 	module.plug.frame = CreateFrame("Frame", "VE_FocusFrame", UIParent)
 	local pos = VanillaEnhancedData[module.identifier] and VanillaEnhancedData[module.identifier].pos
@@ -370,6 +373,56 @@ local function InitializeFocusFrame()
 
 end
 
+function VE_SetFocus()
+	if not VE.isModuleEnabled(module.identifier) then return end
+	if not SUPERWOW_VERSION then return end
+
+	if not module.plug.frame then
+		InitializeFocusFrame()
+	end
+
+	local exists, guid = UnitExists("target")
+
+	-- Fallback for GUID
+	if not guid or type(guid) ~= "string" then
+		if type(exists) == "string" and string.len(exists) > 8 then
+			guid = exists
+		elseif type(UnitGUID) == "function" then
+			guid = UnitGUID("target")
+		end
+	end
+
+	if guid then
+		module.data.focusGUID = guid
+		module.data.focusName = UnitName("target")
+		module.data.focusLevel = UnitLevel("target")
+		local _, class = UnitClass("target")
+		module.data.focusClass = class
+		UpdateFocusFrame()
+	else
+		module.data.focusGUID = nil
+		if module.plug.frame then
+			module.plug.frame:Hide()
+		end
+	end
+end
+
+function VE_ClearFocus()
+	if not VE.isModuleEnabled(module.identifier) then return end
+
+	module.data.focusGUID = nil
+	if module.plug.frame then
+		module.plug.frame:Hide()
+	end
+end
+
+SLASH_VE_FOCUS1 = "/focus"
+SLASH_VE_FOCUS2 = "/focustarget"
+SlashCmdList["VE_FOCUS"] = VE_SetFocus
+
+SLASH_VE_CLEARFOCUS1 = "/clearfocus"
+SlashCmdList["VE_CLEARFOCUS"] = VE_ClearFocus
+
 module.plug = CreateFrame("Frame", module.identifier, UIParent)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 
@@ -377,33 +430,6 @@ module.plug:SetScript("OnEvent", function()
 	if not VE.isModuleEnabled(module.identifier) then return end
 
 	if event == "PLAYER_ENTERING_WORLD" then
-		SLASH_VE_FOCUS1 = "/focus"
-		SLASH_VE_FOCUS2 = "/focustarget"
-
-		setglobal("VE_SetFocus", function()
-			local exists, guid = UnitExists("target")
-			if guid then
-				module.data.focusGUID = guid
-				module.data.focusName = UnitName("target")
-				module.data.focusLevel = UnitLevel("target")
-				local _, class = UnitClass("target")
-				module.data.focusClass = class
-				UpdateFocusFrame()
-			else
-				module.data.focusGUID = nil
-				module.plug:Hide()
-			end
-		end)
-		SlashCmdList["VE_FOCUS"] = getglobal("VE_SetFocus")
-
-		SLASH_VE_CLEARFOCUS1 = "/clearfocus"
-
-		setglobal("VE_ClearFocus", function()
-			module.data.focusGUID = nil
-			module.plug:Hide()
-		end)
-		SlashCmdList["VE_CLEARFOCUS"] = getglobal("VE_ClearFocus")
-
 		InitializeFocusFrame()
 		UpdateFocusFrame()
 	end
