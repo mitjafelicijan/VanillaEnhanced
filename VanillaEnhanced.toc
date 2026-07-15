@@ -57,9 +57,6 @@ Modules\EnhancedAuraButtons.lua
 Modules\ExtendedCommands.lua
 Modules\ExtendedMacros.lua
 Modules\FreeBagSlots.lua
-Modules\HideBGF.lua
-Modules\HideEBC.lua
-Modules\HideLFT.lua
 Modules\HideLuaErrors.lua
 Modules\HunterTargetDistance.lua
 Modules\ItemLevel.lua
@@ -89,7 +86,6 @@ Modules\TravelJournal.lua
 Modules\TrinketManager.lua
 Modules\WorldMap.lua
 Modules\CompactRaidFrames.lua
-Modules\QuestTracker.lua
 Modules\FocusTargetFrame.lua
 
 # Control panels

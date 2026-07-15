@@ -496,48 +496,6 @@ VE.normalizeKey = function(value)
 	return string.lower(value)
 end
 
-VE.findQuestIDsByTitle = function(title, level)
-	if not QuestZoneData or not QuestZoneData.quests then return nil end
-
-	-- Optimization: Check if the QuestTracker cache exists first
-	local qt = VE.getModule("QuestTracker")
-	if qt and qt.data and qt.data.questsByTitle and qt.data.mapDataReady then
-		local titleKey = VE.normalizeKey(title)
-		if not titleKey or not qt.data.questsByTitle[titleKey] then return nil end
-
-		local matches = {}
-		for _, questID in ipairs(qt.data.questsByTitle[titleKey]) do
-			local questData = QuestZoneData.quests[questID]
-			if not level or (questData and questData.lvl == level) then
-				table.insert(matches, questID)
-			end
-		end
-		return table.getn(matches) > 0 and matches or nil
-	end
-
-	-- Fallback to slow search if cache not ready
-	local titleKey = VE.normalizeKey(title)
-	if not titleKey then return nil end
-
-	local matches = {}
-
-	for questID, questData in pairs(QuestZoneData.quests) do
-		if VE.normalizeKey(questData.title) == titleKey and (not level or questData.lvl == level) then
-			table.insert(matches, questID)
-		end
-	end
-
-	if level and table.getn(matches) == 0 then
-		for questID, questData in pairs(QuestZoneData.quests) do
-			if VE.normalizeKey(questData.title) == titleKey then
-				table.insert(matches, questID)
-			end
-		end
-	end
-
-	return table.getn(matches) > 0 and matches or nil
-end
-
 VE.GetCVarAsBoolean = function(key)
 	return tonumber(GetCVar(key)) ~= 0
 end

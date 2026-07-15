@@ -76,10 +76,10 @@ VE.panels.Utilities = function(parent)
 		end
 	end
 
-	-- Right column (Bags & Trading)
+	-- Right column
 
 	do
-		local module = VE.getModule("BagSearch")
+		local module = VE.getModule("MapMarkers")
 		if module then
 			VE.elements.Checkbox(frame, 270, -20, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
@@ -88,7 +88,7 @@ VE.panels.Utilities = function(parent)
 	end
 
 	do
-		local module = VE.getModule("FreeBagSlots")
+		local module = VE.getModule("WorldMap")
 		if module then
 			VE.elements.Checkbox(frame, 270, -50, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
@@ -97,54 +97,9 @@ VE.panels.Utilities = function(parent)
 	end
 
 	do
-		local module = VE.getModule("BankBags")
-		if module then
-			VE.elements.Checkbox(frame, 270, -80, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
-	do
-		local module = VE.getModule("MailboxEnhancements")
-		if module then
-			VE.elements.Checkbox(frame, 270, -120, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
-	do
-		local module = VE.getModule("AuctionEnhancements")
-		if module then
-			VE.elements.Checkbox(frame, 270, -150, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
-	do
-		local module = VE.getModule("MapMarkers")
-		if module then
-			VE.elements.Checkbox(frame, 270, -190, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
-	do
 		local module = VE.getModule("ConsumablesPanel")
 		if module then
-			VE.elements.Checkbox(frame, 270, -220, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
-	do
-		local module = VE.getModule("WorldMap")
-		if module then
-			VE.elements.Checkbox(frame, 270, -250, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -80, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end

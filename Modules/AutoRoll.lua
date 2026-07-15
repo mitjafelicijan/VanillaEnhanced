@@ -12,8 +12,6 @@ local module = VE.registerModule({
 			ZG = false,
 			MC = false,
 			AQ = false,
-			Sand = false,
-			ES = false,
 			Naxx = false,
 		},
 		loot = {
@@ -67,14 +65,6 @@ local module = VE.registerModule({
 				[20879] = "Idol of Life",
 				[20881] = "Idol of Strife",
 				[20882] = "Idol of War",
-			},
-			Sand = {
-				[50203] = "Corrupted Sand",
-			},
-			ES = {
-				[20381] = "Dreamscale",
-				[61197] = "Fading Dream Fragment",
-				[61198] = "Small Dream Shard",
 			},
 			Naxx = {
 				[22373] = "Wartorn Leather Scrap",
@@ -131,10 +121,6 @@ local function AutoRoll(id)
 		roll = module.config.options.MC
 	elseif module.config.loot.AQ[itemID] then
 		roll = module.config.options.AQ
-	elseif module.config.loot.Sand[itemID] then
-		roll = module.config.options.Sand
-	elseif module.config.loot.ES[itemID] then
-		roll = module.config.options.ES
 	elseif module.config.loot.Naxx[itemID] then
 		roll = module.config.options.Naxx
 	elseif quality == 2 then -- Green items

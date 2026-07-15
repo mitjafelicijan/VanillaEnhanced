@@ -92,29 +92,17 @@ VE.panels.Automation = function(parent)
 				VanillaEnhancedData["AutoRoll"].ZG = key
 			end, module.superWoWRequired)
 
-			VE.elements.DropDown(frame, 20, yStart - (yOffset * 2), 160, "Molten Core", module.config.options.MC or false, rollOptions, function(key)
+			-- Right Column
+			VE.elements.DropDown(frame, 270, yStart, 160, "Molten Core", module.config.options.MC or false, rollOptions, function(key)
 				module.config.options.MC = key
 				if not VanillaEnhancedData["AutoRoll"] then VanillaEnhancedData["AutoRoll"] = {} end
 				VanillaEnhancedData["AutoRoll"].MC = key
 			end, module.superWoWRequired)
 
-			VE.elements.DropDown(frame, 20, yStart - (yOffset * 3), 160, "Ahn'Qiraj (Idols, Scarabs)", module.config.options.AQ or false, rollOptions, function(key)
+			VE.elements.DropDown(frame, 270, yStart - yOffset, 160, "Ahn'Qiraj (Idols, Scarabs)", module.config.options.AQ or false, rollOptions, function(key)
 				module.config.options.AQ = key
 				if not VanillaEnhancedData["AutoRoll"] then VanillaEnhancedData["AutoRoll"] = {} end
 				VanillaEnhancedData["AutoRoll"].AQ = key
-			end, module.superWoWRequired)
-
-			-- Right Column
-			VE.elements.DropDown(frame, 270, yStart, 160, "BM Corrupted Sand", module.config.options.Sand or false, rollOptions, function(key)
-				module.config.options.Sand = key
-				if not VanillaEnhancedData["AutoRoll"] then VanillaEnhancedData["AutoRoll"] = {} end
-				VanillaEnhancedData["AutoRoll"].Sand = key
-			end, module.superWoWRequired)
-
-			VE.elements.DropDown(frame, 270, yStart - yOffset, 160, "Emerald Sanctum", module.config.options.ES or false, rollOptions, function(key)
-				module.config.options.ES = key
-				if not VanillaEnhancedData["AutoRoll"] then VanillaEnhancedData["AutoRoll"] = {} end
-				VanillaEnhancedData["AutoRoll"].ES = key
 			end, module.superWoWRequired)
 		end
 	end

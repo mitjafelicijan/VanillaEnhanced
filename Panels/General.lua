@@ -36,81 +36,11 @@ VE.panels.General = function(parent)
 			end, module.superWoWRequired)
 		end
 	end
-
-	do
-		local module = VE.getModule("QuestTracker")
-		if module then
-			VE.elements.Checkbox(frame, 20, -260, 170, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-
-			local option = VE.getOption("QuestTrackerShowTrivial")
-			if option then
-				VE.elements.Checkbox(frame, 40, -290, 170, option.meta.label, option.meta.label, option.meta.description, option.enabled, function(checked)
-					if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
-					if option.callback then option.callback(checked) end
-				end, option.superWoWRequired)
-			end
-
-			local option = VE.getOption("QuestTrackerShowEvents")
-			if option then
-				VE.elements.Checkbox(frame, 40, -320, 170, option.meta.label, option.meta.label, option.meta.description, option.enabled, function(checked)
-					if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
-					if option.callback then option.callback(checked) end
-				end, option.superWoWRequired)
-			end
-
-			local option = VE.getOption("QuestTrackerShowPvP")
-			if option then
-				VE.elements.Checkbox(frame, 40, -350, 170, option.meta.label, option.meta.label, option.meta.description, option.enabled, function(checked)
-					if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
-					if option.callback then option.callback(checked) end
-				end, option.superWoWRequired)
-			end
-
-			local option = VE.getOption("QuestTrackerShowTooltips")
-			if option then
-				VE.elements.Checkbox(frame, 40, -380, 170, option.meta.label, option.meta.label, option.meta.description, option.enabled, function(checked)
-					if checked then VE.enableOption(option.identifier) else VE.disableOption(option.identifier) end
-					if option.callback then option.callback(checked) end
-				end, option.superWoWRequired)
-			end
-		end
-	end
-
 	-- Right column
-
-	do
-		local module = VE.getModule("HideEBC")
-		if module then
-			VE.elements.Checkbox(frame, 270, -20, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
-	do
-		local module = VE.getModule("HideLFT")
-		if module then
-			VE.elements.Checkbox(frame, 270, -50, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
-	do
-		local module = VE.getModule("HideBGF")
-		if module then
-			VE.elements.Checkbox(frame, 270, -80, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
-				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
-			end, module.superWoWRequired)
-		end
-	end
-
 	do
 		local module = VE.getModule("ExtendedCommands")
 		if module then
-			VE.elements.Checkbox(frame, 270, -120, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -20, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -119,7 +49,7 @@ VE.panels.General = function(parent)
 	do
 		local module = VE.getModule("ExtendedMacros")
 		if module then
-			VE.elements.Checkbox(frame, 270, -150, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -50, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -128,7 +58,7 @@ VE.panels.General = function(parent)
 	do
 		local module = VE.getModule("CompareTooltip")
 		if module then
-			VE.elements.Checkbox(frame, 270, -190, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -90, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -137,7 +67,7 @@ VE.panels.General = function(parent)
 	do
 		local module = VE.getModule("RestedXPTooltip")
 		if module then
-			VE.elements.Checkbox(frame, 270, -220, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+			VE.elements.Checkbox(frame, 270, -120, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
@@ -145,6 +75,33 @@ VE.panels.General = function(parent)
 
 	do
 		local module = VE.getModule("HideLuaErrors")
+		if module then
+			VE.elements.Checkbox(frame, 270, -150, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("BagSearch")
+		if module then
+			VE.elements.Checkbox(frame, 270, -190, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("FreeBagSlots")
+		if module then
+			VE.elements.Checkbox(frame, 270, -220, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
+	do
+		local module = VE.getModule("BankBags")
 		if module then
 			VE.elements.Checkbox(frame, 270, -250, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
