@@ -79,8 +79,11 @@ Modules\TargetCastingBar.lua
 Modules\TravelJournal.lua
 Modules\TrinketManager.lua
 Modules\WorldMap.lua
-Modules\CompactRaidFrames.lua
 Modules\FocusTargetFrame.lua
+Modules\CompactFrames.xml
+
+
+#Modules\CompactRaidFrames.lua
 
 # Control panels
 Panels\General.lua
