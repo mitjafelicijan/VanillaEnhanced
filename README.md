@@ -3,22 +3,22 @@
 Preserves the original Vanilla UI with modern enhancements and quality-of-life improvements.
 Compatible with World of Warcraft Client v1.12.
 
+## Installation
+
+- Be sure to copy `dxvk.conf` into WoW root directory.
+- Extract `SuperWoW.release.1.5.1.zip` and use `SuperWoWlauncher.exe` as launcher.
+- Copy `Sound` directory to WoW root to disable fizzle noise and gun sounds.
+- Copy `patch-O.mpq` to Data directory to get raid visuals. 
+
 > [!IMPORTANT]
-> This was tested with the Turtle WoW Client, which is modified. It may not work properly on a clean 1.12 client.
+> This was tested on a clean 1.12 client.
 
 > [!IMPORTANT]
 > None of the additional tweaks are enabledo by default. You must enable them manually to avoid conflicts with existing addons.
 
 > [!IMPORTANT]
 > Some modules require [SuperWoW](https://github.com/balakethetlock/SuperWoW) to function correctly.
-
-## Data from other addons
-
-This should be updated on new releases.
-
-- https://github.com/The-Kludge-Bureau/pfQuest
-- https://github.com/The-Kludge-Bureau/pfQuest-turtle
-- https://github.com/tilare/ModernMapMarkers
+> A version is also included with the addon in `GameAssets/DLL` directory.
 
 ## Feature Descriptions
 
@@ -49,20 +49,20 @@ This should be updated on new releases.
 - **Druid Specifics**: Smart rotation macro (`/dob`), mana bar visibility while shapeshifted, and form-switch spam protection (prevents toggling off forms).
 - **Maintain Hunter Aspects**: Prevents accidental toggling off of Aspects when spamming the key.
 - **Pull & Break Timer**: Compatible with BigWigs to show countdown bars for raid pulls and breaks.
+- **Simple DPS Meter**: A simple and lightweight damage and heal meter.
 
 ### Automation & Quality of Life
 - **Auction Enhancements**: Adds a "Post" tab to the AH with automated stack splitting, price scanning, and bulk posting.
 - **Auto Roll**: Automatically rolls on items based on config (ZG coins, MC cores, Green items, etc.).
 - **Auto Loot/Repair/Sell**: Automates looting (via Shift), gear repairs at merchants, and selling of junk (grey) items.
 - **Mailbox Enhancements**: Remembers the last recipient and adds Shift+Click to quickly take items and delete mail.
-- **Bag & Item Tools**: Adds a search box to the backpack, shows free slot counts, displays item levels/rarity on gear icons, and adds quest progress to tooltips.
+- **Bag & Item Tools**: Adds a search box to the backpack, shows free slot counts, displays item levels/rarity on gear icons.
 - **Bank Bags**: Allows you to view a snapshot of your bank contents even when you are not at a bank.
 - **Consumables Panel**: A dedicated 6x6 grid that automatically finds and displays all consumable items in your bags.
 - **Trinket Manager**: A small frame for managing equipped trinkets and relics, including cooldown tracking and easy usage.
 - **Outfit Manager**: Integrated into the character pane, this tool allows you to save, rename, and quickly swap between different equipment sets.
 
 ### World & Map
-- **World Map Markers**: Adds persistent icons for Dungeons, Raids, Flight Paths, Transports, and World Bosses to the world map.
 - **Travel Journal**: Allows you to place custom pins and notes on the world map (Ctrl+Click) to track your discoveries.
 - **Max Camera Zoom**: Increases the maximum distance you can zoom out (toggleable with `/mz`).
 
@@ -166,6 +166,7 @@ Uses Arcane Intellect on target normally, but Arcane Brilliance if in a party or
 | `/petpassive` | | Sets your pet to passive mode. |
 | `/petdefensive`| | Sets your pet to defensive mode. |
 | `/petaggressive`| | Sets your pet to aggressive mode. |
+| `/meter`| | Toggles simple DPS and Healing meter. |
 
 #### Equip Slot IDs
 | ID | Slot | ID | Slot | ID | Slot | ID | Slot |
