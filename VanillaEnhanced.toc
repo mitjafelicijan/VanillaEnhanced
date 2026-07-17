@@ -45,7 +45,6 @@ Modules\CompareTooltip.lua
 Modules\ConsumablesPanel.lua
 Modules\CooldownTimers.lua
 Modules\DruidManaBar.lua
-Modules\DruidOneButton.lua
 Modules\DpsMeter.lua
 Modules\EnergyManaTick.lua
 Modules\EnhancedAuraButtons.lua
@@ -100,5 +99,8 @@ Panels\Addons.lua
 # Main settings panel
 Settings.lua
 
-# Todo
-#Modules\CompactRaidFrames.lua
+# Todo / Probably abondoned
+# Modules\CompactRaidFrames.lua
+
+# Retired / Turtle WoW Specific
+# Modules\DruidOneButton.lua

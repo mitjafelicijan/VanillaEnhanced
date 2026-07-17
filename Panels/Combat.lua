@@ -26,14 +26,14 @@ VE.panels.Combat = function(parent)
 		end
 	end
 
-	do
+	--[[do
 		local module = VE.getModule("DruidOneButton")
 		if module then
 			VE.elements.Checkbox(frame, 20, -80, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
 				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
 			end, module.superWoWRequired)
 		end
-	end
+	end]]
 
 	do
 		local module = VE.getModule("DpsMeter")

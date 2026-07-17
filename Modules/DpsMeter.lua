@@ -4,8 +4,8 @@
 local module = VE.registerModule({
 	identifier = "DpsMeter",
 	meta = {
-		label = "DPS Meter",
-		description = "A simple and lightweight DPS and damage meter.",
+		label = "Simple DPS Meter",
+		description = "A simple and lightweight damage and heal meter.",
 	},
 	config = {
 		height = 15,
