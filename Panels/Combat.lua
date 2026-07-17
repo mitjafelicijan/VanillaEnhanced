@@ -35,6 +35,15 @@ VE.panels.Combat = function(parent)
 		end
 	end
 
+	do
+		local module = VE.getModule("DpsMeter")
+		if module then
+			VE.elements.Checkbox(frame, 280, -20, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
 	-- Blizzard Floating Combat Text (Middle)
 	VE.elements.Checkbox(frame, 20, -130, 210, SHOW_COMBAT_TEXT_TEXT, OPTION_TOOLTIP_SHOW_COMBAT_TEXT, nil, VE.GetUVarAsBoolean("SHOW_COMBAT_TEXT"), function(checked)
 		VE.SetUVar("SHOW_COMBAT_TEXT", checked)

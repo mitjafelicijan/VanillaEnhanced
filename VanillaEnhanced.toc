@@ -46,6 +46,7 @@ Modules\ConsumablesPanel.lua
 Modules\CooldownTimers.lua
 Modules\DruidManaBar.lua
 Modules\DruidOneButton.lua
+Modules\DpsMeter.lua
 Modules\EnergyManaTick.lua
 Modules\EnhancedAuraButtons.lua
 Modules\ExtendedCommands.lua
@@ -82,9 +83,6 @@ Modules\WorldMap.lua
 Modules\FocusTargetFrame.lua
 Modules\CompactFrames.xml
 
-
-#Modules\CompactRaidFrames.lua
-
 # Control panels
 Panels\General.lua
 Panels\UnitFrames.lua
@@ -101,3 +99,6 @@ Panels\Addons.lua
 
 # Main settings panel
 Settings.lua
+
+# Todo
+#Modules\CompactRaidFrames.lua
