@@ -21,7 +21,7 @@ local config = {
 	sidebarWidth = 150,
 	hoverAlpha = 0.2,
 	addonLoaded = false,
-	overrideMenu = false,
+	overrideMenu = true,
 	hideOnLoad = true,
 	startPanel = "general",
 }
@@ -51,7 +51,7 @@ frame:SetScript("OnEvent", function()
 
 		-- Update Blizzard parent addons if needed.
 
-		-- Overwrite default "Interface Options" game menu button behaVE.ur.
+		-- Overwrite default "Interface Options" game menu button.
 		if config.overrideMenu then
 			getglobal("GameMenuButtonUIOptions"):SetText("Game Options")
 			getglobal("GameMenuButtonUIOptions"):SetScript("OnClick", function(self)
@@ -187,6 +187,18 @@ frame:SetScript("OnEvent", function()
 		frame.panel.panels["auratracking"] = VE.panels.AuraTracking(frame.panel)
 		frame.panel.panels["addons"] = VE.panels.Addons(frame.panel)
 		frame.panel.panels[config.startPanel]:Show()
+		
+		-- Legacy Interface Options button.
+		frame.legacy = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+		frame.legacy:SetPoint("BottomLeft", 18, 18)
+		frame.legacy:SetWidth(90)
+		frame.legacy:SetHeight(22)
+		frame.legacy:SetText("Legacy")
+		frame.legacy:SetScript("OnClick", function(self)
+			PlaySound("igMainMenuOptionCheckBoxOn")
+			frame:Hide()
+			ShowUIPanel(UIOptionsFrame)
+		end)
 
 		-- Main buttons (cancel or apply).
 		frame.apply = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
