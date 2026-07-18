@@ -36,6 +36,16 @@ VE.panels.General = function(parent)
 			end, module.superWoWRequired)
 		end
 	end
+
+	do
+		local module = VE.getModule("QuestLogEnhancements")
+		if module then
+			VE.elements.Checkbox(frame, 20, -250, 220, module.meta.label, module.meta.description, nil, module.enabled, function(checked)
+				if checked then VE.enableModule(module.identifier) else VE.disableModule(module.identifier) end
+			end, module.superWoWRequired)
+		end
+	end
+
 	-- Right column
 	do
 		local module = VE.getModule("ExtendedCommands")

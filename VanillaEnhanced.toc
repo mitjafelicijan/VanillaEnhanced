@@ -72,6 +72,7 @@ Modules\NameplateThreat.lua
 Modules\OutfitManager.lua
 Modules\OutOfRange.lua
 Modules\PullBreakTimer.lua
+Modules\QuestLogEnhancements.lua
 Modules\RaidTargetMarkers.lua
 Modules\RestedXPTooltip.lua
 Modules\SoloSelfFound.lua
