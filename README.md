@@ -5,24 +5,34 @@ Compatible with World of Warcraft Client v1.12.
 
 ## Installation
 
-- Be sure to copy `dxvk.conf` into WoW root directory.
-- Extract `SuperWoW.release.1.5.1.zip` and use `SuperWoWlauncher.exe` as launcher.
-- Copy `Sound` directory to WoW root to disable fizzle noise and gun sounds.
-- To fix sound issues on Linux: Copy all files from `GameAssets/DSOAL/` to WoW root directory. 
-	- In Lutris: Configure → Runner options
-	   DLL Overrides
-	   dsound=n,b
-- Copy `patch-O.mpq` to Data directory to get raid visuals. 
+- First download the addon. Make sure you remove `-master` from folder name and copy to `Interface/AddOns` directory.
+- Copy everything from directory `Other/Launcher` to the root of WoW directory.
+- Use `SuperWoWlauncher.exe` as launcher for the game (it will enable superwow).
+- To fix sound issues on Linux: 
+	- In Lutris: Configure > Runner options > DLL Overrides: `dsound=n,b`
+- Enable DXVK with setting environmental variables:
+	- In Lutris: Configure > System options > Environment variables:
+	```
+	DXVK_CONFIG=dxvk.conf
+	DXVK_FRAME_RATE=120
+	DXVK_HUD=full
+	```
+- If you want to change certain sounds copy `Sound` directory to WoW root to disable fizzle noise and gun sounds.
+- Copy `Other/Patches/patch-O.mpq` to `Data` directory in WoW directory if you want to get raid visuals. 
 
 > [!IMPORTANT]
 > This was tested on a clean 1.12 client.
-
-> [!IMPORTANT]
-> None of the additional tweaks are enabledo by default. You must enable them manually to avoid conflicts with existing addons.
-
-> [!IMPORTANT]
+> None of the additional tweaks are enabled by default. You must enable them manually to avoid conflicts with existing addons.
 > Some modules require [SuperWoW](https://github.com/balakethetlock/SuperWoW) to function correctly.
-> A version is also included with the addon in `GameAssets/DLL` directory.
+
+### Additional instructions for Void Linux
+
+```
+sudo xbps-install -S vulkan-loader-32bit gnutls-32bit
+echo '/usr/lib32' | sudo tee /etc/ld.so.conf.d/lib32.conf
+sudo ldconfig
+lutris -d 2>&1 | grep -i -E 'i386|vulkan|gnutls' 
+```
 
 ## Feature Descriptions
 
@@ -196,7 +206,7 @@ The addon introduces a TBC-style Interface Options panel accessible via the main
 ## Manual Tweaks
 
 ### Game Sounds
-The `GameSounds` directory contains overrides for internal game sounds (e.g., Gun sounds, Error sounds). To install, copy the `Sound` directory to your WoW root folder.
+The `Other/Sound` directory contains overrides for internal game sounds (e.g., Gun sounds, Error sounds). To install, copy the `Sound` directory to your WoW root folder.
 
 ```
 WoW/
