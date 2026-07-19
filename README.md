@@ -8,6 +8,10 @@ Compatible with World of Warcraft Client v1.12.
 - Be sure to copy `dxvk.conf` into WoW root directory.
 - Extract `SuperWoW.release.1.5.1.zip` and use `SuperWoWlauncher.exe` as launcher.
 - Copy `Sound` directory to WoW root to disable fizzle noise and gun sounds.
+- To fix sound issues on Linux: Copy all files from `GameAssets/DSOAL/` to WoW root directory. 
+	- In Lutris: Configure → Runner options
+	   DLL Overrides
+	   dsound=n,b
 - Copy `patch-O.mpq` to Data directory to get raid visuals. 
 
 > [!IMPORTANT]
