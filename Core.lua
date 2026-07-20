@@ -1,7 +1,9 @@
 local _G = getfenv(0)
 
 -- Fix Shaman color to blue as it should be!
-RAID_CLASS_COLORS['SHAMAN'] = { r = 0, g = 0, b = 1 }
+if RAID_CLASS_COLORS ~= nil then
+	RAID_CLASS_COLORS['SHAMAN'] = { r = 0, g = 0, b = 1 }
+end
 
 -- Global fix for DropDownMenu nil concatenation error.
 if not UIDROPDOWNMENU_OPEN_MENU then
