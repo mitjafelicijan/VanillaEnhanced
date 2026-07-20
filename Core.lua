@@ -10,6 +10,15 @@ if not UIDROPDOWNMENU_OPEN_MENU then
 	UIDROPDOWNMENU_OPEN_MENU = ""
 end
 
+if not wipe then
+	wipe = function(t)
+		for k in pairs(t) do
+			t[k] = nil
+		end
+		return t
+	end
+end
+
 if not VanillaEnhancedModules then
 	VanillaEnhancedModules = {}
 end

@@ -45,7 +45,7 @@ Modules\CompareTooltip.lua
 Modules\ConsumablesPanel.lua
 Modules\CooldownTimers.lua
 Modules\DruidManaBar.lua
-# Modules\DpsMeter.lua
+Modules\DpsMeter.lua
 Modules\EnergyManaTick.lua
 Modules\EnhancedAuraButtons.lua
 Modules\ExtendedCommands.lua

@@ -424,6 +424,30 @@ local function updateAllVisibleIcons()
 	end
 end
 
+local original_UseAction = UseAction
+setglobal("UseAction", function(slot, checkCursor, onSelf)
+	if VE.isModuleEnabled(module.identifier) then
+		local text = GetActionText(slot)
+		if text then
+			local macro = getMacroByName(text)
+			if macro then
+				executeMacro(macro, onSelf)
+				return
+			end
+		end
+	end
+
+	if original_UseAction then
+		original_UseAction(slot, checkCursor, onSelf)
+	end
+end)
+
+VE.hooksecurefunc("ActionButton_Update", function()
+	if VE.isModuleEnabled(module.identifier) then
+		updateButtonIcon(this)
+	end
+end, true)
+
 module.plug = CreateFrame("Frame", module.identifier)
 module.plug:RegisterEvent("PLAYER_ENTERING_WORLD")
 module.plug:RegisterEvent("UPDATE_MACROS")
@@ -437,25 +461,6 @@ module.plug:SetScript("OnEvent", function()
 
 	if event == "PLAYER_ENTERING_WORLD" then
 		updateMacroCache()
-
-		local old_UseAction = UseAction
-		setglobal("UseAction", function(slot, checkCursor, onSelf)
-			local text = GetActionText(slot)
-			if text then
-				local macro = getMacroByName(text)
-				if macro then
-					executeMacro(macro, onSelf)
-					return
-				end
-			end
-			if old_UseAction then
-				old_UseAction(slot, checkCursor, onSelf)
-			end
-		end)
-
-		VE.hooksecurefunc("ActionButton_Update", function()
-			updateButtonIcon(this)
-		end, true)
 	elseif event == "UPDATE_MACROS" or event == "SPELLS_CHANGED" then
 		updateMacroCache()
 	end
