@@ -4,7 +4,7 @@
 
 	<Frame name="MiniPlayerDebuff" virtual="true">
 		<Size>
-			<AbsDimension x="20" y="20"/>
+			<AbsDimension x="22" y="22"/>
 		</Size>
 		<Layers>
 			<Layer level="BACKGROUND">

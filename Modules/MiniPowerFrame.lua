@@ -122,7 +122,7 @@ local function UpdatePlayerDebuffs()
 	end
 
 	module.data.playerDebuffs:ClearAllPoints()
-	module.data.playerDebuffs:SetPoint("Center", module.data.miniPowerFrame, "Center", xOffset, -18)
+	module.data.playerDebuffs:SetPoint("Center", module.data.miniPowerFrame, "Center", xOffset, -20)
 	module.data.playerDebuffs:Show()
 end
 
