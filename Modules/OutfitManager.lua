@@ -182,6 +182,23 @@ function module.EquipOutfit(index)
 	module.UpdateList()
 end
 
+function module.EquipOutfitByName(name)
+	name = VE.trim(name or "")
+	if name == "" then
+		VE.iprint("Usage: /outfit <name>")
+		return
+	end
+
+	for i, outfit in ipairs(module.data.outfits) do
+		if outfit.name and string.lower(outfit.name) == string.lower(name) then
+			module.EquipOutfit(i)
+			return
+		end
+	end
+
+	VE.iprint("Outfit not found: " .. name)
+end
+
 function module.UpdateList()
 	if not module.data.listContent then return end
 	
@@ -531,6 +548,12 @@ module.plug:SetScript("OnEvent", function()
 	if event == "PLAYER_ENTERING_WORLD" then
 		module.LoadData()
 		module.CreateUI()
+
+		SLASH_VEOUTFIT1 = "/outfit"
+		SlashCmdList["VEOUTFIT"] = function(msg)
+			if not VE.isModuleEnabled(module.identifier) then return end
+			module.EquipOutfitByName(msg)
+		end
 	elseif event == "PAPERDOLLFRAME_OPENED" then
 		if module.data.toggleButton then
 			module.data.toggleButton:Show()
@@ -545,3 +568,4 @@ module.plug:SetScript("OnEvent", function()
 		end
 	end
 end)
+
