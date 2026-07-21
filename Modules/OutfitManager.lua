@@ -7,6 +7,7 @@ local module = VE.registerModule({
 	plug = nil,
 	superWoWRequired = false,
 	config = {
+		printItems = false,     -- prints out item name when equiping them
 		inventorySlots = {
 			{ name = "HeadSlot", slot = 1 },
 			{ name = "NeckSlot", slot = 2 },
@@ -147,7 +148,7 @@ function module.EquipOutfit(index)
 	VE.print("Equipping outfit: " .. outfit.name)
 	for _, info in ipairs(module.config.inventorySlots) do
 		local desiredLink = outfit.gear[info.slot]
-		if desiredLink then
+		if module.config.printItems and desiredLink then
 			VE.print(" - " .. desiredLink)
 		end
 	end
