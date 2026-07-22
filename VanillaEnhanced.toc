@@ -79,6 +79,7 @@ Modules\SoloSelfFound.lua
 Modules\TargetCastingBar.lua
 Modules\TravelJournal.lua
 Modules\TrinketManager.lua
+Modules\UnitFrameHealPrediction.lua
 Modules\WorldMap.lua
 Modules\FocusTargetFrame.lua
 Modules\CompactFrames.xml
